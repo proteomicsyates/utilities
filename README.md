@@ -12,6 +12,7 @@ Alternatively, you can get it from our **maven repository**:
   <artifactId>utilities</artifactId>  
   <version>1.1</version>  
 </dependency>  
+```  
   
 **Maven repositories:**  
  ```
