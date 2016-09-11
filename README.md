@@ -1,11 +1,19 @@
 # utilities
 General Java util classes used across different projects.
   
-Download latest version [here](https://github.com/proteomicsyates/utilities/releases/latest)
+Download latest version [**here**](https://github.com/proteomicsyates/utilities/releases/latest)
   
-Alternatively, you can get it from our maven repository:  
+Alternatively, you can get it from our **maven repository**:  
   
-Maven repositories:  
+**Dependency:**  
+```
+<dependency>  
+  <groupId>edu.scripps.yates</groupId>  
+  <artifactId>utilities</artifactId>  
+  <version>1.1</version>  
+</dependency>  
+  
+**Maven repositories:**  
  ```
 <repository>  
   <id>internal</id>  
@@ -16,13 +24,6 @@ Maven repositories:
   <url>http://sealion.scripps.edu/archiva/repository/snapshots/</url>  
 </snapshotRepository>  
 ```
-  
-Dependency:  
-```
-<dependency>  
-  <groupId>edu.scripps.yates</groupId>  
-  <artifactId>utilities</artifactId>  
-  <version>1.1</version>  
-</dependency>  
+
 	
 		
