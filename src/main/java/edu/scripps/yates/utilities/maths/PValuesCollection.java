@@ -9,7 +9,7 @@ import java.util.Map;
 
 public class PValuesCollection {
 	private final Map<String, Double> pValues = new HashMap<String, Double>();
-	private ArrayList<String> sortedKeysByPValue;
+	private List<String> sortedKeysByPValue;
 
 	public PValuesCollection(Map<String, Double> pValues) {
 		this.pValues.putAll(pValues);
@@ -24,7 +24,12 @@ public class PValuesCollection {
 
 			@Override
 			public int compare(String o1, String o2) {
-				return Double.compare(pValues.get(o1), pValues.get(o2));
+
+				final Double d1 = pValues.get(o1);
+				final Double d2 = pValues.get(o2);
+				double num1 = d1 != null ? d1 : Double.MAX_VALUE;
+				double num2 = d2 != null ? d2 : Double.MAX_VALUE;
+				return Double.compare(num1, num2);
 			}
 		});
 
@@ -38,7 +43,11 @@ public class PValuesCollection {
 		return pValues.size();
 	}
 
-	public double get(String key) {
+	public Double getPValue(String key) {
 		return pValues.get(key);
+	}
+
+	public Map<String, Double> getPValues() {
+		return pValues;
 	}
 }

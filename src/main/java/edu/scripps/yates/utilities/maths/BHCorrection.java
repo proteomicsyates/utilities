@@ -14,10 +14,15 @@ import org.apache.log4j.Logger;
 public class BHCorrection {
 	private final static Logger log = Logger.getLogger(BHCorrection.class);
 
-	public static PValuesCollection bhCorrection(final Map<String, Double> pvaluesMap) {
+	public static BHCorrectionResult bhCorrection(PValuesCollection pvaluesCollection) {
+		return bhCorrection(pvaluesCollection.getPValues());
+	}
+
+	public static BHCorrectionResult bhCorrection(final Map<String, Double> pvaluesMap) {
 		Map<String, Double> ret = new HashMap<String, Double>();
 		PValuesCollection pvalues = new PValuesCollection(pvaluesMap);
-
+		BHCorrectionResult result = new BHCorrectionResult();
+		result.setOriginalPValues(pvalues);
 		log.info("Applying benjamini-hochberg procedure to " + pvalues.size() + " pvalues");
 		List<String> keys = pvalues.getSortedKeysByPValue();
 		// iterate from the last one
@@ -25,12 +30,20 @@ public class BHCorrection {
 		for (int rank = size; rank > 0; rank--) {
 			Double correctedPvalue = null;
 			String key = keys.get(rank - 1);
-			double pvalue = pvalues.get(key);
+			Double pvalue = pvalues.getPValue(key);
+			if (pvalue == null) {
+				ret.put(key, null);
+				continue;
+			}
 			if (rank + 1 <= size) {
 				String key_plus_1 = keys.get(rank - 1 + 1);
-				double pvalue_plus_1 = pvalues.get(key_plus_1);
+				Double pvalue_plus_1 = pvalues.getPValue(key_plus_1);
 				double b = (size * 1.0 / rank) * pvalue;
-				correctedPvalue = Math.min(pvalue_plus_1, b);
+				if (pvalue_plus_1 != null) {
+					correctedPvalue = Math.min(pvalue_plus_1, b);
+				} else {
+					correctedPvalue = b;
+				}
 			} else {
 
 				correctedPvalue = pvalue;
@@ -38,10 +51,11 @@ public class BHCorrection {
 			ret.put(key, correctedPvalue);
 		}
 		log.info("benjamini-hochberg procedure finished");
-		return new PValuesCollection(ret);
+		result.setCorrectedPValues(new PValuesCollection(ret));
+		return result;
 	}
 
-	public static PValuesCollection bhCorrection(final Collection<Double> pvalues) {
+	public static BHCorrectionResult bhCorrection(final Collection<Double> pvalues) {
 		Map<String, Double> map = new HashMap<String, Double>();
 		int num = 1;
 		for (Double pvalue : pvalues) {
@@ -59,7 +73,7 @@ public class BHCorrection {
 	 * @return
 	 * @throws IOException
 	 */
-	public static PValuesCollection bhCorrection(File file, int keyColumnIndex, int pvalueColumnIndex,
+	public static BHCorrectionResult bhCorrection(File file, int keyColumnIndex, int pvalueColumnIndex,
 			boolean containsHeader) throws IOException {
 		return bhCorrection(file, keyColumnIndex, pvalueColumnIndex, "\t", containsHeader);
 	}
@@ -74,7 +88,7 @@ public class BHCorrection {
 	 * @return
 	 * @throws IOException
 	 */
-	public static PValuesCollection bhCorrection(File file, int keyColumnIndex, int pvalueColumnIndex,
+	public static BHCorrectionResult bhCorrection(File file, int keyColumnIndex, int pvalueColumnIndex,
 			String columnSeparator, boolean containsHeader) throws IOException {
 		Map<String, Double> pValues = new HashMap<String, Double>();
 		BufferedReader br = null;
@@ -94,10 +108,16 @@ public class BHCorrection {
 				if (keyColumnIndex >= 0) {
 					key = split[keyColumnIndex];
 				}
-				double pvalue = Double.valueOf(split[pvalueColumnIndex]);
-				pValues.put(key, pvalue);
+				try {
+					double pvalue = Double.valueOf(split[pvalueColumnIndex]);
+					pValues.put(key, pvalue);
+				} catch (NumberFormatException e) {
+					pValues.put(key, null);
+				}
 			}
+
 			return bhCorrection(pValues);
+
 		} finally {
 
 			if (br != null) {
