@@ -50,4 +50,5 @@ public class PValuesCollection {
 	public Map<String, Double> getPValues() {
 		return pValues;
 	}
+
 }

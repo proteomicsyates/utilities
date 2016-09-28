@@ -109,7 +109,10 @@ public class BHCorrection {
 					key = split[keyColumnIndex];
 				}
 				try {
-					double pvalue = Double.valueOf(split[pvalueColumnIndex]);
+					Double pvalue = null;
+					if (pvalueColumnIndex < split.length) {
+						pvalue = Double.valueOf(split[pvalueColumnIndex]);
+					}
 					pValues.put(key, pvalue);
 				} catch (NumberFormatException e) {
 					pValues.put(key, null);

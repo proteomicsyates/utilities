@@ -1,7 +1,7 @@
 package edu.scripps.yates.utilities.model.enums;
 
 public enum AggregationLevel {
-	PSM, PEPTIDE, PROTEIN, PROTEINGROUP;
+	PSM, PEPTIDE, PEPTIDE_NODE, PROTEIN, PROTEIN_NODE, PROTEINGROUP;
 
 	public static String getValuesString() {
 		StringBuilder sb = new StringBuilder();

@@ -2,6 +2,8 @@ package edu.scripps.yates.utilities.sequence;
 
 import org.apache.log4j.Logger;
 
+import com.compomics.util.protein.AASequenceImpl;
+
 /**
  * Calculation of different biophysical properties on peptide sequences.
  *
@@ -10,6 +12,11 @@ import org.apache.log4j.Logger;
  */
 public class PeptideSequenceProperties {
 	private static Logger log = Logger.getLogger(PeptideSequenceProperties.class);
+
+	public static double calculateGravy(String sequence) {
+		AASequenceImpl seqImpl = new AASequenceImpl(sequence);
+		return seqImpl.getGravy();
+	}
 
 	/**
 	 * Method taken from DTAFile class from DTASelect project code

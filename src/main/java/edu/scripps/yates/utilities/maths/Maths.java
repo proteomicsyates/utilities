@@ -1,9 +1,5 @@
 package edu.scripps.yates.utilities.maths;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import org.apache.commons.math3.stat.descriptive.moment.Mean;
 import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation;
 import org.apache.commons.math3.stat.descriptive.rank.Median;
@@ -405,23 +401,9 @@ public class Maths {
 	}
 
 	public static void main(String[] args) {
-		double[] data = { 1.0, 1.02, 1.4, 2, 1.01, -12, -2, -21.2, -0.1, -2.1, 0.02 };
+		double[] data = { 1.58, 0, 1.73 };
 
-		for (int i = 0; i < 100; i++) {
-			List<Double> dataSet = new ArrayList<Double>();
-			for (double double1 : data) {
-				dataSet.add(double1);
-			}
-			double[] dataTMP = new double[data.length];
-			int j = 0;
-			Collections.shuffle(dataSet);
-			for (double d : dataSet) {
-				System.out.print(d + "\t");
-				dataTMP[j++] = d;
-			}
-
-			System.out.println(iglewiczHoaglinTest(3.0, dataTMP));
-		}
+		System.out.println(iglewiczHoaglinTest(0, data));
 
 	}
 }
