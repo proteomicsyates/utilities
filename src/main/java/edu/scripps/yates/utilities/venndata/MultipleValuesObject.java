@@ -9,7 +9,7 @@ public class MultipleValuesObject extends ContainsMultipleKeys {
 
 	public MultipleValuesObject(String name, String separator) {
 		this.name = name.trim();
-		if (name.contains(separator)) {
+		if (separator != null && name.contains(separator)) {
 			final String[] split = name.split(separator);
 			for (String string : split) {
 				values.add(string.trim());

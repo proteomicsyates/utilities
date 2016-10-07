@@ -177,8 +177,8 @@ public class FastaParser {
 	}
 
 	/**
-	 * Gets a pair where the first element is the parsed protein id and the
-	 * second is the accession type
+	 * Gets a pair where the first element is the parsed protein accession and
+	 * the second is the accession type
 	 *
 	 * @param id
 	 * @return
@@ -610,7 +610,7 @@ public class FastaParser {
 			} else if (charAt == ']' || charAt == ')') {
 				numOpen--;
 				if (!"".equals(inside.toString())) {
-					ret.add(new StringPosition(inside.toString(), lastNormal));
+					ret.add(new StringPosition(inside.toString(), lastNormal + 1));
 				}
 				lenthInsides++;
 			} else {
@@ -681,6 +681,26 @@ public class FastaParser {
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * // R.LLLQQVSL(+80)PELPGEYSMK.V --> LLLQQVSL(+80)PELPGEYSMK
+	 *
+	 * @param seq
+	 * @return
+	 */
+	public static String getSequenceInBetween(String seq) {
+		final String point = ".";
+		if (seq.contains(point)) {
+			final int firstPoint = seq.indexOf(point);
+			final int lastPoint = seq.lastIndexOf(point);
+
+			if (firstPoint != lastPoint) {
+				final String substring = seq.substring(firstPoint + 1, lastPoint);
+				return substring;
+			}
+		}
+		return seq;
 	}
 
 	/**

@@ -70,7 +70,8 @@ import java.text.DecimalFormat;
  *
  */
 public class NWAlign {
-
+	public static final int OPEN_GAP_PENALTY = -11;
+	public static final int GAP_EXTENSION_PENALTY = -1;
 	// public static void main(String[] args) {
 	//
 	// String f1 = "";
@@ -126,16 +127,18 @@ public class NWAlign {
 	// }
 
 	/**
-	 * Align two sequences in text
+	 * Align two sequences in text using OPEN_GAP_PENALTY = -11 and
+	 * GAP_EXTENSION_PENALTY = -1;
 	 *
 	 * @param sequence1
 	 * @param sequence2
 	 * @return
 	 */
 	public static NWResult needlemanWunsch(String sequence1, String sequence2) {
-		int gap_open = -11, gap_extn = -1;
+
 		// input upper case sequences
-		return needlemanWunsch(sequence1.toUpperCase(), sequence2.toUpperCase(), gap_open, gap_extn);
+		return needlemanWunsch(sequence1.toUpperCase(), sequence2.toUpperCase(), OPEN_GAP_PENALTY,
+				GAP_EXTENSION_PENALTY);
 	}
 
 	/**
