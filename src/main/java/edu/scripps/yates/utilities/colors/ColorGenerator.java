@@ -138,6 +138,30 @@ public class ColorGenerator {
 		return new Triplet(h, s, v);
 	}
 
+	/**
+	 *
+	 * @param colorStr
+	 *            e.g. "#FFFFFF"
+	 * @return
+	 */
+	public static Color hex2Rgb(String colorStr) {
+		try {
+			return new Color(Integer.valueOf(colorStr.substring(1, 3), 16),
+					Integer.valueOf(colorStr.substring(3, 5), 16), Integer.valueOf(colorStr.substring(5, 7), 16));
+		} catch (StringIndexOutOfBoundsException e) {
+			throw new IllegalArgumentException(colorStr + " is malformed");
+		}
+	}
+
+	public static String getHexString(Color c) {
+		if (c == null) {
+			return "#000000";
+		}
+		String hexString = String.format("#%02x%02x%02x", c.getRed(), c.getGreen(), c.getBlue());
+
+		return hexString;
+	}
+
 	private static Triplet hsv_to_rgb(Triplet triplet) {
 		float h = triplet.value1;
 		float s = triplet.value2;
