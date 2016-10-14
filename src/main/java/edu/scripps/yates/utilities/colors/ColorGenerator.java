@@ -146,6 +146,9 @@ public class ColorGenerator {
 	 */
 	public static Color hex2Rgb(String colorStr) {
 		try {
+			if (!colorStr.startsWith("#")) {
+				colorStr = "#" + colorStr;
+			}
 			return new Color(Integer.valueOf(colorStr.substring(1, 3), 16),
 					Integer.valueOf(colorStr.substring(3, 5), 16), Integer.valueOf(colorStr.substring(5, 7), 16));
 		} catch (StringIndexOutOfBoundsException e) {
@@ -158,6 +161,15 @@ public class ColorGenerator {
 			return "#000000";
 		}
 		String hexString = String.format("#%02x%02x%02x", c.getRed(), c.getGreen(), c.getBlue());
+
+		return hexString;
+	}
+
+	public static String getHexStringWithNoSharp(Color c) {
+		if (c == null) {
+			return "000000";
+		}
+		String hexString = String.format("%02x%02x%02x", c.getRed(), c.getGreen(), c.getBlue());
 
 		return hexString;
 	}

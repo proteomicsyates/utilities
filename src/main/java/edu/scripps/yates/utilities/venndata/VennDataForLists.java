@@ -1,5 +1,6 @@
 package edu.scripps.yates.utilities.venndata;
 
+import java.awt.Color;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
@@ -9,8 +10,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
 import javax.imageio.IIOImage;
@@ -19,6 +22,7 @@ import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.FileImageOutputStream;
 
+import edu.scripps.yates.utilities.colors.ColorGenerator;
 import edu.scripps.yates.utilities.util.ImageUtils;
 
 public class VennDataForLists<T extends ContainsMultipleKeys> {
@@ -40,9 +44,20 @@ public class VennDataForLists<T extends ContainsMultipleKeys> {
 	private final String title;
 	private URL url;
 	private final VennDataUtils<T> utils = new VennDataUtils<T>();
+	private final Map<String, Color> colorsByLabel = new HashMap<String, Color>();
+	private final static Color COLOR_1_DEFAULT = ColorGenerator.hex2Rgb("FF6342");
+	private final static Color COLOR_2_DEFAULT = ColorGenerator.hex2Rgb("ADDE63");
+	private final static Color COLOR_3_DEFAULT = ColorGenerator.hex2Rgb("63C6DE");
 
 	public VennDataForLists(String title, String collection1Name, Collection<T> col1, String collection2Name,
 			Collection<T> col2, String collection3Name, Collection<T> col3) throws IOException {
+		this(title, collection1Name, col1, COLOR_1_DEFAULT, collection2Name, col2, COLOR_2_DEFAULT, collection3Name,
+				col3, COLOR_3_DEFAULT);
+	}
+
+	public VennDataForLists(String title, String collection1Name, Collection<T> col1, Color color1,
+			String collection2Name, Collection<T> col2, Color color2, String collection3Name, Collection<T> col3,
+			Color color3) throws IOException {
 
 		log.debug("Venn data processing:");
 		label1 = collection1Name;
@@ -85,6 +100,18 @@ public class VennDataForLists<T extends ContainsMultipleKeys> {
 			log.debug("Collection 3 is empty!");
 
 		}
+		if (color1 == null) {
+			color1 = COLOR_1_DEFAULT;
+		}
+		if (color2 == null) {
+			color2 = COLOR_2_DEFAULT;
+		}
+		if (color3 == null) {
+			color3 = COLOR_3_DEFAULT;
+		}
+		colorsByLabel.put(label1, color1);
+		colorsByLabel.put(label2, color2);
+		colorsByLabel.put(label3, color3);
 		createChartURL(title, collection1Name, collection2Name, collection3Name);
 	}
 
@@ -463,6 +490,27 @@ public class VennDataForLists<T extends ContainsMultipleKeys> {
 			sb.append("&chtt=" + title);
 			sb.append("&chds=0," + getMaxCollection().size());
 			sb.append("&chdlp=b&chma=|10,10");
+			StringBuilder colorString = new StringBuilder();
+			if (label1 != null) {
+				Color color = colorsByLabel.get(label1);
+				colorString.append(ColorGenerator.getHexStringWithNoSharp(color));
+			}
+			if (label2 != null) {
+				if (!"".equals(colorString.toString())) {
+					colorString.append(",");
+				}
+				Color color = colorsByLabel.get(label2);
+				colorString.append(ColorGenerator.getHexStringWithNoSharp(color));
+			}
+			if (label3 != null) {
+				if (!"".equals(colorString.toString())) {
+					colorString.append(",");
+				}
+				Color color = colorsByLabel.get(label3);
+				colorString.append(ColorGenerator.getHexStringWithNoSharp(color));
+			}
+			sb.append("&chco=").append(colorString);
+
 			log.info("URL created=" + sb.toString());
 			url = new URL(sb.toString());
 			// return new URL(
