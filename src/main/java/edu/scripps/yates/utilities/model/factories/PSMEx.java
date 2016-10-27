@@ -20,7 +20,7 @@ import edu.scripps.yates.utilities.proteomicsmodel.Peptide;
 import edu.scripps.yates.utilities.proteomicsmodel.Protein;
 import edu.scripps.yates.utilities.proteomicsmodel.Ratio;
 import edu.scripps.yates.utilities.proteomicsmodel.Score;
-import edu.scripps.yates.utilities.proteomicsmodel.staticstorage.ProteomicsModelStaticStorage;
+import edu.scripps.yates.utilities.proteomicsmodel.staticstorage.StaticProteomicsModelStorage;
 
 public class PSMEx implements PSM, Serializable {
 	/**
@@ -273,11 +273,11 @@ public class PSMEx implements PSM, Serializable {
 	@Override
 	public Peptide getPeptide() {
 		if (peptide == null) {
-			if (ProteomicsModelStaticStorage.containsPeptide(msRun, null, getSequence())) {
-				peptide = ProteomicsModelStaticStorage.getSinglePeptide(msRun, null, getSequence());
+			if (StaticProteomicsModelStorage.containsPeptide(msRun, null, getSequence())) {
+				peptide = StaticProteomicsModelStorage.getSinglePeptide(msRun, null, getSequence());
 			} else {
 				peptide = new PeptideEx(getSequence(), msRun);
-				ProteomicsModelStaticStorage.addPeptide(peptide, msRun, null);
+				StaticProteomicsModelStorage.addPeptide(peptide, msRun, null);
 			}
 		}
 		return peptide;

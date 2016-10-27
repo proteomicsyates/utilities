@@ -23,8 +23,8 @@ import edu.scripps.yates.utilities.staticstorage.ItemStorage;
  * @author Salva
  *
  */
-public class ProteomicsModelStaticStorage {
-	private static final Logger log = Logger.getLogger(ProteomicsModelStaticStorage.class);
+public class StaticProteomicsModelStorage {
+	private static final Logger log = Logger.getLogger(StaticProteomicsModelStorage.class);
 	private static final ItemStorage<Protein> proteinStorage = new ItemStorage<Protein>();
 	private static final ItemStorage<Peptide> peptideStorage = new ItemStorage<Peptide>();
 	private static final ItemStorage<PSM> psmStorage = new ItemStorage<PSM>();
@@ -36,6 +36,9 @@ public class ProteomicsModelStaticStorage {
 	}
 
 	public static void addProtein(Protein protein, String msRunID, String conditionID) {
+		if (conditionID == null) {
+			log.info("condition is null for protein");
+		}
 		addProtein(protein, msRunID, conditionID, -1);
 	}
 
@@ -61,6 +64,9 @@ public class ProteomicsModelStaticStorage {
 	}
 
 	public static void addPeptide(Peptide peptide, String msRunID, String conditionID, int excelRowIndex) {
+		if (conditionID == null) {
+			// log.info("condition is null for peptide");
+		}
 		peptideStorage.add(peptide, msRunID, conditionID, excelRowIndex, peptide.getSequence());
 	}
 
@@ -73,6 +79,9 @@ public class ProteomicsModelStaticStorage {
 	}
 
 	public static void addPSM(PSM psm, String runID, String conditionID, int excelRowIndex) {
+		if (conditionID == null) {
+			// log.info("condition is null for psm");
+		}
 		psmStorage.add(psm, runID, conditionID, excelRowIndex, psm.getPSMIdentifier());
 	}
 
