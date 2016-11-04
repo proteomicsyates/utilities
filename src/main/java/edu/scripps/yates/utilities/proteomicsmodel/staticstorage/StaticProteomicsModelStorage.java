@@ -36,9 +36,6 @@ public class StaticProteomicsModelStorage {
 	}
 
 	public static void addProtein(Protein protein, String msRunID, String conditionID) {
-		if (conditionID == null) {
-			log.info("condition is null for protein");
-		}
 		addProtein(protein, msRunID, conditionID, -1);
 	}
 
