@@ -102,18 +102,27 @@ public class ItemStorage<T> {
 				return Collections.EMPTY_SET;
 			}
 		}
-		if (conditionID != null && !"".equals(conditionID)) {
-			if (itemByConditionID.containsKey(conditionID)) {
-				if (ret.isEmpty()) {
-					ret.addAll(itemByConditionID.get(conditionID));
+		// NEW in 4th Nov 2016
+		// only in case of not having runID, we look for condition
+		// this is because if someone looks for a protein with a certain runID,
+		// it doesnt matter the condition
+		// only in case of someone looking for all proteins in a condition (no
+		// matter the msrun) this would be useful
+		if (msRunID == null) {
+			if (conditionID != null && !"".equals(conditionID)) {
+
+				if (itemByConditionID.containsKey(conditionID)) {
+					if (ret.isEmpty()) {
+						ret.addAll(itemByConditionID.get(conditionID));
+					} else {
+						ret = getIntersection(ret, itemByConditionID.get(conditionID));
+					}
 				} else {
-					ret = getIntersection(ret, itemByConditionID.get(conditionID));
+					return Collections.EMPTY_SET;
 				}
-			} else {
-				return Collections.EMPTY_SET;
-			}
-			if (ret.isEmpty()) {
-				return Collections.EMPTY_SET;
+				if (ret.isEmpty()) {
+					return Collections.EMPTY_SET;
+				}
 			}
 		}
 		return ret;
