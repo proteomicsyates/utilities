@@ -198,7 +198,10 @@ public class FastaParser {
 				return new Pair<String, String>(id.trim(), "UNKNOWN");
 			}
 		}
-
+		final String ipiacc = getIPIACC(id);
+		if (ipiacc != null) {
+			return new Pair<String, String>(ipiacc, "IPI");
+		}
 		final String uniProtACC = getUniProtACC(id);
 		if (uniProtACC != null) {
 			return new Pair<String, String>(uniProtACC, "UNIPROT");
@@ -206,11 +209,6 @@ public class FastaParser {
 		final String ncbiacc = getNCBIACC(id);
 		if (ncbiacc != null) {
 			return new Pair<String, String>(ncbiacc, "NCBI");
-		}
-
-		final String ipiacc = getIPIACC(id);
-		if (ipiacc != null) {
-			return new Pair<String, String>(ipiacc, "IPI");
 		}
 
 		return new Pair<String, String>(id.trim(), "UNKNOWN");
