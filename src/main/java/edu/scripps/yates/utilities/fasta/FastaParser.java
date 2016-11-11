@@ -226,40 +226,43 @@ public class FastaParser {
 	 * @return
 	 */
 	public static String getOrganismNameFromFastaHeader(String fastaheader, String fullaccession) {
-		if (notRecognizedFastas.contains(fastaheader) && !notRecognizedFastas.contains(fullaccession)) {
+		if (fastaheader != null && notRecognizedFastas.contains(fastaheader) && fullaccession != null
+				&& !notRecognizedFastas.contains(fullaccession)) {
 			return null;
 		}
-		if (fastaheader.length() > 600 && fullaccession.length() > 600) {
+		if (fastaheader != null && fastaheader.length() > 600 && fullaccession != null
+				&& fullaccession.length() > 600) {
 			return null;
 		}
-		// new way 4 Feb 2015
-		final String[] split = fastaheader.split(" ");
-		for (int i = 0; i < split.length; i++) {
-			final String string = split[i];
-			if (startsWithUniprotKeyword(string)) {
-				if (string.startsWith(UNIPROT_FASTA_KEYWORD.OS.name())) {
-					String tmp = getStringAfterEqual(string);
-					String ret = "";
-					// if (tmp != null) {
-					// ret = tmp;
-					// }
-					if (tmp == null) {
-						continue;
-					}
-					ret = tmp;
-					for (int j = i + 1; j < split.length; j++) {
-						// get everything until another keyword
-						if (!startsWithUniprotKeyword(split[j])) {
-							ret += " " + split[j];
-						} else {
-							break;
+		if (fastaheader != null) {
+			// new way 4 Feb 2015
+			final String[] split = fastaheader.split(" ");
+			for (int i = 0; i < split.length; i++) {
+				final String string = split[i];
+				if (startsWithUniprotKeyword(string)) {
+					if (string.startsWith(UNIPROT_FASTA_KEYWORD.OS.name())) {
+						String tmp = getStringAfterEqual(string);
+						String ret = "";
+						// if (tmp != null) {
+						// ret = tmp;
+						// }
+						if (tmp == null) {
+							continue;
 						}
+						ret = tmp;
+						for (int j = i + 1; j < split.length; j++) {
+							// get everything until another keyword
+							if (!startsWithUniprotKeyword(split[j])) {
+								ret += " " + split[j];
+							} else {
+								break;
+							}
+						}
+						return ret.trim();
 					}
-					return ret.trim();
 				}
 			}
 		}
-
 		if (fastaheader != null && !"".equals(fastaheader)) {
 			final Matcher matcher = OS_FASTA_HEADER.matcher(fastaheader);
 			if (matcher.find()) {
@@ -283,33 +286,36 @@ public class FastaParser {
 				if (taxonomyFromString != null)
 					return taxonomyFromString.trim();
 			}
-			if (fullaccession != null) {
-				final Matcher matcher4 = BRACKETS_FASTA_HEADER.matcher(fullaccession);
-				if (matcher4.find()) {
-					final String insideBrackets = matcher4.group(1).trim();
-					final String taxonomyFromString = getTaxonomyFromString(insideBrackets);
-					if (taxonomyFromString != null)
-						return taxonomyFromString.trim();
-				}
-				// try to get from the code of the uniprot like _DROVI
+		}
+		if (fullaccession != null && !"".equals(fullaccession)) {
+			final Matcher matcher4 = BRACKETS_FASTA_HEADER.matcher(fullaccession);
+			if (matcher4.find()) {
+				final String insideBrackets = matcher4.group(1).trim();
+				final String taxonomyFromString = getTaxonomyFromString(insideBrackets);
+				if (taxonomyFromString != null)
+					return taxonomyFromString.trim();
+			}
+			// try to get from the code of the uniprot like _DROVI
 
-				String code = getUniprotTaxonomyCode(fullaccession);
-				if (code != null) {
-					final UniprotOrganism organism = UniprotSpeciesCodeMap.getInstance().get(code);
-					if (organism != null) {
-						return organism.getScientificName().trim();
-					}
-				}
-
-				code = getUniprotTaxonomyCode(fastaheader);
-				if (code != null) {
-					final UniprotOrganism organism = UniprotSpeciesCodeMap.getInstance().get(code);
-					if (organism != null) {
-						return organism.getScientificName().trim();
-					}
+			String code = getUniprotTaxonomyCode(fullaccession);
+			if (code != null) {
+				final UniprotOrganism organism = UniprotSpeciesCodeMap.getInstance().get(code);
+				if (organism != null) {
+					return organism.getScientificName().trim();
 				}
 			}
 		}
+		if (fastaheader != null && !"".equals(fastaheader)) {
+
+			String code = getUniprotTaxonomyCode(fastaheader);
+			if (code != null) {
+				final UniprotOrganism organism = UniprotSpeciesCodeMap.getInstance().get(code);
+				if (organism != null) {
+					return organism.getScientificName().trim();
+				}
+			}
+		}
+
 		if (!notRecognizedFastas.contains(fastaheader)) {
 			notRecognizedFastas.add(fastaheader);
 		}
