@@ -40,7 +40,7 @@ public class FastaParser {
 
 	public static final Pattern OS_FASTA_HEADER = Pattern.compile(".*OS=(.*)(GN)?PE=.*");
 	public static final Pattern BRACKETS_FASTA_HEADER = Pattern.compile(".*\\[(.*)\\].*");
-	public static final Pattern GENE_FASTA_HEADER = Pattern.compile(".*GN=(.*)PE=");
+	public static final Pattern GENE_FASTA_HEADER = Pattern.compile(".*GN=(.*)(PE)?");
 	public static final Pattern GENE_SYMBOL_FASTA_HEADER = Pattern.compile(".*Gene_Symbol=(\\S+).*");
 	public static final Pattern PE_FASTA_HEADER = Pattern.compile(".*PE=(\\d+).*");
 	public static final Pattern SV_FASTA_HEADER = Pattern.compile(".*SV=(\\d+).*");
