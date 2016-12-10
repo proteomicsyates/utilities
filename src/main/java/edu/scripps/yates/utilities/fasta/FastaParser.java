@@ -820,4 +820,38 @@ public class FastaParser {
 		}
 		return null;
 	}
+
+	private final static Pattern isoformPattern = Pattern.compile("\\w+\\-\\w*");
+
+	/**
+	 * If an accession like P12334-1 is found, P12334 is returned.<br>
+	 * If an accession like P12334-4 is found, P12334 is returned.<br>
+	 * If an accession like P12345 is found, the same P12345 is returned
+	 *
+	 * @param uniprotAcc
+	 * @return
+	 */
+	public static String getNoIsoformAccession(String uniprotAcc) {
+
+		if (uniprotAcc.indexOf("-") >= 0 && isoformPattern.matcher(uniprotAcc).matches()) {
+			return uniprotAcc.substring(0, uniprotAcc.indexOf("-"));
+		}
+		return uniprotAcc;
+	}
+
+	/**
+	 * If an accession like P12334-1 is found, 1 is returned.<br>
+	 * If an accession like P12334-4 is found, 4 is returned.<br>
+	 * If an accession like P12345 is found, null
+	 *
+	 * @param uniprotAcc
+	 * @return
+	 */
+	public static String getIsoformVersion(String uniprotAcc) {
+
+		if (uniprotAcc.indexOf("-") >= 0 && isoformPattern.matcher(uniprotAcc).matches()) {
+			return uniprotAcc.substring(uniprotAcc.indexOf("-") + 1);
+		}
+		return null;
+	}
 }
