@@ -57,6 +57,7 @@ public class AnnotationType {
 	public static final AnnotationType sequence_modified = AnnotationType
 			.translateStringToAnnotationType("SEQUENCE MODIFIED");
 	public static final AnnotationType ensemblID = AnnotationType.translateStringToAnnotationType("Ensembl");
+	public static final AnnotationType reactome = AnnotationType.translateStringToAnnotationType("reactome");
 
 	/**
 	 * Constructor with one keyword and one or more {@link UniprotLineHeader}
