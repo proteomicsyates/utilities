@@ -11,6 +11,7 @@ import java.io.InputStreamReader;
 import java.text.DecimalFormat;
 import java.util.Collection;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
 
 public class FileUtils {
@@ -159,5 +160,27 @@ public class FileUtils {
 		// if (sizeInPBytes < 1024) {
 		return df.format(sizeInPBytes) + " Pb";
 		// }
+	}
+
+	/**
+	 * returns a {@link File} object where having an input file like
+	 * /path/myfile.extension, it returns /path/prefixmyfilesuffix.extension
+	 *
+	 * @param file
+	 * @param prefix
+	 * @param sufix
+	 * @return
+	 */
+	public static File appendToFileName(File file, String prefix, String suffix) {
+		if (file != null) {
+			final String absolutePath = file.getAbsolutePath();
+			final String baseName = FilenameUtils.getBaseName(absolutePath);
+			final String extension = FilenameUtils.getExtension(absolutePath);
+			String prefix2 = prefix != null ? prefix : "";
+			String suffix2 = suffix != null ? suffix : "";
+			return new File(file.getParentFile().getAbsolutePath() + File.separator + prefix2 + baseName + suffix2 + "."
+					+ extension);
+		}
+		return null;
 	}
 }
