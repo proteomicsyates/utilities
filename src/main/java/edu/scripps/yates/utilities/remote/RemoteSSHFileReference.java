@@ -109,14 +109,76 @@ public class RemoteSSHFileReference {
 		return getRemoteFile(remotePath);
 	}
 
+	public RemoteInputStream getRemoteInputStream() {
+		return getRemoteInputStream(remotePath);
+	}
+
+	public RemoteInputStream getRemoteInputStream(String remotePath) {
+		if (outputFile != null && outputFile.exists() && outputFile.length() > 0
+				&& ((remotePath != null && remotePath.equals(this.remotePath)) || remotePath == null)
+				&& !overrideIfExists) {
+
+			return new RemoteInputStreamFile(outputFile);
+		}
+		if (remotePath == null) {
+			throw new IllegalArgumentException(
+					"Remote path has not been stated. Call to setRemotePath() before to getRemoteInputStream()");
+		}
+		this.remotePath = remotePath;
+		JSch jsch = new JSch();
+		Session session = null;
+		try {
+			log.debug("Getting " + remoteFileName + " file from remote location:");
+			log.debug(remotePath);
+
+			session = jsch.getSession(userName, hostName, 22);
+			session.setConfig("StrictHostKeyChecking", "no");
+			session.setPassword(pass);
+			session.connect();
+
+			Channel channel = session.openChannel("sftp");
+			channel.connect();
+			ChannelSftp sftpChannel = (ChannelSftp) channel;
+
+			final StringTokenizer stringTokenizer = new StringTokenizer(remotePath, "/");
+			boolean first = true;
+			while (stringTokenizer.hasMoreTokens()) {
+				String folder = stringTokenizer.nextToken();
+				if (first) {
+					folder = "/" + folder;
+					first = false;
+				}
+				log.debug("cd " + folder);
+				sftpChannel.cd(folder);
+			}
+			log.debug("Folder found.");
+			RemoteInputStream ret = new RemoteInputStreamChannelSftp(sftpChannel, remoteFileName);
+
+			failedConnectionAttemps = 0;
+			log.debug("Input stream ready for '" + remotePath);
+			return ret;
+		} catch (JSchException e) {
+			e.printStackTrace();
+			log.warn(e.getMessage());
+			failedConnectionAttemps++;
+		} catch (SftpException e) {
+			e.printStackTrace();
+			log.warn(e.getMessage());
+			failedConnectionAttemps++;
+		}
+		return null;
+	}
+
 	public File getRemoteFile(String remotePath) {
 		if (outputFile != null && outputFile.exists() && outputFile.length() > 0
 				&& ((remotePath != null && remotePath.equals(this.remotePath)) || remotePath == null)
-				&& !overrideIfExists)
+				&& !overrideIfExists) {
 			return outputFile;
-		if (remotePath == null)
+		}
+		if (remotePath == null) {
 			throw new IllegalArgumentException(
 					"Remote path has not been stated. Call to setRemotePath() before to getRemoteFile()");
+		}
 		this.remotePath = remotePath;
 		JSch jsch = new JSch();
 		Session session = null;
