@@ -45,7 +45,7 @@ public class DatesUtil {
 		}
 		double timeInSeg = timeInMillisecs / 1000;
 		if (timeInSeg < 60) {
-			return df.format(timeInSeg) + " sg";
+			return df.format(timeInSeg) + " sc";
 		}
 		double timeInMin = timeInSeg / 60;
 		if (timeInMin < 60) {
