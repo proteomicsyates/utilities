@@ -40,7 +40,7 @@ public class FastaParser {
 
 	public static final Pattern OS_FASTA_HEADER = Pattern.compile(".*OS=(.*)(GN)?PE=.*");
 	public static final Pattern BRACKETS_FASTA_HEADER = Pattern.compile(".*\\[(.*)\\].*");
-	public static final Pattern GENE_FASTA_HEADER = Pattern.compile(".*GN=(.*)(PE)?");
+	public static final Pattern GENE_FASTA_HEADER = Pattern.compile(".*GN=(\\S+)(PE)?");
 	public static final Pattern GENE_SYMBOL_FASTA_HEADER = Pattern.compile(".*Gene_Symbol=(\\S+).*");
 	public static final Pattern PE_FASTA_HEADER = Pattern.compile(".*PE=(\\d+).*");
 	public static final Pattern SV_FASTA_HEADER = Pattern.compile(".*SV=(\\d+).*");
@@ -79,13 +79,14 @@ public class FastaParser {
 	 * If the regular expresion doens't fit, then the original id is returned.
 	 *
 	 * @param id
-	 * @return
+	 * @return nulls if that is not a uniprot entry
 	 */
 	public static String getUniProtACC(String id) {
 		if (id != null && !"".equals(id)) {
 			if (id.length() > 600) {
 				return null;
 			}
+
 			final Matcher matcherSP = UNIPROT_SP_ACC_TMP.matcher(id);
 			final Matcher matcherTR = UNIPROT_TR_ACC_TMP.matcher(id);
 			if (matcherSP.find()) {
@@ -759,7 +760,15 @@ public class FastaParser {
 	}
 
 	public static boolean isContaminant(String accession) {
-		if (accession.startsWith(CONTAMINANT_PREFIX)) {
+
+		if (getACC(accession).getFirstelement().startsWith(CONTAMINANT_PREFIX)) {
+			return true;
+		}
+		return false;
+	}
+
+	public static boolean isReverse(String id) {
+		if (getACC(id).getFirstelement().contains("Reverse")) {
 			return true;
 		}
 		return false;
