@@ -8,8 +8,14 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
@@ -182,5 +188,21 @@ public class FileUtils {
 					+ extension);
 		}
 		return null;
+	}
+
+	public static List<String> readColumnFromTextFile(File inputFile, final String separator, int index,
+			boolean skipHeader) throws IOException {
+		try {
+			Stream<String> lines = Files.lines(Paths.get(inputFile.getAbsolutePath()), Charset.defaultCharset());
+			if (skipHeader) {
+				lines = lines.skip(1);
+			}
+			final List<String> collect = lines.map(line -> line.split(separator)[index]).filter(line -> skipHeader)
+					.collect(Collectors.toList());
+			return collect;
+		} catch (IndexOutOfBoundsException e) {
+			log.error(e);
+			return null;
+		}
 	}
 }
