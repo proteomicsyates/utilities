@@ -10,6 +10,7 @@ import java.util.regex.PatternSyntaxException;
 
 import org.apache.log4j.Logger;
 
+import edu.scripps.yates.utilities.strings.StringUtils;
 import edu.scripps.yates.utilities.taxonomy.UniprotOrganism;
 import edu.scripps.yates.utilities.taxonomy.UniprotSpeciesCodeMap;
 import edu.scripps.yates.utilities.util.Pair;
@@ -677,10 +678,10 @@ public class FastaParser {
 	public static String getBeforeSeq(String seq) {
 		final String point = ".";
 		if (seq.contains(point)) {
-			final int firstPoint = seq.indexOf(point);
-			final int lastPoint = seq.lastIndexOf(point);
+			Integer firstPoint = getBeforeSeqPointIndex(seq);
+			Integer lastPoint = getAfterSeqPointIndex(seq);
 
-			if (firstPoint != lastPoint) {
+			if (firstPoint != null && lastPoint != null && firstPoint != lastPoint) {
 				final String substring = seq.substring(0, firstPoint);
 				return substring;
 			}
@@ -717,12 +718,61 @@ public class FastaParser {
 	public static String getAfterSeq(String seq) {
 		final String point = ".";
 		if (seq.contains(point)) {
-			final int firstPoint = seq.indexOf(point);
-			final int lastPoint = seq.lastIndexOf(point);
+			Integer firstPoint = getBeforeSeqPointIndex(seq);
+			Integer lastPoint = getAfterSeqPointIndex(seq);
 
-			if (firstPoint != lastPoint) {
+			if (firstPoint != null && lastPoint != null && firstPoint != lastPoint) {
 				final String substring = seq.substring(lastPoint + 1, seq.length());
 				return substring;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * R.LLLQQVSLPELPGEYSMK.V --> 1 <br>
+	 * LLLQQVSLPELPGEYSMK --> null
+	 *
+	 * @param sequence
+	 * @return
+	 */
+	private static Integer getBeforeSeqPointIndex(String sequence) {
+		final List<Integer> allPositionsOf = StringUtils.allPositionsOf(sequence, ".");
+		for (int i = 0; i < allPositionsOf.size(); i++) {
+			final Integer index = allPositionsOf.get(i) - 1;
+			if (index < sequence.length() - 1) {
+				// is followed by a number?
+				try {
+					Integer.valueOf(sequence.substring(index + 1, index + 2));
+
+				} catch (NumberFormatException e) {
+					return index;
+				}
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * R.LLLQQVSLPELPGEYSMK.V --> 1 <br>
+	 * LLLQQVSLPELPGEYSMK --> null
+	 *
+	 * @param sequence
+	 * @return
+	 */
+	private static Integer getAfterSeqPointIndex(String sequence) {
+		final List<Integer> allPositionsOf = StringUtils.allPositionsOf(sequence, ".");
+		for (int i = allPositionsOf.size() - 1; i >= 0; i--) {
+			final Integer index = allPositionsOf.get(i) - 1;
+			if (index < sequence.length() - 1) {
+				// is followed by a number? then is a modification like (80.009)
+				try {
+					Integer.valueOf(sequence.substring(index + 1, index + 2));
+
+				} catch (NumberFormatException e) {
+					return index;
+
+				}
 			}
 		}
 		return null;
