@@ -35,10 +35,18 @@ public class ConditionEx implements Condition, Serializable {
 	private final Logger log = Logger.getLogger(ConditionEx.class);
 	private final Set<Protein> proteins = new HashSet<Protein>();
 	private final Set<PSM> psms = new HashSet<PSM>();
-	private final Set<Peptide> peptides = new HashSet<Peptide>();;
+	private final Set<Peptide> peptides = new HashSet<Peptide>();
+
+	public ConditionEx(Condition condition, Sample sample2, String projectTag) {
+		this(condition.getName(), sample2, new ProjectEx(projectTag, null));
+	}
 
 	public ConditionEx(Condition condition, Sample sample2, Project project) {
 		this(condition.getName(), sample2, project);
+	}
+
+	public ConditionEx(String conditionName, Sample sample2, String projectTag) {
+		this(conditionName, sample2, new ProjectEx(projectTag, null));
 	}
 
 	public ConditionEx(String conditionName, Sample sample2, Project project) {
@@ -136,9 +144,15 @@ public class ConditionEx implements Condition, Serializable {
 		if (obj instanceof Condition) {
 
 			final Condition expCondition = (Condition) obj;
-			if (getName().equals(expCondition.getName()))
-				return true;
-
+			if (getName().equals(expCondition.getName())) {
+				if (expCondition.getProject() == null && getProject() == null) {
+					return true;
+				}
+				if (getProject() != null && expCondition.getProject() != null
+						&& getProject().getName().equals(expCondition.getProject().getName())) {
+					return true;
+				}
+			}
 		}
 		return super.equals(obj);
 	}

@@ -21,7 +21,7 @@ public class AmountEx implements Amount, Serializable {
 	 */
 	private final double value;
 	private final AmountType amountType;
-	private final Condition condition;
+	private Condition condition;
 	// optional
 	private CombinationType combinationType;
 	private Boolean singleton;
@@ -140,6 +140,11 @@ public class AmountEx implements Amount, Serializable {
 	@Override
 	public Boolean isManualSpc() {
 		return manualSpc;
+	}
+
+	public void setCondition(Condition condition2) {
+		condition = condition2;
+
 	}
 
 }

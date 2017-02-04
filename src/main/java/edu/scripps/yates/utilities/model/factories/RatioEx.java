@@ -23,8 +23,8 @@ public class RatioEx implements Ratio, Serializable {
 	 */
 	private static final long serialVersionUID = -4788750494296885167L;
 	private final double value;
-	private final Condition condition1;
-	private final Condition condition2;
+	private Condition condition1;
+	private Condition condition2;
 	private final String description;
 	private Score score;
 	private CombinationType combinationType;
@@ -153,6 +153,22 @@ public class RatioEx implements Ratio, Serializable {
 	 */
 	public void setCombinationType(CombinationType combinationType) {
 		this.combinationType = combinationType;
+	}
+
+	/**
+	 * @param condition1
+	 *            the condition1 to set
+	 */
+	public void setCondition1(Condition condition1) {
+		this.condition1 = condition1;
+	}
+
+	/**
+	 * @param condition2
+	 *            the condition2 to set
+	 */
+	public void setCondition2(Condition condition2) {
+		this.condition2 = condition2;
 	}
 
 }
