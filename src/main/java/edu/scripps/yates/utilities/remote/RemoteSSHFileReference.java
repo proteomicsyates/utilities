@@ -309,7 +309,13 @@ public class RemoteSSHFileReference {
 	 * @return the remoteFileName
 	 */
 	public String getRemoteFileName() {
-		return remoteFileName;
+		if (remoteFileName != null) {
+			return remoteFileName;
+		}
+		if (outputFile != null) {
+			return FilenameUtils.getName(outputFile.getAbsolutePath());
+		}
+		return null;
 	}
 
 	/**
@@ -339,7 +345,13 @@ public class RemoteSSHFileReference {
 	 * @return the remotePath
 	 */
 	public String getRemotePath() {
-		return remotePath;
+		if (remotePath != null) {
+			return remotePath;
+		}
+		if (outputFile != null) {
+			return FilenameUtils.getFullPath(outputFile.getAbsolutePath());
+		}
+		return null;
 	}
 
 	/**
