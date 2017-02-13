@@ -1,8 +1,11 @@
 package edu.scripps.yates.utilities.remote;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.StringTokenizer;
 
 import org.apache.commons.io.FilenameUtils;
@@ -109,16 +112,22 @@ public class RemoteSSHFileReference {
 		return getRemoteFile(remotePath);
 	}
 
-	public RemoteInputStream getRemoteInputStream() {
+	public InputStream getRemoteInputStream() {
 		return getRemoteInputStream(remotePath);
 	}
 
-	public RemoteInputStream getRemoteInputStream(String remotePath) {
+	public InputStream getRemoteInputStream(String remotePath) {
 		if (outputFile != null && outputFile.exists() && outputFile.length() > 0
 				&& ((remotePath != null && remotePath.equals(this.remotePath)) || remotePath == null)
 				&& !overrideIfExists) {
 
-			return new RemoteInputStreamFile(outputFile);
+			try {
+				return new FileInputStream(outputFile);
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+				log.warn(e.getMessage());
+			}
+			return null;
 		}
 		if (remotePath == null) {
 			throw new IllegalArgumentException(
@@ -152,7 +161,7 @@ public class RemoteSSHFileReference {
 				sftpChannel.cd(folder);
 			}
 			log.debug("Folder found.");
-			RemoteInputStream ret = new RemoteInputStreamChannelSftp(sftpChannel, remoteFileName);
+			InputStream ret = new RemoteInputStreamChannelSftp(sftpChannel, session, remoteFileName);
 
 			failedConnectionAttemps = 0;
 			log.debug("Input stream ready for '" + remotePath);

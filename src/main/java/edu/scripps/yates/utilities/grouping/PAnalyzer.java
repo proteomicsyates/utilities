@@ -10,13 +10,14 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
+import edu.scripps.yates.utilities.dates.DatesUtil;
+
 /**
  * 
  * @author gorka
  */
 public class PAnalyzer {
-	private static final Logger log = Logger
-			.getLogger("log4j.logger.org.proteored");
+	private static final Logger log = Logger.getLogger("log4j.logger.org.proteored");
 
 	private final HashMap<String, InferenceProtein> mProts;
 	private final HashMap<String, InferencePeptide> mPepts;
@@ -35,8 +36,7 @@ public class PAnalyzer {
 		long t1 = System.currentTimeMillis();
 		log.info("Grouping " + proteins.size() + " proteins");
 		createInferenceMaps(proteins);
-		log.debug("Running panalyzer for " + mProts.size() + " proteins and "
-				+ mPepts.size() + " peptides");
+		log.debug("Running panalyzer for " + mProts.size() + " proteins and " + mPepts.size() + " peptides");
 
 		// long t2 = System.currentTimeMillis();
 		log.debug("Classifying peptides");
@@ -53,10 +53,9 @@ public class PAnalyzer {
 		// long t6 = System.currentTimeMillis();
 
 		if (!separateNonConclusiveProteins) {
-			log.info("Returning " + mGroups.size() + " protein groups from "
-					+ proteins.size() + " proteins, in "
-					+ (System.currentTimeMillis() - t1) + " milliseconds");
-			log.debug("Collapsing Non conclusive groups");
+			log.info("Returning " + mGroups.size() + " protein groups from " + proteins.size() + " proteins, in "
+					+ DatesUtil.getDescriptiveTimeFromMillisecs(System.currentTimeMillis() - t1));
+			log.info("Collapsing Non conclusive groups");
 			collapseNonConclusiveGroups();
 
 		}
@@ -74,9 +73,8 @@ public class PAnalyzer {
 		// + (t4 - t3) + ", " + (t5 - t4) + ", " + (t6 - t5) + ", "
 		// + (t7 - t6) + ", " + (t8 - t7));
 
-		log.info("Returning " + resultingGroups.size()
-				+ " protein groups from " + proteins.size() + " proteins, in "
-				+ (System.currentTimeMillis() - t1) + " milliseconds");
+		log.info("Returning " + resultingGroups.size() + " protein groups from " + proteins.size() + " proteins, in "
+				+ DatesUtil.getDescriptiveTimeFromMillisecs(System.currentTimeMillis() - t1) + " milliseconds");
 
 		return resultingGroups;
 	}
@@ -91,18 +89,14 @@ public class PAnalyzer {
 				protein = proteinGroup.get(0);
 				// non conclusive groups only have one protein at index = 0
 				final int proteinHashCode = protein.hashCode();
-				final List<InferencePeptide> peptides = protein
-						.getInferencePeptides();
+				final List<InferencePeptide> peptides = protein.getInferencePeptides();
 				for (InferencePeptide peptide : peptides) {
 					if (peptide.getRelation() == PeptideRelation.NONDISCRIMINATING) {
-						final List<InferenceProtein> proteinsSharingThisPeptide = peptide
-								.getInferenceProteins();
+						final List<InferenceProtein> proteinsSharingThisPeptide = peptide.getInferenceProteins();
 						for (InferenceProtein proteinSharingThisPeptide : proteinsSharingThisPeptide) {
 							if (proteinSharingThisPeptide.hashCode() != proteinHashCode) {
-								if (!proteinSharingThisPeptide.getGroup()
-										.contains(protein))
-									proteinSharingThisPeptide.getGroup().add(
-											protein);
+								if (!proteinSharingThisPeptide.getGroup().contains(protein))
+									proteinSharingThisPeptide.getGroup().add(protein);
 								// protein.setEvidence(proteinSharingThisPeptide
 								// .getGroup().getEvidence());
 
@@ -178,8 +172,7 @@ public class PAnalyzer {
 		for (InferencePeptide pept : mPepts.values()) {
 			if (pept.getInferenceProteins().size() == 1) {
 				pept.setRelation(PeptideRelation.UNIQUE);
-				pept.getInferenceProteins().get(0)
-						.setEvidence(ProteinEvidence.CONCLUSIVE);
+				pept.getInferenceProteins().get(0).setEvidence(ProteinEvidence.CONCLUSIVE);
 			} else
 				pept.setRelation(PeptideRelation.DISCRIMINATING);
 		}
@@ -196,12 +189,10 @@ public class PAnalyzer {
 		for (InferencePeptide pept : mPepts.values()) {
 			if (pept.getRelation() != PeptideRelation.DISCRIMINATING)
 				continue;
-			for (InferencePeptide pept2 : pept.getInferenceProteins().get(0)
-					.getInferencePeptides()) {
+			for (InferencePeptide pept2 : pept.getInferenceProteins().get(0).getInferencePeptides()) {
 				if (pept2.getRelation() == PeptideRelation.NONDISCRIMINATING)
 					continue;
-				if (pept2.getInferenceProteins().size() <= pept
-						.getInferenceProteins().size())
+				if (pept2.getInferenceProteins().size() <= pept.getInferenceProteins().size())
 					continue;
 				shared = true;
 				for (InferenceProtein p : pept.getInferenceProteins())
@@ -233,8 +224,7 @@ public class PAnalyzer {
 					group = true;
 					break;
 				}
-			prot.setEvidence(group ? ProteinEvidence.AMBIGUOUSGROUP
-					: ProteinEvidence.NONCONCLUSIVE);
+			prot.setEvidence(group ? ProteinEvidence.AMBIGUOUSGROUP : ProteinEvidence.NONCONCLUSIVE);
 		}
 
 	}
@@ -242,8 +232,7 @@ public class PAnalyzer {
 	private void createGroups() {
 		for (InferenceProtein prot : mProts.values()) {
 			if (prot.getGroup() == null) {
-				ProteinGroupInference group = new ProteinGroupInference(
-						prot.getEvidence());
+				ProteinGroupInference group = new ProteinGroupInference(prot.getEvidence());
 				group.add(prot);
 				prot.setGroup(group);
 				mGroups.add(group);
@@ -299,8 +288,7 @@ public class PAnalyzer {
 		Set<InferencePeptide> discriminating = new HashSet<InferencePeptide>();
 		boolean indistinguishable;
 		for (ProteinGroupInference group : mGroups) {
-			if (group.getEvidence() != ProteinEvidence.AMBIGUOUSGROUP
-					|| group.size() < 2)
+			if (group.getEvidence() != ProteinEvidence.AMBIGUOUSGROUP || group.size() < 2)
 				continue;
 			indistinguishable = true;
 			for (InferenceProtein prot : group)
