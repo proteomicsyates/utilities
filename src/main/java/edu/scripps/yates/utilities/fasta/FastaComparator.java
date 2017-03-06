@@ -45,27 +45,29 @@ public class FastaComparator {
 	// }
 
 	public static void main(String[] args) throws IOException {
+		File fastaFile3 = new File(
+				"Z:\\share\\Salva\\data\\PINT projects\\DroHybrids\\UniProt_D_simulans_and_melanogaster_11-01-2014.fasta");
 		File fastaFile = new File(
-				"C:\\Users\\Salva\\Desktop\\data\\isotopologues\\databases\\D_simulans_canonical_and_isoform.fasta");
+				"Z:\\share\\Salva\\data\\isotopologues\\databases\\D_simulans_canonical_and_isoform.fasta");
 		File fastaFile2 = new File(
-				"C:\\Users\\Salva\\Desktop\\data\\isotopologues\\databases\\NCBI_RefSeq_Melanogaster__07-01-2014_reversed.fasta");
-		File venndiagramFile = new File(
-				"C:\\Users\\Salva\\Desktop\\data\\isotopologues\\databases\\venn.png");
+				"Z:\\share\\Salva\\data\\isotopologues\\databases\\NCBI_RefSeq_Melanogaster__07-01-2014_reversed.fasta");
+		File venndiagramFile = new File("Z:\\share\\Salva\\data\\isotopologues\\databases\\venn.png");
 		List<File> files = new ArrayList<File>();
-		files.add(fastaFile);
-		files.add(fastaFile2);
-		String[] species = { "Drosophila virilis", "Drosophila melanogaster",
-				"Drosophila simulans" };
-		FastaComparator fastaComparator = new FastaComparator(files, species,
-				venndiagramFile, "Lys-C");
+		// files.add(fastaFile);
+		// files.add(fastaFile2);
+		files.add(fastaFile3);
+		String[] species = { // "Drosophila virilis",
+				"Drosophila melanogaster", "Drosophila simulans" };
+
+		FastaComparator fastaComparator = new FastaComparator(files, species, venndiagramFile, "Lys-C");
 		fastaComparator.analyzeIntersections();
 		fastaComparator.analyzeIntersectionsUsingVennData();
 		URL url = fastaComparator.getVennDiagramURL();
 		System.out.println(url);
 	}
 
-	public FastaComparator(List<File> files, String[] species,
-			File imageFileOutput, String enzymeName) throws IOException {
+	public FastaComparator(List<File> files, String[] species, File imageFileOutput, String enzymeName)
+			throws IOException {
 		this.files = files;
 		imageFileoutput = imageFileOutput;
 
@@ -84,22 +86,19 @@ public class FastaComparator {
 				FASTAHeaderFilter filefilter = new FASTAHeaderFilter(specie);
 				Protein entry = loader.nextFilteredProtein(filefilter);
 				while (entry != null) {
-					if (!entry.getHeader().getFullHeaderWithAddenda()
-							.contains(DECOY_PREFIX)) {
+					if (!entry.getHeader().getFullHeaderWithAddenda().contains(DECOY_PREFIX)) {
 						numProteinsFromSpecie++;
-						final Protein[] peptides = enzyme.cleave(entry,
-								minPeptideLength, maxPeptideLength);
+						final Protein[] peptides = enzyme.cleave(entry, minPeptideLength, maxPeptideLength);
 						for (Protein peptide : peptides) {
-							final String sequence = peptide.getSequence()
-									.getSequence();
+							final String sequence = peptide.getSequence().getSequence();
 							set.add(sequence);
 						}
 					}
 					entry = loader.nextFilteredProtein(filefilter);
 				}
 			}
-			System.out.println(set.size() + " Different peptides for specie: "
-					+ specie + " in " + numProteinsFromSpecie + " proteins");
+			System.out.println(set.size() + " Different peptides for specie: " + specie + " in " + numProteinsFromSpecie
+					+ " proteins");
 			map.put(specie, set);
 		}
 	}
@@ -142,19 +141,12 @@ public class FastaComparator {
 
 			System.out.println("Enzyme used: " + enzyme);
 			System.out.println("-------------------------------");
-			System.out.println("Peptides exclusive from " + species.get(0)
-					+ ": " + justIn1.size() + "("
-					+ nf.format(Double.valueOf(justIn1.size()) / union.size())
-					+ ")");
-			System.out.println("Peptides exclusive from " + species.get(1)
-					+ ": " + justIn2.size() + "("
-					+ nf.format(Double.valueOf(justIn2.size()) / union.size())
-					+ ")");
-			System.out.println("Peptides present in both species: "
-					+ intersection.size()
-					+ "("
-					+ nf.format(Double.valueOf(intersection.size())
-							/ union.size()) + ")");
+			System.out.println("Peptides exclusive from " + species.get(0) + ": " + justIn1.size() + "("
+					+ nf.format(Double.valueOf(justIn1.size()) / union.size()) + ")");
+			System.out.println("Peptides exclusive from " + species.get(1) + ": " + justIn2.size() + "("
+					+ nf.format(Double.valueOf(justIn2.size()) / union.size()) + ")");
+			System.out.println("Peptides present in both species: " + intersection.size() + "("
+					+ nf.format(Double.valueOf(intersection.size()) / union.size()) + ")");
 			System.out.println("Union: " + union.size());
 			System.out.println("-------------------------------");
 
@@ -187,8 +179,7 @@ public class FastaComparator {
 				name3 = species.get(2);
 			}
 
-			vennData = new VennData(getSpeciesNames(species), name1, col1,
-					name2, col2, name3, col3);
+			vennData = new VennData(getSpeciesNames(species), name1, col1, name2, col2, name3, col3);
 			System.out.println("-------------------------------");
 			System.out.println("Analysis of " + getSpeciesNames(species));
 			System.out.println("Using files: " + getFileNames(files));
@@ -198,8 +189,7 @@ public class FastaComparator {
 
 			System.out.println("Enzyme used: " + enzyme);
 			System.out.println("-------------------------------");
-			System.out.println(vennData
-					.getIntersectionsText(getSpeciesNames(species)));
+			System.out.println(vennData.getIntersectionsText(getSpeciesNames(species)));
 			System.out.println("-------------------------------");
 
 		}
