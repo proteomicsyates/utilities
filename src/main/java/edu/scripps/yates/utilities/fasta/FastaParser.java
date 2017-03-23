@@ -64,6 +64,7 @@ public class FastaParser {
 	private static final Pattern startingByWord = Pattern.compile("^\\w+");
 	private static final Pattern endingByWord = Pattern.compile("\\w+$");
 	private static final Pattern untilSpace = Pattern.compile("^(\\S+)");
+
 	static {
 		FASTA_ANNOTATION_PATTERNS = new Pattern[FASTA_ANNOTATIONS.length];
 		int index = 0;
@@ -183,7 +184,7 @@ public class FastaParser {
 	 * the second is the accession type
 	 *
 	 * @param id
-	 * @return
+	 * @return never null.
 	 */
 	public static Pair<String, String> getACC(String id) {
 		// if starts by >, remove it
