@@ -2,7 +2,7 @@ package edu.scripps.yates.utilities.model.enums;
 
 public enum AmountType {
 
-	INTENSITY, NORMALIZED_INTENSITY, AREA, XIC, SPC, NSAF, dNSAF, EMPAI, EMPAI_COV, OTHER, REGRESSION_FACTOR;
+	INTENSITY, NORMALIZED_INTENSITY, AREA, XIC, SPC, NSAF, dNSAF, NSAF_NORM, EMPAI, EMPAI_COV, OTHER, REGRESSION_FACTOR;
 
 	public static AmountType translateStringToAmountType(String amountTypeString) {
 
