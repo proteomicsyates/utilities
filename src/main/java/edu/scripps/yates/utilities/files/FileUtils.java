@@ -13,6 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -190,15 +191,48 @@ public class FileUtils {
 		return null;
 	}
 
-	public static List<String> readColumnFromTextFile(File inputFile, final String separator, int index,
+	public static List<String> readColumnFromTextFile(File inputFile, final String separator, int columnIndex,
+			String startAfterLineBegginingBy) throws IOException {
+		int index = 0;
+
+		Iterator<String> iterator = Files.lines(Paths.get(inputFile.getAbsolutePath()), Charset.defaultCharset())
+				.iterator();
+		while (iterator.hasNext()) {
+			index++;
+			String line = iterator.next();
+			if (line.startsWith(startAfterLineBegginingBy)) {
+				break;
+			}
+		}
+
+		return readColumnFromTextFile(inputFile, separator, columnIndex, index);
+	}
+
+	public static List<String> readColumnFromTextFile(File inputFile, final String separator, int columnIndex,
+			int skipFirstLines) throws IOException {
+		try {
+			Stream<String> lines = Files.lines(Paths.get(inputFile.getAbsolutePath()), Charset.defaultCharset());
+
+			lines = lines.skip(skipFirstLines);
+
+			final List<String> collect = lines.map(line -> line.split(separator)[columnIndex])
+					.collect(Collectors.toList());
+			return collect;
+		} catch (IndexOutOfBoundsException e) {
+			log.error(e);
+			return null;
+		}
+	}
+
+	public static List<String> readColumnFromTextFile(File inputFile, final String separator, int columnIndex,
 			boolean skipHeader) throws IOException {
 		try {
 			Stream<String> lines = Files.lines(Paths.get(inputFile.getAbsolutePath()), Charset.defaultCharset());
 			if (skipHeader) {
 				lines = lines.skip(1);
 			}
-			final List<String> collect = lines.map(line -> line.split(separator)[index]).filter(line -> skipHeader)
-					.collect(Collectors.toList());
+			final List<String> collect = lines.map(line -> line.split(separator)[columnIndex])
+					.filter(line -> skipHeader).collect(Collectors.toList());
 			return collect;
 		} catch (IndexOutOfBoundsException e) {
 			log.error(e);
