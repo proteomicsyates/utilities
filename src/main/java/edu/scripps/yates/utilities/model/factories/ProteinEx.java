@@ -52,7 +52,6 @@ public class ProteinEx implements Protein, Serializable, GroupableProtein {
 	private ProteinGroup proteinGroup;
 	private final Set<Condition> conditions = new HashSet<Condition>();
 	private MSRun msrun;
-	private double nsaf;
 	protected Organism organism;
 	protected static int numInstances = 0;
 
@@ -363,15 +362,6 @@ public class ProteinEx implements Protein, Serializable, GroupableProtein {
 			msRunId = getMSRun().getRunId();
 		}
 		return getAccession() + " in run: " + msRunId;
-	}
-
-	@Override
-	public double getNSAF() {
-		return nsaf;
-	}
-
-	public void setNSAF(double nsaf) {
-		this.nsaf = nsaf;
 	}
 
 }

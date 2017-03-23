@@ -56,8 +56,6 @@ public interface Protein extends HasScores, HasRatios, HasAmounts, HasConditions
 
 	public double getMW();
 
-	public double getNSAF();
-
 	public String getSequence();
 
 	public Organism getOrganism();
