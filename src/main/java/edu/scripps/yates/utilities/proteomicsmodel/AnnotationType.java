@@ -80,7 +80,7 @@ public class AnnotationType {
 	}
 
 	private static AnnotationType[] loadFromFile() {
-		final String fileName = edu.scripps.yates.utilities.properties.Properties
+		final String fileName = edu.scripps.yates.utilities.properties.PropertiesUtil
 				.getPropertyValue("uniprot.annotation.types.file");
 		log.debug("Loading annotations from internal file:" + fileName);
 		HashMap<String, AnnotationType> ret = new HashMap<String, AnnotationType>();
