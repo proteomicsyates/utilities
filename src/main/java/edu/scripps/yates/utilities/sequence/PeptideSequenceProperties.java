@@ -1,8 +1,16 @@
 package edu.scripps.yates.utilities.sequence;
 
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.apache.log4j.Logger;
 
 import com.compomics.util.protein.AASequenceImpl;
+
+import edu.scripps.yates.utilities.strings.StringUtils;
 
 /**
  * Calculation of different biophysical properties on peptide sequences.
@@ -169,5 +177,63 @@ public class PeptideSequenceProperties {
 	public static float percentNegative(float pH, float pK) {
 		double concentrationRatio = Math.pow(10, pH - pK);
 		return new Double(concentrationRatio / (concentrationRatio + 1)).floatValue();
+	}
+
+	/**
+	 * Returns a collection of peptide sequences constructed from the original
+	 * one, with all the possible combinations of I and L in the positions where
+	 * that peptide has one of those AAs
+	 * 
+	 * @param originalPeptide
+	 * @return
+	 */
+	public static Set<String> permutatePeptideLeucineIsoleucine(String originalPeptide) {
+		String[] aas = { "I", "L" };
+		return permutatePeptideAAs(originalPeptide, aas);
+	}
+
+	/**
+	 * Returns a collection of peptide sequences constructed from the original
+	 * one, with all the possible combinations of the aminoacids contained in
+	 * the input aas array in the positions where that peptide has one of those
+	 * AAs
+	 * 
+	 * @param originalPeptide
+	 * @param aas
+	 * @return
+	 */
+	public static Set<String> permutatePeptideAAs(String originalPeptide, String[] aas) {
+
+		Set<String> ret = new HashSet<String>();
+		List<Integer> positions = new ArrayList<Integer>();
+		for (String aa : aas) {
+			positions.addAll(StringUtils.allPositionsOf(originalPeptide, aa));
+		}
+
+		if (positions.isEmpty()) {
+			ret.add(originalPeptide);
+			return ret;
+		}
+		double numCombinations = Math.pow(2, positions.size());
+		String pattern = "";
+		for (int n = 0; n < positions.size(); n++) {
+			pattern += "0";
+		}
+		DecimalFormat df = new DecimalFormat(pattern);
+
+		for (int n = 0; n < numCombinations; n++) {
+			String num = df.format(Double.valueOf(Integer.toBinaryString(n)));
+
+			StringBuilder peptide = new StringBuilder(originalPeptide);
+			for (int index = 0; index < num.length(); index++) {
+				char charAt = num.charAt(index);
+				Integer valueOf = Integer.valueOf(String.valueOf(charAt));
+				String string = aas[valueOf];
+				char charAt2 = string.charAt(0);
+				peptide.setCharAt(positions.get(index) - 1, charAt2);
+			}
+			ret.add(peptide.toString());
+		}
+		return ret;
 	}
 }
