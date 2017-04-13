@@ -3,6 +3,7 @@ package edu.scripps.yates.utilities.index;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.channels.FileLock;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -46,8 +47,7 @@ public class TextFileIndexIO {
 	 *             the string from which an indexed entry of the text file is
 	 *             ending
 	 */
-	public TextFileIndexIO(String path, String beginToken, String endToken)
-			throws IOException {
+	public TextFileIndexIO(String path, String beginToken, String endToken) throws IOException {
 		this(new File(path), beginToken, endToken);
 
 	}
@@ -67,8 +67,7 @@ public class TextFileIndexIO {
 	 *             the string from which an indexed entry of the text file is
 	 *             ending
 	 */
-	public TextFileIndexIO(File file, String beginToken, String endToken)
-			throws IOException {
+	public TextFileIndexIO(File file, String beginToken, String endToken) throws IOException {
 		this.beginToken = beginToken;
 		this.endToken = endToken;
 		numEntries = 0;
@@ -101,6 +100,7 @@ public class TextFileIndexIO {
 			return ret;
 		final long totalLength = fileToIndex.length();
 		RandomAccessFile raf = new RandomAccessFile(fileToIndex, "r");
+		FileLock lock = raf.getChannel().lock();
 		String line;
 		try {
 			long offset = 0;
@@ -111,8 +111,7 @@ public class TextFileIndexIO {
 			while ((line = raf.readLine()) != null) {
 
 				if (offset % mb == 0)
-					log.info(offset / mb + "/" + totalLength / mb
-							+ " Mb readed...");
+					log.info(offset / mb + "/" + totalLength / mb + " Mb readed...");
 				line = line.trim();
 				sb.append(line + "\n");
 				if (line.startsWith(beginToken)) {
@@ -134,6 +133,9 @@ public class TextFileIndexIO {
 			}
 
 		} finally {
+			if (lock != null) {
+				lock.release();
+			}
 			raf.close();
 		}
 		return ret;
@@ -148,23 +150,22 @@ public class TextFileIndexIO {
 	 *         stored
 	 * @throws IOException
 	 */
-	public Map<String, Pair<Long, Long>> addNewItem(String item)
-			throws IOException {
+	public Map<String, Pair<Long, Long>> addNewItem(String item) throws IOException {
 
 		if (!item.startsWith(beginToken)) {
 			if (item.contains(beginToken)) {
 				item = item.substring(item.indexOf(beginToken));
 			} else {
-				throw new IllegalArgumentException("The provided item '" + item
-						+ "' is not starting with the begin Token '"
-						+ beginToken + "'");
+				throw new IllegalArgumentException(
+						"The provided item '" + item + "' is not starting with the begin Token '" + beginToken + "'");
 			}
 		}
 		if (!item.endsWith(endToken))
-			throw new IllegalArgumentException("The provided item '" + item
-					+ "' is not ending with the end Token '" + endToken + "'");
+			throw new IllegalArgumentException(
+					"The provided item '" + item + "' is not ending with the end Token '" + endToken + "'");
 
 		RandomAccessFile raf = new RandomAccessFile(fileToIndex, "rws");
+		FileLock lock = raf.getChannel().lock();
 		try {
 			Map<String, Pair<Long, Long>> ret = new HashMap<String, Pair<Long, Long>>();
 			char[] itemInChars = item.toCharArray();
@@ -187,7 +188,11 @@ public class TextFileIndexIO {
 			}
 			return ret;
 		} finally {
+			if (lock != null) {
+				lock.release();
+			}
 			raf.close();
+
 		}
 	}
 
@@ -196,8 +201,7 @@ public class TextFileIndexIO {
 	}
 
 	public String getItem(Pair<Long, Long> positions) throws IOException {
-		return getItem(positions.getFirstelement(),
-				positions.getSecondElement());
+		return getItem(positions.getFirstelement(), positions.getSecondElement());
 	}
 
 	/**
