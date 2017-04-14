@@ -45,4 +45,8 @@ public class ProgressCounter {
 		}
 		return "";
 	}
+
+	public int getCount() {
+		return count.get();
+	}
 }
