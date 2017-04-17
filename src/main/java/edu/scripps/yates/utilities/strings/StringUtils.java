@@ -82,6 +82,18 @@ public class StringUtils {
 		return ret;
 	}
 
+	/**
+	 * Search the targetString in the source string and returns the positions
+	 * (starting by 1) in which the targetString appears in the sourceString
+	 *
+	 * @param sourceString
+	 * @param targetString
+	 * @return
+	 */
+	public static List<Integer> allPositionsOf(char c, String targetString) {
+		return allPositionsOf(String.valueOf(c), targetString);
+	}
+
 	public static String convertStreamToString(InputStream is, int bufferSize, String encoding) throws IOException {
 
 		Reader reader = new BufferedReader(new InputStreamReader(is, encoding));
