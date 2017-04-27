@@ -66,7 +66,7 @@ public class StringUtils {
 	 *
 	 * @param sourceString
 	 * @param targetString
-	 * @return
+	 * @return the list of positions or an empty list if not found
 	 */
 	public static List<Integer> allPositionsOf(String sourceString, String targetString) {
 		List<Integer> ret = new ArrayList<Integer>();
