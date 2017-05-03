@@ -1,8 +1,10 @@
 package edu.scripps.yates.utilities.fasta;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -641,6 +643,46 @@ public class FastaParser {
 				return true;
 		}
 		return false;
+	}
+
+	/**
+	 * // LLLQQVSL(+80)PELPGEYSMK --> Map<8,+80>
+	 *
+	 * @param seq
+	 * @return a map with the positions and modifications.<br>
+	 *         Note that positions start by 1 in the sequence.
+	 */
+	public static Map<Integer, Double> getPTMsFromSequence(String seq) {
+		// get the peptide inside '.'
+		seq = removeBeforeAfterAAs(seq);
+		Map<Integer, Double> ret = new HashMap<Integer, Double>();
+		boolean isPTM = false;
+		String ptmString = "";
+		int position = 1;
+		for (int i = 0; i < seq.length(); i++) {
+			final char charAt = seq.charAt(i);
+			if (charAt == '[' || charAt == '(') {
+				isPTM = true;
+			} else if (charAt == ')' || charAt == ']') {
+				isPTM = false;
+				try {
+					Double ptm = Double.valueOf(ptmString.replace("+", "").replace("-", ""));
+					if (ptmString.contains("-")) {
+						ptm = -ptm;
+					}
+					ret.put(position - 1, ptm);
+					ptmString = "";
+				} catch (NumberFormatException e) {
+					log.warn("Error parsing PTM string '" + ptmString + "' in peptide '" + seq + "'. Ignoring it...");
+				}
+			} else if (isPTM) {
+				ptmString += charAt;
+			} else {
+				position++;
+			}
+		}
+
+		return ret;
 	}
 
 	private static String appendList(List<String> list) {
