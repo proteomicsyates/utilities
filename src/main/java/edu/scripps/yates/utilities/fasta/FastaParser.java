@@ -652,9 +652,10 @@ public class FastaParser {
 	 * @return a map with the positions and modifications.<br>
 	 *         Note that positions start by 1 in the sequence.
 	 */
-	public static Map<Integer, Double> getPTMsFromSequence(String seq) {
+	public static Map<Integer, Double> getPTMsFromSequence(String rawSeq) {
 		// get the peptide inside '.'
-		seq = removeBeforeAfterAAs(seq);
+		// String seq = removeBeforeAfterAAs(rawSeq);
+		String seq = rawSeq;
 		Map<Integer, Double> ret = new HashMap<Integer, Double>();
 		boolean isPTM = false;
 		String ptmString = "";
