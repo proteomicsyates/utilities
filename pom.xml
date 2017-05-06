@@ -24,7 +24,7 @@
   	<dependency>
   		<groupId>com.compomics</groupId>
   		<artifactId>dbtoolkit</artifactId>
-  		<version>4.2.5</version>
+  		<version>4.2.6</version>
   		<exclusions> 
  				<exclusion>
 					<groupId>batik</groupId>
