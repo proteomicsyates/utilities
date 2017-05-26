@@ -878,11 +878,28 @@ public class FastaParser {
 		if (psmId == null) {
 			return null;
 		}
-		final int lastIndexOf = psmId.lastIndexOf(".");
-		String scan = psmId.substring(0, lastIndexOf);
-		final int lastIndexOf2 = scan.lastIndexOf(".");
-		scan = scan.substring(lastIndexOf2 + 1);
-		return scan;
+		if (psmId.contains(".")) {
+			String[] split = psmId.split("\\.");
+			return split[split.length - 3];
+		}
+		return null;
+	}
+
+	/**
+	 * Gets the scan2 number from a string like 'rawfile.scan.scan2.charge'
+	 *
+	 * @param psmId
+	 * @return
+	 */
+	public static String getSecondScanFromPSMIdentifier(String psmId) {
+		if (psmId == null) {
+			return null;
+		}
+		if (psmId.contains(".")) {
+			String[] split = psmId.split("\\.");
+			return split[split.length - 2];
+		}
+		return null;
 	}
 
 	/**
