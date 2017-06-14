@@ -10,6 +10,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import org.apache.commons.lang.math.NumberUtils;
 import org.apache.log4j.Logger;
 
 import edu.scripps.yates.utilities.strings.StringUtils;
@@ -654,8 +655,8 @@ public class FastaParser {
 	 */
 	public static Map<Integer, Double> getPTMsFromSequence(String rawSeq) {
 		// get the peptide inside '.'
-		// String seq = removeBeforeAfterAAs(rawSeq);
-		String seq = rawSeq;
+		String seq = removeBeforeAfterAAs(rawSeq);
+
 		Map<Integer, Double> ret = new HashMap<Integer, Double>();
 		boolean isPTM = false;
 		String ptmString = "";
@@ -707,6 +708,18 @@ public class FastaParser {
 			final int lastPoint = seq.lastIndexOf(point);
 
 			if (firstPoint != lastPoint) {
+				// check that there are no numbers before or afer the points,
+				// which would indicate a modification
+				if ((firstPoint > 0 && NumberUtils.isNumber(String.valueOf(seq.charAt(firstPoint - 1))))
+						|| (seq.length() < firstPoint + 1
+								&& !NumberUtils.isNumber(String.valueOf(seq.charAt(firstPoint + 1))))) {
+					return seq;
+				}
+				if ((lastPoint > 0 && NumberUtils.isNumber(String.valueOf(seq.charAt(lastPoint - 1))))
+						|| (seq.length() < lastPoint + 1
+								&& !NumberUtils.isNumber(String.valueOf(seq.charAt(lastPoint + 1))))) {
+					return seq;
+				}
 				return seq.substring(firstPoint + 1, lastPoint);
 			}
 		}
