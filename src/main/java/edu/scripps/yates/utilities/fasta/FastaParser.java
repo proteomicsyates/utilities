@@ -13,6 +13,7 @@ import java.util.regex.PatternSyntaxException;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.log4j.Logger;
 
+import edu.scripps.yates.utilities.masses.AssignMass;
 import edu.scripps.yates.utilities.strings.StringUtils;
 import edu.scripps.yates.utilities.taxonomy.UniprotOrganism;
 import edu.scripps.yates.utilities.taxonomy.UniprotSpeciesCodeMap;
@@ -661,6 +662,7 @@ public class FastaParser {
 		boolean isPTM = false;
 		String ptmString = "";
 		int position = 1;
+		char currentAA = 0;
 		for (int i = 0; i < seq.length(); i++) {
 			final char charAt = seq.charAt(i);
 			if (charAt == '[' || charAt == '(') {
@@ -668,9 +670,19 @@ public class FastaParser {
 			} else if (charAt == ')' || charAt == ']') {
 				isPTM = false;
 				try {
+					// if the ptm is like [+18.00] is a difference
+					// if the ptm is like [180.00] is the modified aminoacid
+					boolean modifiedAAMass = false;
+					if (!ptmString.contains("-") && !ptmString.contains("+")) {
+						modifiedAAMass = true;
+					}
 					Double ptm = Double.valueOf(ptmString.replace("+", "").replace("-", ""));
 					if (ptmString.contains("-")) {
 						ptm = -ptm;
+					}
+					if (modifiedAAMass) {
+						double AAMass = AssignMass.getInstance(true).getMass(currentAA);
+						ptm = ptm - AAMass;
 					}
 					ret.put(position - 1, ptm);
 					ptmString = "";
@@ -681,6 +693,7 @@ public class FastaParser {
 				ptmString += charAt;
 			} else {
 				position++;
+				currentAA = charAt;
 			}
 		}
 
