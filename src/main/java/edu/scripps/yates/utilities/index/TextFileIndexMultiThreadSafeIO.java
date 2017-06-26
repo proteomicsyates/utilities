@@ -27,8 +27,9 @@ import edu.scripps.yates.utilities.util.Pair;
  * @author Salva
  * 
  */
-public class TextFileIndexIO {
-	private static final Logger log = Logger.getLogger(TextFileIndexIO.class);
+public class TextFileIndexMultiThreadSafeIO {
+	private static final Logger log = Logger.getLogger(TextFileIndexMultiThreadSafeIO.class);
+	private static Map<String, FileRecordReservation> fileRecordReservation = new HashMap<String, FileRecordReservation>();
 	private int numEntries;
 	private final String beginToken;
 	private final String endToken;
@@ -49,7 +50,7 @@ public class TextFileIndexIO {
 	 *             the string from which an indexed entry of the text file is
 	 *             ending
 	 */
-	public TextFileIndexIO(String path, String beginToken, String endToken) throws IOException {
+	public TextFileIndexMultiThreadSafeIO(String path, String beginToken, String endToken) throws IOException {
 		this(new File(path), beginToken, endToken);
 
 	}
@@ -69,7 +70,7 @@ public class TextFileIndexIO {
 	 *             the string from which an indexed entry of the text file is
 	 *             ending
 	 */
-	public TextFileIndexIO(File file, String beginToken, String endToken) throws IOException {
+	public TextFileIndexMultiThreadSafeIO(File file, String beginToken, String endToken) throws IOException {
 		this.beginToken = beginToken;
 		this.endToken = endToken;
 		numEntries = 0;
@@ -152,7 +153,7 @@ public class TextFileIndexIO {
 	 *         stored
 	 * @throws IOException
 	 */
-	public Map<String, Pair<Long, Long>> addNewItem(String item, Set<String> keys) throws IOException {
+	public synchronized Map<String, Pair<Long, Long>> addNewItem(String item, Set<String> keys) throws IOException {
 
 		if (!item.startsWith(beginToken)) {
 			if (item.contains(beginToken)) {
@@ -165,7 +166,7 @@ public class TextFileIndexIO {
 		if (!item.endsWith(endToken))
 			throw new IllegalArgumentException(
 					"The provided item '" + item + "' is not ending with the end Token '" + endToken + "'");
-
+		long init = 0l;
 		item = "\n" + item;
 		byte[] bytes = item.getBytes();
 
@@ -173,40 +174,50 @@ public class TextFileIndexIO {
 		RandomAccessFile raf = null;
 		try {
 			raf = new RandomAccessFile(fileToIndex, "rws");
-			buffer = raf.getChannel().map(MapMode.READ_WRITE, raf.length(), bytes.length);
+			// request the record reservation system
+			FileRecordReservation fileRecordReservation = getFileRecordReservation(fileToIndex);
+			// book the position in the file (thread safe)
+			log.debug("Requesting reservation for writting in position " + fileRecordReservation.getCurrentposition()
+					+ " writting " + bytes.length + " bytes in thread " + Thread.currentThread().getId());
+			init = fileRecordReservation.reserveRecord(bytes);
+			log.debug("Reserved from " + init + " to " + (init + bytes.length) + " in thread "
+					+ Thread.currentThread().getId());
+			// map the from position to position+bytes.length in the buffer
+			buffer = raf.getChannel().map(MapMode.READ_WRITE, init, bytes.length);
 
-			Map<String, Pair<Long, Long>> ret = new HashMap<String, Pair<Long, Long>>();
 			// char[] itemInChars = item.toCharArray();
 
-			// go to the end
-			// raf.seek(raf.length());
-			// raf.writeBytes("\n");
-			// long init = raf.length();
-			// long end = raf.length() + itemInChars.length;
-			// raf.writeBytes(item);
-
-			// go to the end
-			long init = raf.length();
-			long end = raf.length() + bytes.length;
 			buffer.put(bytes);
-
-			// it is important to increase this variable before getKeys() is
-			// called
-			numEntries++;
-			// if everything is fine, store in the map
-			final Pair<Long, Long> pair = new Pair<Long, Long>(init, end);
-			if (keys == null || keys.isEmpty()) {
-				keys = getKeys(item);
-			}
-			for (String key : keys) {
-				ret.put(key, pair);
-			}
-			return ret;
+		} catch (IOException e) {
+			e.printStackTrace();
+			log.warn("Error from thread " + Thread.currentThread().getId());
 		} finally {
-
 			raf.close();
-
+			log.debug("Closing file access from thread " + Thread.currentThread().getId());
 		}
+		Map<String, Pair<Long, Long>> ret = new HashMap<String, Pair<Long, Long>>();
+
+		// it is important to increase this variable before getKeys() is
+		// called
+		numEntries++;
+		// if everything is fine, store in the map
+		long end = init + bytes.length;
+		final Pair<Long, Long> pair = new Pair<Long, Long>(init, end);
+		if (keys == null || keys.isEmpty()) {
+			keys = getKeys(item);
+		}
+		for (String key : keys) {
+			ret.put(key, pair);
+		}
+		return ret;
+
+	}
+
+	private synchronized static FileRecordReservation getFileRecordReservation(File file) {
+		if (!fileRecordReservation.containsKey(file.getAbsolutePath())) {
+			fileRecordReservation.put(file.getAbsolutePath(), new FileRecordReservation(file));
+		}
+		return fileRecordReservation.get(file.getAbsolutePath());
 	}
 
 	public File getFileToIndex() {

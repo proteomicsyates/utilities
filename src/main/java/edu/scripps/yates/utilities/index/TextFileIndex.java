@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
@@ -30,8 +31,7 @@ public class TextFileIndex implements FileIndex<String> {
 
 	private Status status = Status.NOT_READY;
 
-	public TextFileIndex(File file, String beginToken, String endToken)
-			throws IOException {
+	public TextFileIndex(File file, String beginToken, String endToken) throws IOException {
 		fileToIndex = file;
 		// create the index file
 		indexFile = new File(getIndexPathName(file));
@@ -39,22 +39,19 @@ public class TextFileIndex implements FileIndex<String> {
 	}
 
 	private String getIndexPathName(File file) {
-		String pathName = file.getParent() + File.separator
-				+ FilenameUtils.getBaseName(file.getAbsolutePath()) + INDEX_EXT;
+		String pathName = file.getParent() + File.separator + FilenameUtils.getBaseName(file.getAbsolutePath())
+				+ INDEX_EXT;
 		return pathName;
 	}
 
-	public TextFileIndex(String path, String beginToken, String endToken)
-			throws IOException {
+	public TextFileIndex(String path, String beginToken, String endToken) throws IOException {
 		this(new File(path), beginToken, endToken);
 	}
 
 	private void indexFile() throws IOException {
-		log.info("Indexing file "
-				+ FilenameUtils.getName(fileToIndex.getAbsolutePath()) + "...");
+		log.info("Indexing file " + FilenameUtils.getName(fileToIndex.getAbsolutePath()) + "...");
 		// read the index, getting the positions of the items
-		final Map<String, Pair<Long, Long>> indexMap = textFileIndexIO
-				.getIndexMap();
+		final Map<String, Pair<Long, Long>> indexMap = textFileIndexIO.getIndexMap();
 		// add to the map
 		this.indexMap.putAll(indexMap);
 		// write the index file without appending
@@ -62,22 +59,19 @@ public class TextFileIndex implements FileIndex<String> {
 
 	}
 
-	private void writePositionsInIndex(
-			Map<String, Pair<Long, Long>> itemPositions,
-			boolean appendOnIndexFile) throws IOException {
+	private void writePositionsInIndex(Map<String, Pair<Long, Long>> itemPositions, boolean appendOnIndexFile)
+			throws IOException {
 		// write the positions in the index
 		FileWriter fw = new FileWriter(indexFile, appendOnIndexFile);
 		try {
 			for (String key : itemPositions.keySet()) {
 				final Pair<Long, Long> pair = itemPositions.get(key);
-				fw.write(key + TAB + pair.getFirstelement() + TAB
-						+ pair.getSecondElement() + NEWLINE);
+				fw.write(key + TAB + pair.getFirstelement() + TAB + pair.getSecondElement() + NEWLINE);
 			}
 		} finally {
 			fw.close();
 			status = Status.READY;
-			log.info("Indexing done. File of index: " + indexFile.length()
-					+ " bytes");
+			log.info("Indexing done. File of index: " + indexFile.length() + " bytes");
 		}
 
 	}
@@ -89,8 +83,7 @@ public class TextFileIndex implements FileIndex<String> {
 			// look for the provided key
 			if (indexMap.containsKey(key)) {
 				final Pair<Long, Long> pair = indexMap.get(key);
-				String item = textFileIndexIO.getItem(pair.getFirstelement(),
-						pair.getSecondElement());
+				String item = textFileIndexIO.getItem(pair.getFirstelement(), pair.getSecondElement());
 				return item;
 			}
 		} catch (IOException e) {
@@ -109,8 +102,7 @@ public class TextFileIndex implements FileIndex<String> {
 		}
 		// if index Map is empty, read the index file
 		if (indexMap.isEmpty()) {
-			BufferedReader fr = new BufferedReader(new InputStreamReader(
-					new FileInputStream(indexFile)));
+			BufferedReader fr = new BufferedReader(new InputStreamReader(new FileInputStream(indexFile)));
 			try {
 				String line;
 				while ((line = fr.readLine()) != null) {
@@ -136,15 +128,14 @@ public class TextFileIndex implements FileIndex<String> {
 	 * @return
 	 * @throws IOException
 	 */
-	public Map<String, Pair<Long, Long>> addItem(String item) {
+	public Map<String, Pair<Long, Long>> addItem(String item, Set<String> keys) {
 		// load index file
 		try {
 			loadIndexFile();
 
 			// add into the file to index
 
-			final Map<String, Pair<Long, Long>> itemPositions = textFileIndexIO
-					.addNewItem(item);
+			final Map<String, Pair<Long, Long>> itemPositions = textFileIndexIO.addNewItem(item, keys);
 
 			// add to the map
 			indexMap.putAll(itemPositions);
@@ -159,6 +150,14 @@ public class TextFileIndex implements FileIndex<String> {
 			log.error(e.getMessage());
 		}
 		return null;
+	}
+
+	@Override
+	public boolean isEmpty() {
+		if (status == Status.READY && this.indexMap.isEmpty()) {
+			return true;
+		}
+		return false;
 	}
 
 }

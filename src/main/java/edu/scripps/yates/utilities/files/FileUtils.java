@@ -7,10 +7,12 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.text.DecimalFormat;
 import java.util.Collection;
 import java.util.Iterator;
@@ -19,6 +21,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
 public class FileUtils {
@@ -238,5 +241,18 @@ public class FileUtils {
 			log.error(e);
 			return null;
 		}
+	}
+
+	public static File getFileFromInputStream(InputStream is) throws IOException {
+		File tempFile = File.createTempFile("temp", "tmp");
+		return getFileFromInputStream(is, tempFile);
+	}
+
+	public static File getFileFromInputStream(InputStream is, File targetFile) throws IOException {
+
+		Files.copy(is, targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+
+		IOUtils.closeQuietly(is);
+		return targetFile;
 	}
 }
