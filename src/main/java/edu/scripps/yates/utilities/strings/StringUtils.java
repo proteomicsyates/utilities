@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -90,8 +91,32 @@ public class StringUtils {
 	 * @param targetString
 	 * @return
 	 */
-	public static List<Integer> allPositionsOf(char c, String targetString) {
-		return allPositionsOf(String.valueOf(c), targetString);
+	public static List<Integer> allPositionsOf(String sourceString, char targetCharacter) {
+		return allPositionsOf(sourceString, String.valueOf(targetCharacter));
+	}
+
+	/**
+	 * Gives a sorted list of positions in which some of the {@link Character}
+	 * in chars is found in the sourceString
+	 * 
+	 * @param sourceString
+	 * @param quantifiedAAs
+	 * @return
+	 */
+	public static List<Integer> getPositions(String sourceString, char[] chars) {
+		List<Integer> ret = new ArrayList<Integer>();
+
+		for (int index = 0; index < sourceString.length(); index++) {
+			for (char c : chars) {
+				if (c == sourceString.charAt(index)) {
+					int position = index + 1;
+					ret.add(position);
+					break;
+				}
+			}
+		}
+		Collections.sort(ret);
+		return ret;
 	}
 
 	public static String convertStreamToString(InputStream is, int bufferSize, String encoding) throws IOException {
