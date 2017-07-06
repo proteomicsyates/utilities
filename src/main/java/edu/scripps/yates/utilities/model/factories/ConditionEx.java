@@ -1,7 +1,6 @@
 package edu.scripps.yates.utilities.model.factories;
 
 import java.io.Serializable;
-import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -12,6 +11,7 @@ import edu.scripps.yates.utilities.proteomicsmodel.Peptide;
 import edu.scripps.yates.utilities.proteomicsmodel.Project;
 import edu.scripps.yates.utilities.proteomicsmodel.Protein;
 import edu.scripps.yates.utilities.proteomicsmodel.Sample;
+import gnu.trove.set.hash.THashSet;
 
 /**
  * Describes an experimental condition such as a timeline or other feature that
@@ -33,9 +33,9 @@ public class ConditionEx implements Condition, Serializable {
 	private Double value;
 	private String unit;
 	private final Logger log = Logger.getLogger(ConditionEx.class);
-	private final Set<Protein> proteins = new HashSet<Protein>();
-	private final Set<PSM> psms = new HashSet<PSM>();
-	private final Set<Peptide> peptides = new HashSet<Peptide>();
+	private final Set<Protein> proteins = new THashSet<Protein>();
+	private final Set<PSM> psms = new THashSet<PSM>();
+	private final Set<Peptide> peptides = new THashSet<Peptide>();
 
 	public ConditionEx(Condition condition, Sample sample2, String projectTag) {
 		this(condition.getName(), sample2, new ProjectEx(projectTag, null));
@@ -120,6 +120,7 @@ public class ConditionEx implements Condition, Serializable {
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#toString()
 	 */
 	@Override

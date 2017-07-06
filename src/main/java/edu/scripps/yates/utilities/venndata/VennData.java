@@ -11,10 +11,9 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.imageio.IIOImage;
@@ -24,21 +23,22 @@ import javax.imageio.ImageWriter;
 import javax.imageio.stream.FileImageOutputStream;
 
 import edu.scripps.yates.utilities.util.ImageUtils;
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.set.hash.THashSet;
 
 public class VennData {
-	private static org.apache.log4j.Logger log = org.apache.log4j.Logger
-			.getLogger(VennData.class);
+	private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(VennData.class);
 	private static int count = 0;
 	public static int DEFAULT_CHART_WIDTH = 500;
 	public static int DEFAULT_CHART_HEIGHT = 500;
-	private final HashMap<String, Object> hash1 = new HashMap<String, Object>();
-	private final HashMap<String, Object> hash2 = new HashMap<String, Object>();
-	private final HashMap<String, Object> hash3 = new HashMap<String, Object>();
+	private final Map<String, Object> hash1 = new THashMap<String, Object>();
+	private final Map<String, Object> hash2 = new THashMap<String, Object>();
+	private final Map<String, Object> hash3 = new THashMap<String, Object>();
 
-	private final Set<String> keys1 = new HashSet<String>();
-	private final Set<String> keys2 = new HashSet<String>();
-	private final Set<String> keys3 = new HashSet<String>();
-	private final HashMap<String, String> hash = new HashMap<String, String>();
+	private final Set<String> keys1 = new THashSet<String>();
+	private final Set<String> keys2 = new THashSet<String>();
+	private final Set<String> keys3 = new THashSet<String>();
+	private final Map<String, String> hash = new THashMap<String, String>();
 	private Integer intersection12 = null;
 	private Integer intersection13 = null;
 	private Integer intersection123 = null;
@@ -49,9 +49,8 @@ public class VennData {
 	private final String title;
 	private URL url;
 
-	public VennData(String title, String collection1Name, Collection col1,
-			String collection2Name, Collection col2, String collection3Name,
-			Collection col3) throws IOException {
+	public VennData(String title, String collection1Name, Collection col1, String collection2Name, Collection col2,
+			String collection3Name, Collection col3) throws IOException {
 
 		log.debug("Venn data processing:");
 		label1 = collection1Name;
@@ -79,8 +78,8 @@ public class VennData {
 		createChartURL(title, collection1Name, collection2Name, collection3Name);
 	}
 
-	private void processCollections(Collection<Object> referenceCollection,
-			Set<String> keys1, HashMap<String, Object> hash1) {
+	private void processCollections(Collection<Object> referenceCollection, Set<String> keys1,
+			Map<String, Object> hash1) {
 
 		int uniques = 0; // number of unique objects in reference collection
 
@@ -102,13 +101,12 @@ public class VennData {
 				}
 				hash1.put(objKey, obj1);
 				if (keys1 == null)
-					keys1 = new HashSet<String>();
+					keys1 = new THashSet<String>();
 				keys1.add(objKey);
 
 			}
 		if (keys1 != null)
-			log.debug("Reference collection now has " + keys1.size()
-					+ " string keys. " + uniques + " are uniques");
+			log.debug("Reference collection now has " + keys1.size() + " string keys. " + uniques + " are uniques");
 
 	}
 
@@ -171,9 +169,8 @@ public class VennData {
 		return getObjectsByKeys(uniqueTo3);
 	}
 
-	private Set<String> getUniqueToFirstSet(Set<String> hashToIsolate,
-			Set<String> hash2, Set<String> hash3) {
-		Set<String> toIsolateSet2 = new HashSet<String>();
+	private Set<String> getUniqueToFirstSet(Set<String> hashToIsolate, Set<String> hash2, Set<String> hash3) {
+		Set<String> toIsolateSet2 = new THashSet<String>();
 		if (hashToIsolate != null) {
 			toIsolateSet2.addAll(hashToIsolate);
 			Iterator<String> toIsolateIterator = toIsolateSet2.iterator();
@@ -250,15 +247,13 @@ public class VennData {
 	 * @param list3
 	 * @return
 	 */
-	private Set<String> getIntersection(Set<String> list1, Set<String> list2,
-			Set<String> list3) {
+	private Set<String> getIntersection(Set<String> list1, Set<String> list2, Set<String> list3) {
 
-		if (list1 == null || list1.isEmpty() || list2 == null
-				|| list2.isEmpty() || list3 == null || list3.isEmpty()) {
+		if (list1 == null || list1.isEmpty() || list2 == null || list2.isEmpty() || list3 == null || list3.isEmpty()) {
 
 			return Collections.EMPTY_SET;
 		}
-		HashSet<String> ret = new HashSet<String>();
+		Set<String> ret = new THashSet<String>();
 		for (String key : list1) {
 			int numFound = 0;
 
@@ -278,12 +273,11 @@ public class VennData {
 
 	private Set<String> getIntersection(Set<String> list1, Set<String> list2) {
 
-		if (list1 == null || list1.isEmpty() || list2 == null
-				|| list2.isEmpty()) {
+		if (list1 == null || list1.isEmpty() || list2 == null || list2.isEmpty()) {
 
 			return Collections.EMPTY_SET;
 		}
-		HashSet<String> ret = new HashSet<String>();
+		Set<String> ret = new THashSet<String>();
 		for (String key : list1) {
 			int numFound = 0;
 
@@ -306,11 +300,10 @@ public class VennData {
 	 * @param list3
 	 * @return
 	 */
-	private Set<String> getUnion(Set<String> list1, Set<String> list2,
-			Set<String> list3) {
+	private Set<String> getUnion(Set<String> list1, Set<String> list2, Set<String> list3) {
 		// Since the HashSet doesn't allow to add repeated elements, add all to
 		// the set
-		HashSet<String> ret = new HashSet<String>();
+		Set<String> ret = new THashSet<String>();
 		if (list1 != null)
 			ret.addAll(list1);
 		if (list2 != null)
@@ -351,7 +344,7 @@ public class VennData {
 	 * @return
 	 */
 	public Collection<Object> getMaxCollection() {
-		HashSet<Object> ret = new HashSet<Object>();
+		Set<Object> ret = new THashSet<Object>();
 		ret.addAll(hash1.values());
 		if (hash2.size() > hash1.size()) {
 			ret.clear();
@@ -409,117 +402,88 @@ public class VennData {
 
 		if (label1 != null)
 			sb.append("\n 1 -> " + label1 + " = " + getSize1() + " ("
-					+ df.format(Double.valueOf(getSize1() * 100.0 / union))
-					+ "% of union)");
+					+ df.format(Double.valueOf(getSize1() * 100.0 / union)) + "% of union)");
 		if (label2 != null)
 			sb.append("\n 2 -> " + label2 + " = " + getSize2() + " ("
-					+ df.format(Double.valueOf(getSize2() * 100.0 / union))
-					+ "% of union)");
+					+ df.format(Double.valueOf(getSize2() * 100.0 / union)) + "% of union)");
 		if (label3 != null)
 			sb.append("\n 3 -> " + label3 + " = " + getSize3() + " ("
-					+ df.format(Double.valueOf(getSize3() * 100.0 / union))
-					+ "% of union)");
+					+ df.format(Double.valueOf(getSize3() * 100.0 / union)) + "% of union)");
 		sb.append("\n");
 		sb.append("\nUnion=" + union + " (100%)");
 
 		if (label1 != null && label2 != null) {
 			if (!"".equals(sb.toString()))
 				sb.append("\n");
-			sb.append("Overlap (1,2) = "
-					+ intersection12
-					+ " ("
-					+ df.format(Double.valueOf(intersection12 * 100.0
-							/ getUnion12().size())) + "% of Union (1,2))");
+			sb.append("Overlap (1,2) = " + intersection12 + " ("
+					+ df.format(Double.valueOf(intersection12 * 100.0 / getUnion12().size())) + "% of Union (1,2))");
 			if (!"".equals(sb.toString()))
 				sb.append("\n");
-			sb.append("Union (1,2) = "
-					+ getUnion12().size()
-					+ " ("
-					+ df.format(Double.valueOf(getUnion12().size() * 100.0
-							/ getUnion123().size())) + "% of Total Union)");
+			sb.append("Union (1,2) = " + getUnion12().size() + " ("
+					+ df.format(Double.valueOf(getUnion12().size() * 100.0 / getUnion123().size()))
+					+ "% of Total Union)");
 		}
 		if (label1 != null && label3 != null) {
 			if (!"".equals(sb.toString()))
 				sb.append("\n");
-			sb.append("Overlap (1,3) = "
-					+ intersection13
-					+ " ("
-					+ df.format(Double.valueOf(intersection13 * 100.0
-							/ getUnion13().size())) + "% of Union (1,3))");
+			sb.append("Overlap (1,3) = " + intersection13 + " ("
+					+ df.format(Double.valueOf(intersection13 * 100.0 / getUnion13().size())) + "% of Union (1,3))");
 			if (!"".equals(sb.toString()))
 				sb.append("\n");
-			sb.append("Union (1,3) = "
-					+ getUnion13().size()
-					+ " ("
-					+ df.format(Double.valueOf(getUnion13().size() * 100.0
-							/ getUnion123().size())) + "% of Total Union)");
+			sb.append("Union (1,3) = " + getUnion13().size() + " ("
+					+ df.format(Double.valueOf(getUnion13().size() * 100.0 / getUnion123().size()))
+					+ "% of Total Union)");
 		}
 		if (label3 != null && label2 != null) {
 			if (!"".equals(sb.toString()))
 				sb.append("\n");
 			sb.append("Overlap (2,3) = " + intersection23 + " ("
-					+ df.format(intersection23 * 100.0 / getUnion23().size())
-					+ "% of Union (2,3))");
+					+ df.format(intersection23 * 100.0 / getUnion23().size()) + "% of Union (2,3))");
 			if (!"".equals(sb.toString()))
 				sb.append("\n");
-			sb.append("Union (2,3) = "
-					+ getUnion23().size()
-					+ " ("
-					+ df.format(getUnion23().size() * 100.0
-							/ getUnion123().size()) + "% of Total Union)");
+			sb.append("Union (2,3) = " + getUnion23().size() + " ("
+					+ df.format(getUnion23().size() * 100.0 / getUnion123().size()) + "% of Total Union)");
 		}
 
 		if (label1 != null && label2 != null && label3 != null) {
 			if (!"".equals(sb.toString()))
 				sb.append("\n");
-			sb.append("Overlap (1,2,3) = " + intersection123 + " ("
-					+ df.format(intersection123 * 100.0 / union)
+			sb.append("Overlap (1,2,3) = " + intersection123 + " (" + df.format(intersection123 * 100.0 / union)
 					+ "% of union)");
 		}
 		if (label1 != null) {
 			if (!"".equals(sb.toString()))
 				sb.append("\n");
 			Double just1 = getUniqueTo1().size() * 100.0 / union;
-			int overlappedTo1 = getIntersection12().size()
-					+ getIntersection13().size() - getIntersection123().size();
-			sb.append("Just in 1 = " + getUniqueTo1().size() + " ("
-					+ df.format(just1) + "% of union) ("
-					+ df.format((overlappedTo1) * 100.0 / getSize1())
-					+ "% overlapped)");
+			int overlappedTo1 = getIntersection12().size() + getIntersection13().size() - getIntersection123().size();
+			sb.append("Just in 1 = " + getUniqueTo1().size() + " (" + df.format(just1) + "% of union) ("
+					+ df.format((overlappedTo1) * 100.0 / getSize1()) + "% overlapped)");
 		}
 		if (label2 != null) {
 			if (!"".equals(sb.toString()))
 				sb.append("\n");
 			Double just2 = getUniqueTo2().size() * 100.0 / union;
-			int overlappedTo2 = getIntersection12().size()
-					+ getIntersection23().size() - getIntersection123().size();
-			sb.append("Just in 2 = " + getUniqueTo2().size() + " ("
-					+ df.format(just2) + "% of union) ("
-					+ df.format((overlappedTo2) * 100.0 / getSize2())
-					+ "% overlapped)");
+			int overlappedTo2 = getIntersection12().size() + getIntersection23().size() - getIntersection123().size();
+			sb.append("Just in 2 = " + getUniqueTo2().size() + " (" + df.format(just2) + "% of union) ("
+					+ df.format((overlappedTo2) * 100.0 / getSize2()) + "% overlapped)");
 		}
 		if (label3 != null) {
 			if (!"".equals(sb.toString()))
 				sb.append("\n");
 			Double just3 = getUniqueTo3().size() * 100.0 / union;
-			int overlappedTo3 = getIntersection13().size()
-					+ getIntersection23().size() - getIntersection123().size();
-			sb.append("Just in 3 = " + getUniqueTo3().size() + " ("
-					+ df.format(just3) + "% of union) ("
-					+ df.format((overlappedTo3) * 100.0 / getSize3())
-					+ "% overlapped)");
+			int overlappedTo3 = getIntersection13().size() + getIntersection23().size() - getIntersection123().size();
+			sb.append("Just in 3 = " + getUniqueTo3().size() + " (" + df.format(just3) + "% of union) ("
+					+ df.format((overlappedTo3) * 100.0 / getSize3()) + "% overlapped)");
 		}
 		sb.append("\n\n");
 
 		return sb.toString();
 	}
 
-	private URL createChartURL(String title, String label1, String label2,
-			String label3) throws MalformedURLException {
+	private URL createChartURL(String title, String label1, String label2, String label3) throws MalformedURLException {
 		if (url == null) {
 			StringBuilder sb = new StringBuilder();
-			sb.append("http://chart.apis.google.com/chart?chs="
-					+ DEFAULT_CHART_WIDTH + "x" + DEFAULT_CHART_HEIGHT);
+			sb.append("http://chart.apis.google.com/chart?chs=" + DEFAULT_CHART_WIDTH + "x" + DEFAULT_CHART_HEIGHT);
 			sb.append("&chd=t:" + getDataString());
 			sb.append("&cht=v");
 
@@ -571,8 +535,7 @@ public class VennData {
 		}
 		if (image == null)
 			throw new IllegalArgumentException(
-					"It is not possible to reach the URL: " + url
-							+ ". Check the internet connection.");
+					"It is not possible to reach the URL: " + url + ". Check the internet connection.");
 		return image;
 	}
 
@@ -603,11 +566,9 @@ public class VennData {
 		}
 	}
 
-	private void saveGraphicJpeg(BufferedImage chart, File outputFile,
-			float quality) throws IOException {
+	private void saveGraphicJpeg(BufferedImage chart, File outputFile, float quality) throws IOException {
 		// Setup correct compression for jpeg.
-		Iterator<ImageWriter> iter = ImageIO
-				.getImageWritersByFormatName("jpeg");
+		Iterator<ImageWriter> iter = ImageIO.getImageWritersByFormatName("jpeg");
 		ImageWriter writer = iter.next();
 		ImageWriteParam iwp = writer.getDefaultWriteParam();
 		iwp.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);

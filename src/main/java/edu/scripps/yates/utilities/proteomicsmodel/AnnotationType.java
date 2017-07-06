@@ -6,12 +6,14 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
+
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.set.hash.THashSet;
 
 public class AnnotationType {
 	private static final Logger log = Logger.getLogger(AnnotationType.class);
@@ -19,7 +21,7 @@ public class AnnotationType {
 	private static AnnotationType[] values = loadFromFile();
 
 	private final String keyword;
-	private final Set<UniprotLineHeader> ulhs = new HashSet<UniprotLineHeader>();
+	private final Set<UniprotLineHeader> ulhs = new THashSet<UniprotLineHeader>();
 	private final static String UNIPROT_ANNOTATIONS_SEPARATOR = "-!-";
 	public static final AnnotationType uniprotKeyword = AnnotationType.translateStringToAnnotationType("KEYWORD");
 
@@ -83,7 +85,7 @@ public class AnnotationType {
 		final String fileName = edu.scripps.yates.utilities.properties.PropertiesUtil
 				.getPropertyValue("uniprot.annotation.types.file");
 		log.debug("Loading annotations from internal file:" + fileName);
-		HashMap<String, AnnotationType> ret = new HashMap<String, AnnotationType>();
+		Map<String, AnnotationType> ret = new THashMap<String, AnnotationType>();
 		try {
 			ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 
@@ -127,8 +129,8 @@ public class AnnotationType {
 		return array;
 	}
 
-	public static HashMap<AnnotationType, List<String>> parseAnnotations(String text) {
-		HashMap<AnnotationType, List<String>> ret = new HashMap<AnnotationType, List<String>>();
+	public static Map<AnnotationType, List<String>> parseAnnotations(String text) {
+		Map<AnnotationType, List<String>> ret = new THashMap<AnnotationType, List<String>>();
 		if (text.contains(UNIPROT_ANNOTATIONS_SEPARATOR)) {
 			final String[] split = text.split(UNIPROT_ANNOTATIONS_SEPARATOR);
 			for (String annotation : split) {
@@ -184,7 +186,7 @@ public class AnnotationType {
 	}
 
 	public static Set<AnnotationType> getAnnotationTypesByUniprotLineHeader(UniprotLineHeader ulh) {
-		Set<AnnotationType> ret = new HashSet<AnnotationType>();
+		Set<AnnotationType> ret = new THashSet<AnnotationType>();
 		final AnnotationType[] values = AnnotationType.values();
 		for (AnnotationType annotationType : values) {
 			for (UniprotLineHeader ulh2 : annotationType.ulhs) {
@@ -218,6 +220,7 @@ public class AnnotationType {
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#toString()
 	 */
 	@Override

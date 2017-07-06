@@ -7,7 +7,6 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -16,9 +15,10 @@ import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 
+import gnu.trove.map.hash.THashMap;
+
 public class UniprotSpeciesCodeMap {
-	private static final Logger log = Logger
-			.getLogger(UniprotSpeciesCodeMap.class);
+	private static final Logger log = Logger.getLogger(UniprotSpeciesCodeMap.class);
 	private static final String speciesFileURLString = "http://www.uniprot.org/docs/speclist";
 	private static final String localSpeciesFileName = "uniprot_speclist.txt";
 
@@ -28,10 +28,10 @@ public class UniprotSpeciesCodeMap {
 	private static final String SYNONIM_START = "S=";
 
 	private static UniprotSpeciesCodeMap instance;
-	private final Map<String, UniprotOrganism> mapByCode = new HashMap<String, UniprotOrganism>();
-	private final Map<String, UniprotOrganism> mapByScientificName = new HashMap<String, UniprotOrganism>();
-	private final Map<String, UniprotOrganism> mapByCommonName = new HashMap<String, UniprotOrganism>();
-	private final Map<Long, UniprotOrganism> mapByTaxonCode = new HashMap<Long, UniprotOrganism>();
+	private final Map<String, UniprotOrganism> mapByCode = new THashMap<String, UniprotOrganism>();
+	private final Map<String, UniprotOrganism> mapByScientificName = new THashMap<String, UniprotOrganism>();
+	private final Map<String, UniprotOrganism> mapByCommonName = new THashMap<String, UniprotOrganism>();
+	private final Map<Long, UniprotOrganism> mapByTaxonCode = new THashMap<Long, UniprotOrganism>();
 	private final List<UniprotOrganism> list = new ArrayList<UniprotOrganism>();
 
 	private static final String HIV = "Human immunodeficiency virus";
@@ -51,8 +51,7 @@ public class UniprotSpeciesCodeMap {
 		// try to get first the remote up-to-date file
 		boolean ok = localLoad();
 		if (!ok) {
-			log.info("Local loading of uniprot species from "
-					+ speciesFileURLString
+			log.info("Local loading of uniprot species from " + speciesFileURLString
 					+ " has failed. Trying using remote file.");
 			ok = remoteLoad();
 		}
@@ -61,8 +60,7 @@ public class UniprotSpeciesCodeMap {
 	}
 
 	private boolean localLoad() {
-		ClassLoader classLoader = Thread.currentThread()
-				.getContextClassLoader();
+		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 		InputStream is = classLoader.getResourceAsStream(localSpeciesFileName);
 		if (is != null)
 			try {
@@ -76,8 +74,7 @@ public class UniprotSpeciesCodeMap {
 	}
 
 	private boolean remoteLoad() {
-		log.info("Trying to read species from Uniprot URL:"
-				+ speciesFileURLString);
+		log.info("Trying to read species from Uniprot URL:" + speciesFileURLString);
 		URL url;
 		try {
 			url = new URL(speciesFileURLString);
@@ -124,8 +121,7 @@ public class UniprotSpeciesCodeMap {
 
 						// create the object if data is present
 						if (code != null) {
-							UniprotOrganism organism = new UniprotOrganism(
-									code, kingdom, taxonCode, scientificName);
+							UniprotOrganism organism = new UniprotOrganism(code, kingdom, taxonCode, scientificName);
 							if (commonName != null)
 								organism.setCommonName(commonName);
 							if (synonim != null)
@@ -145,8 +141,7 @@ public class UniprotSpeciesCodeMap {
 						String token = tokenizer.nextToken();
 						if (numToken == 2) {
 							if (token.length() == 1) {
-								kingdom = UniprotKingdom.getByCodeChar(token
-										.charAt(0));
+								kingdom = UniprotKingdom.getByCodeChar(token.charAt(0));
 							}
 						} else if (numToken == 3) {
 							if (token.endsWith(":")) {
@@ -159,9 +154,7 @@ public class UniprotSpeciesCodeMap {
 							}
 						} else if (numToken == 4) {
 							if (token.startsWith(SCIENTIFIC_NAME_START)) {
-								scientificName = token
-										.substring(SCIENTIFIC_NAME_START
-												.length());
+								scientificName = token.substring(SCIENTIFIC_NAME_START.length());
 							}
 						} else if (numToken > 4) {
 							scientificName += " " + token;
@@ -213,8 +206,7 @@ public class UniprotSpeciesCodeMap {
 		if (matcher.find()) {
 			final String isolate = matcher.group(1).trim();
 			for (String scientificName : mapByScientificName.keySet()) {
-				if (scientificName.contains(HIV)
-						&& scientificName.contains("isolate " + isolate))
+				if (scientificName.contains(HIV) && scientificName.contains("isolate " + isolate))
 					return mapByScientificName.get(scientificName);
 			}
 		}

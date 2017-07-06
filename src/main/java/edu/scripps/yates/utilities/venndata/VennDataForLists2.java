@@ -11,8 +11,6 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -25,12 +23,14 @@ import javax.imageio.ImageWriter;
 import javax.imageio.stream.FileImageOutputStream;
 
 import edu.scripps.yates.utilities.util.ImageUtils;
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.set.hash.THashSet;
 
 public class VennDataForLists2<T extends ContainsMultipleKeys> {
 	private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(VennDataForLists2.class);
 	public static int DEFAULT_CHART_WIDTH = 500;
 	public static int DEFAULT_CHART_HEIGHT = 500;
-	private final Map<String, Set<T>> setsByName = new HashMap<String, Set<T>>();
+	private final Map<String, Set<T>> setsByName = new THashMap<String, Set<T>>();
 
 	private final Integer intersection12 = null;
 	private final Integer intersection13 = null;
@@ -46,13 +46,13 @@ public class VennDataForLists2<T extends ContainsMultipleKeys> {
 
 		log.debug("Venn data processing:");
 		this.title = title;
-		Set<Set<T>> collections = new HashSet<Set<T>>();
+		Set<Set<T>> collections = new THashSet<Set<T>>();
 		for (String string : collectionsByName.keySet()) {
 			labels.add(string);
 			final Collection<T> collection = collectionsByName.get(string);
 			if (!collection.isEmpty()) {
 				log.debug("Collection 1 contains " + collection.size() + " elements");
-				Set<T> set = new HashSet<T>();
+				Set<T> set = new THashSet<T>();
 				set.addAll(collection);
 				setsByName.put(string, set);
 				collections.add(set);
@@ -81,11 +81,11 @@ public class VennDataForLists2<T extends ContainsMultipleKeys> {
 		// get the set of names
 		final Set<T> intersection = getIntersection(names);
 		// get the elements that are in the intersection but not in the rest
-		Set<String> nameSet = new HashSet<String>();
+		Set<String> nameSet = new THashSet<String>();
 		for (String name : names) {
 			nameSet.add(name);
 		}
-		Set<T> ret = new HashSet<T>();
+		Set<T> ret = new THashSet<T>();
 		for (T t : intersection) {
 			boolean found = false;
 			for (String name : this.labels) {
@@ -113,7 +113,7 @@ public class VennDataForLists2<T extends ContainsMultipleKeys> {
 	 */
 	private Set<T> getIntersection(String... names) {
 
-		Set<T> ret = new HashSet<T>();
+		Set<T> ret = new THashSet<T>();
 		List<String> nameList = new ArrayList<String>();
 		for (String name : names) {
 			nameList.add(name);
@@ -144,7 +144,7 @@ public class VennDataForLists2<T extends ContainsMultipleKeys> {
 	 */
 	private Set<T> getUnion(String... names) {
 
-		Set<T> ret = new HashSet<T>();
+		Set<T> ret = new THashSet<T>();
 		for (String name : names) {
 			final Set<T> set = getCollection(name);
 			ret.addAll(set);
@@ -162,7 +162,7 @@ public class VennDataForLists2<T extends ContainsMultipleKeys> {
 	 * @return
 	 */
 	public Set<T> getMaxCollection() {
-		Set<T> ret = new HashSet<T>();
+		Set<T> ret = new THashSet<T>();
 		int maxSize = -1;
 		for (String name : labels) {
 			if (getSize(name) > maxSize) {

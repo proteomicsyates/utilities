@@ -2,7 +2,6 @@ package edu.scripps.yates.utilities.model.factories;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -26,6 +25,7 @@ import edu.scripps.yates.utilities.proteomicsmodel.ProteinAnnotation;
 import edu.scripps.yates.utilities.proteomicsmodel.Ratio;
 import edu.scripps.yates.utilities.proteomicsmodel.Score;
 import edu.scripps.yates.utilities.proteomicsmodel.Threshold;
+import gnu.trove.set.hash.THashSet;
 
 public class ProteinEx implements Protein, Serializable, GroupableProtein {
 	private static final Logger log = Logger.getLogger(ProteinEx.class);
@@ -33,13 +33,13 @@ public class ProteinEx implements Protein, Serializable, GroupableProtein {
 	 *
 	 */
 	private static final long serialVersionUID = -1435542806814270031L;
-	protected final Set<Gene> genes = new HashSet<Gene>();
-	private final Set<Amount> proteinAmounts = new HashSet<Amount>();
+	protected final Set<Gene> genes = new THashSet<Gene>();
+	private final Set<Amount> proteinAmounts = new THashSet<Amount>();
 	private Set<ProteinAnnotation> proteinAnnotations;
-	private final Set<Ratio> ratios = new HashSet<Ratio>();
+	private final Set<Ratio> ratios = new THashSet<Ratio>();
 	private Set<Threshold> thresholds;
-	private final Set<PSM> psms = new HashSet<PSM>();
-	private final Set<Peptide> peptides = new HashSet<Peptide>();
+	private final Set<PSM> psms = new THashSet<PSM>();
+	private final Set<Peptide> peptides = new THashSet<Peptide>();
 	private final List<Accession> secondaryAccessions = new ArrayList<Accession>();
 	private int length;
 	private double pi;
@@ -48,15 +48,15 @@ public class ProteinEx implements Protein, Serializable, GroupableProtein {
 	private String sequence;
 	private int dbID = 0;
 	private ProteinEvidence evidence;
-	private Set<Score> scores = new HashSet<Score>();
+	private Set<Score> scores = new THashSet<Score>();
 	private ProteinGroup proteinGroup;
-	private final Set<Condition> conditions = new HashSet<Condition>();
+	private final Set<Condition> conditions = new THashSet<Condition>();
 	private MSRun msrun;
 	protected Organism organism;
 	protected static int numInstances = 0;
 
 	public ProteinEx(AccessionType accessionType, String accession, Organism organism) {
-		Set<Accession> set = new HashSet<Accession>();
+		Set<Accession> set = new THashSet<Accession>();
 		final AccessionEx accessionEx = new AccessionEx(accession, accessionType);
 		set.add(accessionEx);
 		primaryAccession = accessionEx;
@@ -143,13 +143,13 @@ public class ProteinEx implements Protein, Serializable, GroupableProtein {
 
 	public void addProteinAnnotation(ProteinAnnotation proteinAnnotation) {
 		if (proteinAnnotations == null)
-			proteinAnnotations = new HashSet<ProteinAnnotation>();
+			proteinAnnotations = new THashSet<ProteinAnnotation>();
 		proteinAnnotations.add(proteinAnnotation);
 	}
 
 	public void addProteinThreshold(Threshold threshold) {
 		if (thresholds == null)
-			thresholds = new HashSet<Threshold>();
+			thresholds = new THashSet<Threshold>();
 		thresholds.add(threshold);
 	}
 
@@ -168,7 +168,7 @@ public class ProteinEx implements Protein, Serializable, GroupableProtein {
 
 	public void addThreshold(Threshold threshold) {
 		if (thresholds == null)
-			thresholds = new HashSet<Threshold>();
+			thresholds = new THashSet<Threshold>();
 		thresholds.add(threshold);
 	}
 

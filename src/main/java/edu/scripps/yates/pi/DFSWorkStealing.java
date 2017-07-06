@@ -79,6 +79,7 @@ public class DFSWorkStealing<V> extends ParIteratorAbstract<V> {
 
 	// This method returns TRUE if there is still available vertex in the
 	// iterator (i.e. unvisited vertex), else returns FALSE
+	@Override
 	public boolean hasNext() {
 		int id = UniqueThreadIdGenerator.getCurrentThreadId();
 
@@ -142,6 +143,7 @@ public class DFSWorkStealing<V> extends ParIteratorAbstract<V> {
 	}
 
 	// This method returns a vertex assigned to a specific thread
+	@Override
 	public V next() {
 		int id = UniqueThreadIdGenerator.getCurrentThreadId();
 		return (V) buffer[id][0];

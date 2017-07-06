@@ -10,8 +10,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -24,14 +22,16 @@ import javax.imageio.stream.FileImageOutputStream;
 
 import edu.scripps.yates.utilities.colors.ColorGenerator;
 import edu.scripps.yates.utilities.util.ImageUtils;
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.set.hash.THashSet;
 
 public class VennDataForLists<T extends ContainsMultipleKeys> {
 	private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(VennDataForLists.class);
 	public static int DEFAULT_CHART_WIDTH = 500;
 	public static int DEFAULT_CHART_HEIGHT = 500;
-	private final Set<T> set1 = new HashSet<T>();
-	private final Set<T> set2 = new HashSet<T>();
-	private final Set<T> set3 = new HashSet<T>();
+	private final Set<T> set1 = new THashSet<T>();
+	private final Set<T> set2 = new THashSet<T>();
+	private final Set<T> set3 = new THashSet<T>();
 
 	private String intersection12 = null;
 	private String intersection13 = null;
@@ -44,7 +44,7 @@ public class VennDataForLists<T extends ContainsMultipleKeys> {
 	private final String title;
 	private URL url;
 	private final VennDataUtils<T> utils = new VennDataUtils<T>();
-	private final Map<String, Color> colorsByLabel = new HashMap<String, Color>();
+	private final Map<String, Color> colorsByLabel = new THashMap<String, Color>();
 	private final static Color COLOR_1_DEFAULT = ColorGenerator.hex2Rgb("FF6342");
 	private final static Color COLOR_2_DEFAULT = ColorGenerator.hex2Rgb("ADDE63");
 	private final static Color COLOR_3_DEFAULT = ColorGenerator.hex2Rgb("63C6DE");
@@ -192,7 +192,7 @@ public class VennDataForLists<T extends ContainsMultipleKeys> {
 	}
 
 	private Set<T> getUniqueToFirstSet(Set<T> hashToIsolate, Set<T> hash2, Set<T> hash3) {
-		Set<T> toIsolateSet2 = new HashSet<T>();
+		Set<T> toIsolateSet2 = new THashSet<T>();
 		if (hashToIsolate != null) {
 			toIsolateSet2.addAll(hashToIsolate);
 			Iterator<T> toIsolateIterator = toIsolateSet2.iterator();
@@ -252,7 +252,7 @@ public class VennDataForLists<T extends ContainsMultipleKeys> {
 		if (list3 != null && !list3.isEmpty()) {
 			numNonEmptySets++;
 		}
-		HashSet<T> ret = new HashSet<T>();
+		Set<T> ret = new THashSet<T>();
 		for (T t : list1) {
 			int numFound = 0;
 
@@ -281,7 +281,7 @@ public class VennDataForLists<T extends ContainsMultipleKeys> {
 	private Set<T> getUnion(Set<T> list1, Set<T> list2, Set<T> list3) {
 		// Since the HashSet doesn't allow to add repeated elements, add all to
 		// the set
-		HashSet<T> ret = new HashSet<T>();
+		Set<T> ret = new THashSet<T>();
 		if (list1 != null)
 			ret.addAll(list1);
 		if (list2 != null)
@@ -322,7 +322,7 @@ public class VennDataForLists<T extends ContainsMultipleKeys> {
 	 * @return
 	 */
 	public Set<T> getMaxCollection() {
-		Set<T> ret = new HashSet<T>();
+		Set<T> ret = new THashSet<T>();
 		ret.addAll(set1);
 		if (set2 != null && set2.size() > set1.size()) {
 			ret.clear();

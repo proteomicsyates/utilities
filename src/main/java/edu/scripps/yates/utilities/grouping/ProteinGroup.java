@@ -2,11 +2,12 @@ package edu.scripps.yates.utilities.grouping;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
+
+import gnu.trove.set.hash.THashSet;
 
 public class ProteinGroup extends ArrayList<GroupableProtein> {
 	/**
@@ -67,7 +68,7 @@ public class ProteinGroup extends ArrayList<GroupableProtein> {
 		String shareOrContain = "sharing";
 		if (size() == 1)
 			shareOrContain = "containing";
-		Set<String> seqs = new HashSet<String>();
+		Set<String> seqs = new THashSet<String>();
 		final List<GroupablePSM> psMs = getPSMs();
 		for (GroupablePSM groupablePSM : psMs) {
 			seqs.add(groupablePSM.getSequence());
@@ -201,7 +202,7 @@ public class ProteinGroup extends ArrayList<GroupableProtein> {
 	public List<GroupablePSM> getPSMs() {
 		// if (this.peptides == null || this.peptides.isEmpty()) {
 		List<GroupablePSM> ret = new ArrayList<GroupablePSM>();
-		Set<String> peptideIds = new HashSet<String>();
+		Set<String> peptideIds = new THashSet<String>();
 		for (GroupableProtein protein : this) {
 			final List<GroupablePSM> psms = protein.getGroupablePSMs();
 			if (psms != null)

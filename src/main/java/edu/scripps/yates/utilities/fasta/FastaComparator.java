@@ -6,9 +6,8 @@ import java.net.URL;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -20,6 +19,8 @@ import com.compomics.util.protein.Enzyme;
 import com.compomics.util.protein.Protein;
 
 import edu.scripps.yates.utilities.venndata.VennData;
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.set.hash.THashSet;
 
 public class FastaComparator {
 	private final static Logger log = Logger.getLogger(FastaComparator.class);
@@ -27,7 +28,7 @@ public class FastaComparator {
 	private final int maxPeptideLength = Integer.MAX_VALUE;
 	private final String DECOY_PREFIX = "Reverse";
 
-	private final HashMap<String, Set<String>> map;
+	private final Map<String, Set<String>> map;
 	private final NumberFormat nf = NumberFormat.getPercentInstance();
 	private final Enzyme enzyme;
 	private final List<File> files;
@@ -74,10 +75,10 @@ public class FastaComparator {
 		enzyme = EnzymeLoader.loadEnzyme(enzymeName, null);
 		enzyme.setMiscleavages(0);
 
-		map = new HashMap<String, Set<String>>();
+		map = new THashMap<String, Set<String>>();
 
 		for (String specie : species) {
-			Set<String> set = new HashSet<String>();
+			Set<String> set = new THashSet<String>();
 			int numProteinsFromSpecie = 0;
 			for (File file : files) {
 				FASTADBLoader loader = new FASTADBLoader();
@@ -111,10 +112,10 @@ public class FastaComparator {
 			Collections.sort(species);
 			Set<String> col1 = map.get(species.get(0));
 			Set<String> col2 = map.get(species.get(1));
-			Set<String> justIn1 = new HashSet<String>();
-			Set<String> justIn2 = new HashSet<String>();
-			Set<String> intersection = new HashSet<String>();
-			Set<String> union = new HashSet<String>();
+			Set<String> justIn1 = new THashSet<String>();
+			Set<String> justIn2 = new THashSet<String>();
+			Set<String> intersection = new THashSet<String>();
+			Set<String> union = new THashSet<String>();
 
 			for (String seq1 : col1) {
 				if (col2.contains(seq1)) {

@@ -1,6 +1,5 @@
 package edu.scripps.yates.utilities.model.factories;
 
-import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -13,16 +12,17 @@ import edu.scripps.yates.utilities.proteomicsmodel.Peptide;
 import edu.scripps.yates.utilities.proteomicsmodel.Protein;
 import edu.scripps.yates.utilities.proteomicsmodel.Ratio;
 import edu.scripps.yates.utilities.proteomicsmodel.Score;
+import gnu.trove.set.hash.THashSet;
 
 public class PeptideEx implements Peptide {
 
-	private final Set<PSM> psms = new HashSet<PSM>();
-	private final Set<Ratio> ratios = new HashSet<Ratio>();
-	private final Set<Amount> amounts = new HashSet<Amount>();
+	private final Set<PSM> psms = new THashSet<PSM>();
+	private final Set<Ratio> ratios = new THashSet<Ratio>();
+	private final Set<Amount> amounts = new THashSet<Amount>();
 	private Set<Score> scores;
 	private final String sequence;
-	private final Set<Protein> proteins = new HashSet<Protein>();
-	private final Set<Condition> conditions = new HashSet<Condition>();
+	private final Set<Protein> proteins = new THashSet<Protein>();
+	private final Set<Condition> conditions = new THashSet<Condition>();
 	private MSRun msRun;
 	private static Logger log = Logger.getLogger(PeptideEx.class);
 
@@ -84,7 +84,7 @@ public class PeptideEx implements Peptide {
 	@Override
 	public void addScore(Score score) {
 		if (scores == null)
-			scores = new HashSet<Score>();
+			scores = new THashSet<Score>();
 		scores.add(score);
 	}
 

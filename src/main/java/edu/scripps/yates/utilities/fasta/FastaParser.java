@@ -1,10 +1,7 @@
 package edu.scripps.yates.utilities.fasta;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -19,9 +16,11 @@ import edu.scripps.yates.utilities.taxonomy.UniprotOrganism;
 import edu.scripps.yates.utilities.taxonomy.UniprotSpeciesCodeMap;
 import edu.scripps.yates.utilities.util.Pair;
 import edu.scripps.yates.utilities.util.StringPosition;
+import gnu.trove.map.hash.TIntObjectHashMap;
+import gnu.trove.set.hash.THashSet;
 
 public class FastaParser {
-	private static Set<String> notRecognizedFastas = new HashSet<String>();
+	private static Set<String> notRecognizedFastas = new THashSet<String>();
 
 	public static enum UNIPROT_FASTA_KEYWORD {
 		OS, GN, PE, SV
@@ -654,11 +653,11 @@ public class FastaParser {
 	 * @return a map with the positions and modifications.<br>
 	 *         Note that positions start by 1 in the sequence.
 	 */
-	public static Map<Integer, Double> getPTMsFromSequence(String rawSeq) {
+	public static TIntObjectHashMap<Double> getPTMsFromSequence(String rawSeq) {
 		// get the peptide inside '.'
 		String seq = removeBeforeAfterAAs(rawSeq);
 
-		Map<Integer, Double> ret = new HashMap<Integer, Double>();
+		TIntObjectHashMap<Double> ret = new TIntObjectHashMap<Double>();
 		boolean isPTM = false;
 		String ptmString = "";
 		int position = 1;

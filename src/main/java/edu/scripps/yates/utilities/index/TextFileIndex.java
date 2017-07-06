@@ -6,7 +6,6 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -14,12 +13,13 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
 
 import edu.scripps.yates.utilities.util.Pair;
+import gnu.trove.map.hash.THashMap;
 
 public class TextFileIndex implements FileIndex<String> {
 	private final Logger log = Logger.getLogger(TextFileIndex.class);
 	private final File fileToIndex;
 	private final File indexFile;
-	private final HashMap<String, Pair<Long, Long>> indexMap = new HashMap<String, Pair<Long, Long>>();
+	private final Map<String, Pair<Long, Long>> indexMap = new THashMap<String, Pair<Long, Long>>();
 	private final static String INDEX_EXT = ".idx";
 	private static final String TAB = "\t";
 	private static final String NEWLINE = "\n";
@@ -76,6 +76,7 @@ public class TextFileIndex implements FileIndex<String> {
 
 	}
 
+	@Override
 	public String getItem(String key) {
 		try {
 			// load index file
@@ -128,6 +129,7 @@ public class TextFileIndex implements FileIndex<String> {
 	 * @return
 	 * @throws IOException
 	 */
+	@Override
 	public Map<String, Pair<Long, Long>> addItem(String item, Set<String> keys) {
 		// load index file
 		try {

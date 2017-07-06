@@ -3,9 +3,9 @@ package edu.scripps.yates.utilities.maths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+
+import gnu.trove.set.hash.TDoubleHashSet;
 
 public class DixonOutlierQTest {
 	/**
@@ -20,7 +20,7 @@ public class DixonOutlierQTest {
 		}
 		List<Double> numberList = new ArrayList<Double>();
 		numberList.addAll(numbers);
-		Set<Double> numberSet = new HashSet<Double>();
+		TDoubleHashSet numberSet = new TDoubleHashSet();
 		numberSet.addAll(numbers);
 		if (numberSet.size() < 3) {
 			return false;

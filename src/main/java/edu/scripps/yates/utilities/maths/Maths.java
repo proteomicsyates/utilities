@@ -93,6 +93,19 @@ public class Maths {
 	}
 
 	/**
+	 * Returns the maximum value in the array a[], Integer.MIN_VALUE if no such
+	 * value.
+	 */
+	public static int max(int[] a) {
+		int max = Integer.MIN_VALUE;
+		for (int i = 0; i < a.length; i++) {
+			if (a[i] > max)
+				max = a[i];
+		}
+		return max;
+	}
+
+	/**
 	 * Returns the minimum value in the array a[], +infinity if no such value.
 	 */
 	public static double min(double[] a) {

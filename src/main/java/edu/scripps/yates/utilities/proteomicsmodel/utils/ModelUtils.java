@@ -2,8 +2,6 @@ package edu.scripps.yates.utilities.proteomicsmodel.utils;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -27,11 +25,13 @@ import edu.scripps.yates.utilities.proteomicsmodel.Protein;
 import edu.scripps.yates.utilities.proteomicsmodel.ProteinAnnotation;
 import edu.scripps.yates.utilities.proteomicsmodel.Ratio;
 import edu.scripps.yates.utilities.proteomicsmodel.Score;
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.set.hash.THashSet;
 
 public class ModelUtils {
 	private static final Logger log = Logger.getLogger(ModelUtils.class);
 	// private static final HashMap<MSRun, Map<String, Peptide>> peptidesByMSRun
-	// = new HashMap<MSRun, Map<String, Peptide>>();
+	// = new THashMap<MSRun, Map<String, Peptide>>();
 	public static Organism ORGANISM_CONTAMINANT;
 
 	static {
@@ -41,7 +41,7 @@ public class ModelUtils {
 
 	public static Set<Ratio> getProteinRatiosBetweenTwoConditions(Protein protein, String condition1Name,
 			String condition2Name) {
-		Set<Ratio> ret = new HashSet<Ratio>();
+		Set<Ratio> ret = new THashSet<Ratio>();
 		if (protein.getRatios() != null) {
 			for (Ratio ratio : protein.getRatios()) {
 
@@ -74,7 +74,7 @@ public class ModelUtils {
 			return list2;
 		if (list2.isEmpty() && !list1.isEmpty())
 			return list1;
-		Set<String> proteinPrimaryAccs = new HashSet<String>();
+		Set<String> proteinPrimaryAccs = new THashSet<String>();
 		List<Protein> ret = new ArrayList<Protein>();
 
 		for (Protein protein : list1) {
@@ -93,7 +93,7 @@ public class ModelUtils {
 	}
 
 	public static Collection<PSM> psmUnion(Collection<PSM> list1, Collection<PSM> list2) {
-		Set<String> ids = new HashSet<String>();
+		Set<String> ids = new THashSet<String>();
 		List<PSM> ret = new ArrayList<PSM>();
 
 		for (PSM psm : list1) {
@@ -112,7 +112,7 @@ public class ModelUtils {
 	}
 
 	public static Set<PSM> getPSMIntersection(Collection<PSM> set1, Collection<PSM> set2) {
-		Set<PSM> ret = new HashSet<PSM>();
+		Set<PSM> ret = new THashSet<PSM>();
 		for (PSM t1 : set1) {
 			if (set2.contains(t1)) {
 				ret.add(t1);
@@ -122,7 +122,7 @@ public class ModelUtils {
 	}
 
 	public static Set<Peptide> getPeptideIntersection(Collection<Peptide> set1, Collection<Peptide> set2) {
-		Set<Peptide> ret = new HashSet<Peptide>();
+		Set<Peptide> ret = new THashSet<Peptide>();
 		for (Peptide t1 : set1) {
 			if (set2.contains(t1)) {
 				ret.add(t1);
@@ -132,7 +132,7 @@ public class ModelUtils {
 	}
 
 	public static Set<Protein> getProteinIntersection(Collection<Protein> set1, Collection<Protein> set2) {
-		Set<Protein> ret = new HashSet<Protein>();
+		Set<Protein> ret = new THashSet<Protein>();
 		for (Protein p1 : set1) {
 			for (Protein p2 : set2) {
 				if (p1.getPrimaryAccession().getAccession().equals(p2.getPrimaryAccession().getAccession())) {
@@ -180,7 +180,7 @@ public class ModelUtils {
 
 	public static List<Protein> getProteinsFromPsms(Collection<PSM> psms) {
 		List<Protein> ret = new ArrayList<Protein>();
-		Set<String> ids = new HashSet<String>();
+		Set<String> ids = new THashSet<String>();
 		for (PSM psm : psms) {
 			final Set<Protein> proteins = psm.getProteins();
 			for (Protein protein : proteins) {
@@ -204,7 +204,7 @@ public class ModelUtils {
 	}
 
 	public static Collection<String> getPrimaryAccessions(Collection<Protein> proteinList) {
-		HashSet<String> ret = new HashSet<String>();
+		Set<String> ret = new THashSet<String>();
 
 		for (Protein protein : proteinList) {
 			ret.add(protein.getPrimaryAccession().getAccession());
@@ -214,7 +214,7 @@ public class ModelUtils {
 	}
 
 	public static Collection<String> getPrimaryAccessions(Collection<Protein> proteinList, String accType) {
-		HashSet<String> ret = new HashSet<String>();
+		Set<String> ret = new THashSet<String>();
 
 		for (Protein protein : proteinList) {
 			final Accession primaryAccession = protein.getPrimaryAccession();
@@ -226,7 +226,7 @@ public class ModelUtils {
 	}
 
 	public static Collection<String> getPrimaryAccessions(Collection<Protein> proteinList, AccessionType accType) {
-		HashSet<String> ret = new HashSet<String>();
+		Set<String> ret = new THashSet<String>();
 
 		for (Protein protein : proteinList) {
 			final Accession primaryAccession = protein.getPrimaryAccession();
@@ -293,7 +293,7 @@ public class ModelUtils {
 	}
 
 	public static Map<String, List<Protein>> mergeProteins(List<Protein> proteins) {
-		Map<String, List<Protein>> map = new HashMap<String, List<Protein>>();
+		Map<String, List<Protein>> map = new THashMap<String, List<Protein>>();
 		for (Protein protein : proteins) {
 			final String accession = protein.getPrimaryAccession().getAccession();
 			if (map.containsKey(accession)) {
@@ -312,7 +312,7 @@ public class ModelUtils {
 		if (map.containsKey(primaryAcc)) {
 			map.get(primaryAcc).add(protein);
 		} else {
-			Set<Protein> set = new HashSet<Protein>();
+			Set<Protein> set = new THashSet<Protein>();
 			set.add(protein);
 			map.put(primaryAcc, set);
 		}
@@ -321,7 +321,7 @@ public class ModelUtils {
 				if (map.containsKey(acc.getAccession())) {
 					map.get(acc.getAccession()).add(protein);
 				} else {
-					Set<Protein> set = new HashSet<Protein>();
+					Set<Protein> set = new THashSet<Protein>();
 					set.add(protein);
 					map.put(acc.getAccession(), set);
 				}
@@ -342,7 +342,7 @@ public class ModelUtils {
 			if (receiverMap.containsKey(key)) {
 				receiverMap.get(key).addAll(set);
 			} else {
-				Set<Protein> set2 = new HashSet<Protein>();
+				Set<Protein> set2 = new THashSet<Protein>();
 				set2.addAll(set);
 				receiverMap.put(key, set2);
 			}
@@ -360,7 +360,7 @@ public class ModelUtils {
 	}
 
 	public static Map<String, Set<PSM>> getPSMMapBySequence(Collection<PSM> psms) {
-		Map<String, Set<PSM>> ret = new HashMap<String, Set<PSM>>();
+		Map<String, Set<PSM>> ret = new THashMap<String, Set<PSM>>();
 		if (psms != null) {
 			for (PSM psm : psms) {
 				if (psm == null)
@@ -369,7 +369,7 @@ public class ModelUtils {
 				if (ret.containsKey(cleanSequence)) {
 					ret.get(cleanSequence).add(psm);
 				} else {
-					Set<PSM> set = new HashSet<PSM>();
+					Set<PSM> set = new THashSet<PSM>();
 					set.add(psm);
 					ret.put(cleanSequence, set);
 				}
@@ -399,7 +399,7 @@ public class ModelUtils {
 	// if (peptidesByMSRun.containsKey(msRun)) {
 	// peptideSet = peptidesByMSRun.get(msRun);
 	// } else {
-	// peptideSet = new HashMap<String, Peptide>();
+	// peptideSet = new THashMap<String, Peptide>();
 	// peptidesByMSRun.put(msRun, peptideSet);
 	// }
 	// for (String sequence : psmMapBySequence.keySet()) {

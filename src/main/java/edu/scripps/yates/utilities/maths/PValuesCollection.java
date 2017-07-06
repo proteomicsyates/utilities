@@ -3,12 +3,13 @@ package edu.scripps.yates.utilities.maths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import gnu.trove.map.hash.THashMap;
+
 public class PValuesCollection {
-	private final Map<String, Double> pValues = new HashMap<String, Double>();
+	private final Map<String, Double> pValues = new THashMap<String, Double>();
 	private List<String> sortedKeysByPValue;
 
 	public PValuesCollection(Map<String, Double> pValues) {

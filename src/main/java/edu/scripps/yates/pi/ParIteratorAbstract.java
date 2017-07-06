@@ -19,7 +19,6 @@
 
 package edu.scripps.yates.pi;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
@@ -28,6 +27,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import edu.scripps.yates.pi.exceptions.PIExceptionHelper;
 import edu.scripps.yates.pi.exceptions.ParIteratorException;
+import gnu.trove.map.hash.TIntObjectHashMap;
 
 /**
  * This class is for convenience, provides an abstract implementation of the
@@ -53,6 +53,7 @@ public abstract class ParIteratorAbstract<E> implements ParIterator<E> {
 
 	protected UniqueThreadIdGeneratorNonStatic uniqueThreadIdGenerator = new UniqueThreadIdGeneratorNonStatic();
 
+	@Override
 	public void setThreadIdGenerator(UniqueThreadIdGeneratorNonStatic uniqueThreadIdGenerator) {
 		this.uniqueThreadIdGenerator = uniqueThreadIdGenerator;
 	}
@@ -65,7 +66,7 @@ public abstract class ParIteratorAbstract<E> implements ParIterator<E> {
 
 	// -- for each thread, it's current element (as determined by the iteration
 	// boundary) is stored. See paper.
-	protected HashMap<Integer, E> currentElements = new HashMap<Integer, E>();
+	protected TIntObjectHashMap<E> currentElements = new TIntObjectHashMap<E>();
 
 	protected ThreadLocal<Boolean> successfullyCalledHasNext = new ThreadLocal<Boolean>();
 

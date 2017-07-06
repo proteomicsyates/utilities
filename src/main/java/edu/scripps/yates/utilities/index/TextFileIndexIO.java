@@ -6,14 +6,14 @@ import java.io.RandomAccessFile;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel.MapMode;
 import java.nio.channels.FileLock;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
 
 import edu.scripps.yates.utilities.util.Pair;
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.set.hash.THashSet;
 
 /**
  * Indexer of text files. This class will read a text file, usually a large one,
@@ -87,7 +87,7 @@ public class TextFileIndexIO {
 	 * @return
 	 */
 	protected Set<String> getKeys(String string) {
-		HashSet<String> set = new HashSet<String>();
+		Set<String> set = new THashSet<String>();
 		set.add(String.valueOf(numEntries));
 		return set;
 	}
@@ -97,7 +97,7 @@ public class TextFileIndexIO {
 	 * @throws IOException
 	 */
 	public Map<String, Pair<Long, Long>> getIndexMap() throws IOException {
-		Map<String, Pair<Long, Long>> ret = new HashMap<String, Pair<Long, Long>>();
+		Map<String, Pair<Long, Long>> ret = new THashMap<String, Pair<Long, Long>>();
 		if (!fileToIndex.exists())
 			return ret;
 		final long totalLength = fileToIndex.length();
@@ -175,7 +175,7 @@ public class TextFileIndexIO {
 			raf = new RandomAccessFile(fileToIndex, "rws");
 			buffer = raf.getChannel().map(MapMode.READ_WRITE, raf.length(), bytes.length);
 
-			Map<String, Pair<Long, Long>> ret = new HashMap<String, Pair<Long, Long>>();
+			Map<String, Pair<Long, Long>> ret = new THashMap<String, Pair<Long, Long>>();
 			// char[] itemInChars = item.toCharArray();
 
 			// go to the end

@@ -2,15 +2,17 @@ package edu.scripps.yates.utilities.grouping;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
 
 import edu.scripps.yates.utilities.dates.DatesUtil;
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.set.hash.THashSet;
+import gnu.trove.set.hash.TIntHashSet;
 
 /**
  * 
@@ -19,15 +21,15 @@ import edu.scripps.yates.utilities.dates.DatesUtil;
 public class PAnalyzer {
 	private static final Logger log = Logger.getLogger("log4j.logger.org.proteored");
 
-	private final HashMap<String, InferenceProtein> mProts;
-	private final HashMap<String, InferencePeptide> mPepts;
+	private final Map<String, InferenceProtein> mProts;
+	private final Map<String, InferencePeptide> mPepts;
 	private final List<ProteinGroupInference> mGroups;
 	private PanalyzerStats mStats;
 	private final boolean separateNonConclusiveProteins;
 
 	public PAnalyzer(boolean separateNonConclusiveProteins) {
-		mProts = new HashMap<String, InferenceProtein>();
-		mPepts = new HashMap<String, InferencePeptide>();
+		mProts = new THashMap<String, InferenceProtein>();
+		mPepts = new THashMap<String, InferencePeptide>();
 		mGroups = new ArrayList<ProteinGroupInference>();
 		this.separateNonConclusiveProteins = separateNonConclusiveProteins;
 	}
@@ -124,7 +126,7 @@ public class PAnalyzer {
 	private void createInferenceMaps(Collection<GroupableProtein> proteins) {
 		InferenceProtein iProt = null;
 		InferencePeptide iPept = null;
-		Set<Integer> proteinIds = new HashSet<Integer>();
+		TIntHashSet proteinIds = new TIntHashSet();
 		boolean someProteinwithoutPeptides = false;
 		for (GroupableProtein prot : proteins) {
 			if (!proteinIds.contains(prot.getDBId())) {
@@ -181,8 +183,8 @@ public class PAnalyzer {
 			if (prot.getEvidence() == ProteinEvidence.CONCLUSIVE)
 				// if conclusive is because they have a unique peptide
 				for (InferencePeptide pept : prot.getInferencePeptides())
-					if (pept.getRelation() != PeptideRelation.UNIQUE)
-						pept.setRelation(PeptideRelation.NONDISCRIMINATING);
+				if (pept.getRelation() != PeptideRelation.UNIQUE)
+				pept.setRelation(PeptideRelation.NONDISCRIMINATING);
 
 		// Locate non-meaningful peptides (second round)
 		boolean shared;
@@ -285,7 +287,7 @@ public class PAnalyzer {
 	//
 	// }
 	private void markIndistinguishable() {
-		Set<InferencePeptide> discriminating = new HashSet<InferencePeptide>();
+		Set<InferencePeptide> discriminating = new THashSet<InferencePeptide>();
 		boolean indistinguishable;
 		for (ProteinGroupInference group : mGroups) {
 			if (group.getEvidence() != ProteinEvidence.AMBIGUOUSGROUP || group.size() < 2)

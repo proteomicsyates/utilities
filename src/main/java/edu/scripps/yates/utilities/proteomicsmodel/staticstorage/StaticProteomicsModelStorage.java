@@ -1,7 +1,6 @@
 package edu.scripps.yates.utilities.proteomicsmodel.staticstorage;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -14,6 +13,7 @@ import edu.scripps.yates.utilities.proteomicsmodel.PSM;
 import edu.scripps.yates.utilities.proteomicsmodel.Peptide;
 import edu.scripps.yates.utilities.proteomicsmodel.Protein;
 import edu.scripps.yates.utilities.staticstorage.ItemStorage;
+import gnu.trove.set.hash.THashSet;
 
 /**
  * This class is intended to storage {@link Protein}s {@link Peptide}s and
@@ -127,7 +127,7 @@ public class StaticProteomicsModelStorage {
 	}
 
 	public static Set<Protein> getProtein(Collection<String> msRunIDs, String conditionID, String accession) {
-		Set<Protein> set = new HashSet<Protein>();
+		Set<Protein> set = new THashSet<Protein>();
 		for (String msRunID : msRunIDs) {
 			set.addAll(getProtein(msRunID, conditionID, -1, accession));
 		}
@@ -136,7 +136,7 @@ public class StaticProteomicsModelStorage {
 
 	public static Set<Protein> getProtein(Collection<String> msRunIDs, String conditionID, int excelRowIndex,
 			String accession) {
-		Set<Protein> set = new HashSet<Protein>();
+		Set<Protein> set = new THashSet<Protein>();
 		for (String msRunID : msRunIDs) {
 			set.addAll(proteinStorage.get(msRunID, conditionID, excelRowIndex, accession));
 		}
@@ -209,7 +209,7 @@ public class StaticProteomicsModelStorage {
 	}
 
 	public static Set<Peptide> getPeptide(Collection<String> msRunIDs, String conditionID, String sequence) {
-		Set<Peptide> set = new HashSet<Peptide>();
+		Set<Peptide> set = new THashSet<Peptide>();
 		for (String msRunID : msRunIDs) {
 			set.addAll(getPeptide(msRunID, conditionID, -1, sequence));
 		}
@@ -218,7 +218,7 @@ public class StaticProteomicsModelStorage {
 
 	public static Set<Peptide> getPeptide(Collection<String> msRunIDs, String conditionID, int excelRowIndex,
 			String sequence) {
-		Set<Peptide> set = new HashSet<Peptide>();
+		Set<Peptide> set = new THashSet<Peptide>();
 		for (String msRunID : msRunIDs) {
 			set.addAll(peptideStorage.get(msRunID, conditionID, excelRowIndex, sequence));
 		}

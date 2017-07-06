@@ -1,10 +1,11 @@
 package edu.scripps.yates.utilities.venndata;
 
-import java.util.HashSet;
 import java.util.Set;
 
+import gnu.trove.set.hash.THashSet;
+
 public class MultipleValuesObject extends ContainsMultipleKeys {
-	private final Set<String> values = new HashSet<String>();
+	private final Set<String> values = new THashSet<String>();
 	private final String name;
 
 	public MultipleValuesObject(String name, String separator) {
@@ -21,6 +22,7 @@ public class MultipleValuesObject extends ContainsMultipleKeys {
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#toString()
 	 */
 	@Override

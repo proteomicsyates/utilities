@@ -2,7 +2,6 @@ package edu.scripps.yates.utilities.sequence;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -11,6 +10,7 @@ import org.apache.log4j.Logger;
 import com.compomics.util.protein.AASequenceImpl;
 
 import edu.scripps.yates.utilities.strings.StringUtils;
+import gnu.trove.set.hash.THashSet;
 
 /**
  * Calculation of different biophysical properties on peptide sequences.
@@ -204,7 +204,7 @@ public class PeptideSequenceProperties {
 	 */
 	public static Set<String> permutatePeptideAAs(String originalPeptide, String[] aas) {
 
-		Set<String> ret = new HashSet<String>();
+		Set<String> ret = new THashSet<String>();
 		List<Integer> positions = new ArrayList<Integer>();
 		for (String aa : aas) {
 			positions.addAll(StringUtils.allPositionsOf(originalPeptide, aa));

@@ -5,11 +5,12 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+
+import gnu.trove.map.hash.THashMap;
 
 public class BHCorrection {
 	private final static Logger log = Logger.getLogger(BHCorrection.class);
@@ -19,7 +20,7 @@ public class BHCorrection {
 	}
 
 	public static BHCorrectionResult bhCorrection(final Map<String, Double> pvaluesMap) {
-		Map<String, Double> ret = new HashMap<String, Double>();
+		Map<String, Double> ret = new THashMap<String, Double>();
 		PValuesCollection pvalues = new PValuesCollection(pvaluesMap);
 		BHCorrectionResult result = new BHCorrectionResult();
 		result.setOriginalPValues(pvalues);
@@ -56,7 +57,7 @@ public class BHCorrection {
 	}
 
 	public static BHCorrectionResult bhCorrection(final Collection<Double> pvalues) {
-		Map<String, Double> map = new HashMap<String, Double>();
+		Map<String, Double> map = new THashMap<String, Double>();
 		int num = 1;
 		for (Double pvalue : pvalues) {
 			map.put(String.valueOf(num), pvalue);
@@ -90,7 +91,7 @@ public class BHCorrection {
 	 */
 	public static BHCorrectionResult bhCorrection(File file, int keyColumnIndex, int pvalueColumnIndex,
 			String columnSeparator, boolean containsHeader) throws IOException {
-		Map<String, Double> pValues = new HashMap<String, Double>();
+		Map<String, Double> pValues = new THashMap<String, Double>();
 		BufferedReader br = null;
 		try {
 			br = new BufferedReader(new FileReader(file));

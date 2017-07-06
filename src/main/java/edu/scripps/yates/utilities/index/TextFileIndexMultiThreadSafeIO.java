@@ -6,14 +6,14 @@ import java.io.RandomAccessFile;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel.MapMode;
 import java.nio.channels.FileLock;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
 
 import edu.scripps.yates.utilities.util.Pair;
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.set.hash.THashSet;
 
 /**
  * Indexer of text files. This class will read a text file, usually a large one,
@@ -29,7 +29,7 @@ import edu.scripps.yates.utilities.util.Pair;
  */
 public class TextFileIndexMultiThreadSafeIO {
 	private static final Logger log = Logger.getLogger(TextFileIndexMultiThreadSafeIO.class);
-	private static Map<String, FileRecordReservation> fileRecordReservation = new HashMap<String, FileRecordReservation>();
+	private static Map<String, FileRecordReservation> fileRecordReservation = new THashMap<String, FileRecordReservation>();
 	private int numEntries;
 	private final String beginToken;
 	private final String endToken;
@@ -88,7 +88,7 @@ public class TextFileIndexMultiThreadSafeIO {
 	 * @return
 	 */
 	protected Set<String> getKeys(String string) {
-		HashSet<String> set = new HashSet<String>();
+		Set<String> set = new THashSet<String>();
 		set.add(String.valueOf(numEntries));
 		return set;
 	}
@@ -98,7 +98,7 @@ public class TextFileIndexMultiThreadSafeIO {
 	 * @throws IOException
 	 */
 	public Map<String, Pair<Long, Long>> getIndexMap() throws IOException {
-		Map<String, Pair<Long, Long>> ret = new HashMap<String, Pair<Long, Long>>();
+		Map<String, Pair<Long, Long>> ret = new THashMap<String, Pair<Long, Long>>();
 		if (!fileToIndex.exists())
 			return ret;
 		final long totalLength = fileToIndex.length();
@@ -195,7 +195,7 @@ public class TextFileIndexMultiThreadSafeIO {
 			raf.close();
 			log.debug("Closing file access from thread " + Thread.currentThread().getId());
 		}
-		Map<String, Pair<Long, Long>> ret = new HashMap<String, Pair<Long, Long>>();
+		Map<String, Pair<Long, Long>> ret = new THashMap<String, Pair<Long, Long>>();
 
 		// it is important to increase this variable before getKeys() is
 		// called

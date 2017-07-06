@@ -3,12 +3,12 @@ package edu.scripps.yates.utilities.model.factories;
 import java.io.Serializable;
 import java.net.URL;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Set;
 
 import edu.scripps.yates.utilities.proteomicsmodel.Condition;
 import edu.scripps.yates.utilities.proteomicsmodel.MSRun;
 import edu.scripps.yates.utilities.proteomicsmodel.Project;
+import gnu.trove.set.hash.THashSet;
 
 public class ProjectEx implements Project, Serializable {
 
@@ -21,8 +21,8 @@ public class ProjectEx implements Project, Serializable {
 	private Date releaseDate;
 
 	private URL pubmedLink;
-	private final Set<Condition> conditions = new HashSet<Condition>();
-	private final Set<MSRun> msRuns = new HashSet<MSRun>();
+	private final Set<Condition> conditions = new THashSet<Condition>();
+	private final Set<MSRun> msRuns = new THashSet<MSRun>();
 
 	private boolean isPrivate = true;
 	private String tag;

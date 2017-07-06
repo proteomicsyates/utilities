@@ -2,7 +2,6 @@ package edu.scripps.yates.utilities.model.factories;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -21,6 +20,7 @@ import edu.scripps.yates.utilities.proteomicsmodel.Protein;
 import edu.scripps.yates.utilities.proteomicsmodel.Ratio;
 import edu.scripps.yates.utilities.proteomicsmodel.Score;
 import edu.scripps.yates.utilities.proteomicsmodel.staticstorage.StaticProteomicsModelStorage;
+import gnu.trove.set.hash.THashSet;
 
 public class PSMEx implements PSM, Serializable {
 	/**
@@ -40,12 +40,12 @@ public class PSMEx implements PSM, Serializable {
 	private Double ionProportion;
 	private Double pi;
 	private Set<Score> scores;
-	private final HashSet<Amount> amounts = new HashSet<Amount>();;
-	private final Set<Ratio> ratios = new HashSet<Ratio>();
-	private final Set<Protein> proteins = new HashSet<Protein>();
+	private final Set<Amount> amounts = new THashSet<Amount>();;
+	private final Set<Ratio> ratios = new THashSet<Ratio>();
+	private final Set<Protein> proteins = new THashSet<Protein>();
 	private PeptideRelation relation;
 	private Peptide peptide;
-	private final Set<Condition> conditions = new HashSet<Condition>();
+	private final Set<Condition> conditions = new THashSet<Condition>();
 	private String afterSeq;
 	private String beforeSeq;
 	private final Logger log = Logger.getLogger(PSMEx.class);
@@ -221,7 +221,7 @@ public class PSMEx implements PSM, Serializable {
 	@Override
 	public void addScore(Score score) {
 		if (scores == null)
-			scores = new HashSet<Score>();
+			scores = new THashSet<Score>();
 		scores.add(score);
 	}
 

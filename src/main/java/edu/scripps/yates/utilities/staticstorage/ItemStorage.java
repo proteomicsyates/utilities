@@ -1,16 +1,18 @@
 package edu.scripps.yates.utilities.staticstorage;
 
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.map.hash.TIntObjectHashMap;
+import gnu.trove.set.hash.THashSet;
+
 public class ItemStorage<T> {
-	private final Map<String, Set<T>> itemByRunID = new HashMap<String, Set<T>>();
-	private final Map<String, Set<T>> itemByConditionID = new HashMap<String, Set<T>>();
-	private final Map<Integer, Set<T>> itemByExcelRow = new HashMap<Integer, Set<T>>();
-	private final Map<String, Set<T>> itemByKey = new HashMap<String, Set<T>>();
+	private final Map<String, Set<T>> itemByRunID = new THashMap<String, Set<T>>();
+	private final Map<String, Set<T>> itemByConditionID = new THashMap<String, Set<T>>();
+	private final TIntObjectHashMap<Set<T>> itemByExcelRow = new TIntObjectHashMap<Set<T>>();
+	private final Map<String, Set<T>> itemByKey = new THashMap<String, Set<T>>();
 
 	public void clearData() {
 		itemByConditionID.clear();
@@ -58,7 +60,7 @@ public class ItemStorage<T> {
 	 * @return
 	 */
 	public Set<T> get(String msRunID, String conditionID, int excelRowIndex, String key) {
-		Set<T> ret = new HashSet<T>();
+		Set<T> ret = new THashSet<T>();
 		if (key != null && !"".equals(key)) {
 			if (itemByKey.containsKey(key)) {
 				if (ret.isEmpty()) {
@@ -136,7 +138,7 @@ public class ItemStorage<T> {
 	 * @return
 	 */
 	private Set<T> getIntersection(Set<T> set1, Set<T> set2) {
-		Set<T> ret = new HashSet<T>();
+		Set<T> ret = new THashSet<T>();
 		Set<T> smallerSet = set1;
 		Set<T> biggerSet = set2;
 		if (set2.size() < set1.size()) {
@@ -155,17 +157,17 @@ public class ItemStorage<T> {
 		if (map.containsKey(key)) {
 			map.get(key).add(item);
 		} else {
-			Set<T> set = new HashSet<T>();
+			Set<T> set = new THashSet<T>();
 			set.add(item);
 			map.put(key, set);
 		}
 	}
 
-	private void addToMap(T item, Map<Integer, Set<T>> map, int key) {
+	private void addToMap(T item, TIntObjectHashMap<Set<T>> map, int key) {
 		if (map.containsKey(key)) {
 			map.get(key).add(item);
 		} else {
-			Set<T> set = new HashSet<T>();
+			Set<T> set = new THashSet<T>();
 			set.add(item);
 			map.put(key, set);
 		}

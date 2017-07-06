@@ -5,9 +5,10 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import gnu.trove.set.hash.THashSet;
 
 /**
  * Class that perform a query over an object created with JAXB from an XML.<br>
@@ -39,7 +40,7 @@ public class JAXBXPathQuery {
 		XPathParser xpathParserFilter = new XPathParser(xpath);
 		XPathParser xpathParser = new XPathParser(subXpath);
 
-		Set<Object> set = new HashSet<Object>();
+		Set<Object> set = new THashSet<Object>();
 		set.add(jaxbObject);
 		try {
 			List<Object> explore = explore(xpathParserFilter, xpathParser, set, set);
@@ -75,7 +76,7 @@ public class JAXBXPathQuery {
 					Collection<Object> collection = (Collection<Object>) returnedObj;
 					list.addAll(explore(xPathParserFilter, xPathParser, originalObjects, collection));
 				} else {
-					Set<Object> set = new HashSet<Object>();
+					Set<Object> set = new THashSet<Object>();
 					set.add(returnedObj);
 					list.addAll(explore(xPathParserFilter, xPathParser, originalObjects, set));
 				}
@@ -86,7 +87,7 @@ public class JAXBXPathQuery {
 					if (returnedObj != null) {
 						if (filterValue != null) {
 							if (filterValue.equals(returnedObj.toString())) {
-								Set<Object> set = new HashSet<Object>();
+								Set<Object> set = new THashSet<Object>();
 								set.add(object);
 								list.addAll(explore((XPathParser) xPathParser.clone(), null, null, set));
 							}

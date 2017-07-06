@@ -7,9 +7,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -22,14 +21,16 @@ import edu.scripps.yates.utilities.proteomicsmodel.Accession;
 import edu.scripps.yates.utilities.proteomicsmodel.Protein;
 import edu.scripps.yates.utilities.proteomicsmodel.utils.ModelUtils;
 import edu.scripps.yates.utilities.util.Pair;
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.set.hash.THashSet;
 
 public class IPI2UniprotACCMap {
 	private static final String regularMappingFileName = "uniprot2IPI.tsv";
 	private static final String ipi_3_23_MappingFileName = "ipi3.23_To_Uniprot_mapping.txt";
 
-	private static final HashMap<String, List<UniprotEntry>> ipi2Uniprot = new HashMap<String, List<UniprotEntry>>();
-	private static final HashMap<UniprotEntry, List<String>> uniprotEntry2IPI = new HashMap<UniprotEntry, List<String>>();
-	private static final HashMap<String, UniprotEntry> uniprotEntryMap = new HashMap<String, UniprotEntry>();
+	private static final Map<String, List<UniprotEntry>> ipi2Uniprot = new THashMap<String, List<UniprotEntry>>();
+	private static final Map<UniprotEntry, List<String>> uniprotEntry2IPI = new THashMap<UniprotEntry, List<String>>();
+	private static final Map<String, UniprotEntry> uniprotEntryMap = new THashMap<String, UniprotEntry>();
 	private static Logger log = Logger.getLogger(IPI2UniprotACCMap.class);
 	private static IPI2UniprotACCMap instance;
 
@@ -230,7 +231,7 @@ public class IPI2UniprotACCMap {
 	}
 
 	public Pair<Accession, Set<Accession>> getPrimaryAndSecondaryAccessionsFromIPI(Accession primaryAccession) {
-		Set<Accession> secondaryAccessions = new HashSet<Accession>();
+		Set<Accession> secondaryAccessions = new THashSet<Accession>();
 		AccessionEx newPrimaryAcc = null;
 		final List<UniprotEntry> map2Uniprot = IPI2UniprotACCMap.getInstance()
 				.map2Uniprot(primaryAccession.getAccession());
