@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2009 Nasser Giacaman, Oliver Sinnen
+ *  Copyright (C) 2009 Nasser Giacaman, Oliver Sinnen, Lama Akeila
  *
  *  This file is part of Parallel Iterator.
  *
@@ -17,27 +17,28 @@
  *  with Parallel Iterator. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package edu.scripps.yates.pi;
+package edu.scripps.yates.utilities.pi;
 
 /**
- * This class generates a unique id for the thread accessing it. Non-static implemementation
+ * This class generates a unique id for the thread accessing it.
  * 
  * @author Nasser Giacaman
+ * @author Lama Akeila
  * @author Oliver Sinnen
  * 
  */
 
-public class UniqueThreadIdGeneratorNonStatic {
+public class UniqueThreadIdGenerator {
     // The next serial number to be assigned
-    private int nextSerialNum = 0;
+    private static int nextSerialNum = 0;
 
-    private ThreadLocal<Integer> serialNum = new ThreadLocal<Integer>() {
+    private static ThreadLocal<Integer> serialNum = new ThreadLocal<Integer>() {
         protected synchronized Integer initialValue() {
             return new Integer(nextSerialNum++);
         }
     };
     
-    public int getCurrentThreadId() {
+    public static int getCurrentThreadId() {
         return ((Integer) (serialNum.get())).intValue();
     }
 }

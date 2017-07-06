@@ -17,9 +17,9 @@
  *  with Parallel Iterator. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package edu.scripps.yates.pi.exceptions;
+package edu.scripps.yates.utilities.pi.exceptions;
 
-import edu.scripps.yates.pi.ParIterator;
+import edu.scripps.yates.utilities.pi.ParIterator;
 
 /**
  *	Stores information relevant to an exception that occurred during a particular iteration. Note that this class is not an 

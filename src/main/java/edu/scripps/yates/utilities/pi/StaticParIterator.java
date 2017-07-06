@@ -17,7 +17,7 @@
  *  with Parallel Iterator. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package edu.scripps.yates.pi;
+package edu.scripps.yates.utilities.pi;
 
 import java.util.ArrayList;
 import java.util.List;

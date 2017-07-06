@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2009 Lama Akeila, Oliver Sinnen, Nasser Giacaman
+ *  Copyright (C) 2009 Nasser Giacaman, Oliver Sinnen
  *
  *  This file is part of Parallel Iterator.
  *
@@ -17,25 +17,27 @@
  *  with Parallel Iterator. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package edu.scripps.yates.pi;
+package edu.scripps.yates.utilities.pi;
 
-import java.util.ArrayList;
-import java.util.Collection;
+/**
+ * This class generates a unique id for the thread accessing it. Non-static implemementation
+ * 
+ * @author Nasser Giacaman
+ * @author Oliver Sinnen
+ * 
+ */
 
+public class UniqueThreadIdGeneratorNonStatic {
+    // The next serial number to be assigned
+    private int nextSerialNum = 0;
 
-public interface GraphAdapterInterface<V, E> {
-
-	//returns the successors of v
-	public ArrayList<V> getChildrenList(Object v);
-	
-	//returns the parent nodes of v
-	public ArrayList<V> getParentsList(Object v);
-
-	//returns a collection of all the nodes in the graph
-	public Collection<V> verticesSet();
-
-	//returns a collection of all the edges in the graph
-	public Collection<E> edgesSet();
-
+    private ThreadLocal<Integer> serialNum = new ThreadLocal<Integer>() {
+        protected synchronized Integer initialValue() {
+            return new Integer(nextSerialNum++);
+        }
+    };
+    
+    public int getCurrentThreadId() {
+        return ((Integer) (serialNum.get())).intValue();
+    }
 }
-

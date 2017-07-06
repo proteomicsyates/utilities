@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2009 Nasser Giacaman, Oliver Sinnen
+ *  Copyright (C) 2009 Lama Akeila, Oliver Sinnen, Nasser Giacaman
  *
  *  This file is part of Parallel Iterator.
  *
@@ -17,21 +17,25 @@
  *  with Parallel Iterator. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package edu.scripps.yates.pi.exceptions;
+package edu.scripps.yates.utilities.pi;
 
-/**
- * 
- * @author Nasser Giacaman
- * @author Oliver Sinnen
- *
- */
-public class PIExceptionHelper {
+import java.util.ArrayList;
+import java.util.Collection;
+
+
+public interface GraphAdapterInterface<V, E> {
+
+	//returns the successors of v
+	public ArrayList<V> getChildrenList(Object v);
 	
-	/*
-	 * The purpose of this helper is to keep the constructor of the ParIteratorException hidden from the 
-	 * user API (but still be accessible to the "pi" package).
-	 */
-	public static ParIteratorException createException(Exception exception, Object iteration, Thread registeringThread) {
-		return new ParIteratorException(exception, iteration, registeringThread);
-	}
+	//returns the parent nodes of v
+	public ArrayList<V> getParentsList(Object v);
+
+	//returns a collection of all the nodes in the graph
+	public Collection<V> verticesSet();
+
+	//returns a collection of all the edges in the graph
+	public Collection<E> edgesSet();
+
 }
+

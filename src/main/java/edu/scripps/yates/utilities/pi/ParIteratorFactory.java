@@ -17,14 +17,14 @@
  *  with Parallel Iterator. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package edu.scripps.yates.pi;
+package edu.scripps.yates.utilities.pi;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.RandomAccess;
 
-import edu.scripps.yates.pi.util.DynamicList;
+import edu.scripps.yates.utilities.pi.util.DynamicList;
 
 /**
  * This class defines the functionality of a Parallel Iterator factory. The

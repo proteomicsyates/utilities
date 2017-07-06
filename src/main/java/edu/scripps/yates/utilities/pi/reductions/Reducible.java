@@ -17,11 +17,11 @@
  *  with Parallel Iterator. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package edu.scripps.yates.pi.reductions;
+package edu.scripps.yates.utilities.pi.reductions;
 
 import java.util.concurrent.locks.ReentrantLock;
 
-import edu.scripps.yates.pi.UniqueThreadIdGenerator;
+import edu.scripps.yates.utilities.pi.UniqueThreadIdGenerator;
 import gnu.trove.map.hash.TIntObjectHashMap;
 
 /**

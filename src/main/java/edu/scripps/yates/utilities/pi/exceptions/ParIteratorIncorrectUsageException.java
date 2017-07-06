@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2009 Nasser Giacaman, Oliver Sinnen, Lama Akeila
+ *  Copyright (C) 2009 Nasser Giacaman, Oliver Sinnen
  *
  *  This file is part of Parallel Iterator.
  *
@@ -17,28 +17,17 @@
  *  with Parallel Iterator. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package edu.scripps.yates.pi;
+package edu.scripps.yates.utilities.pi.exceptions;
 
 /**
- * This class generates a unique id for the thread accessing it.
- * 
+ *	Represents a run-time exception due to incorrect usage of the Parallel Iterator. 
+ *	
  * @author Nasser Giacaman
- * @author Lama Akeila
  * @author Oliver Sinnen
- * 
  */
+public class ParIteratorIncorrectUsageException extends RuntimeException {
 
-public class UniqueThreadIdGenerator {
-    // The next serial number to be assigned
-    private static int nextSerialNum = 0;
-
-    private static ThreadLocal<Integer> serialNum = new ThreadLocal<Integer>() {
-        protected synchronized Integer initialValue() {
-            return new Integer(nextSerialNum++);
-        }
-    };
-    
-    public static int getCurrentThreadId() {
-        return ((Integer) (serialNum.get())).intValue();
-    }
+	public ParIteratorIncorrectUsageException(String message) {
+		super(message);
+	}
 }

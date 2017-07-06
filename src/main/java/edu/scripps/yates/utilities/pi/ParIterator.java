@@ -17,11 +17,11 @@
  *  with Parallel Iterator. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package edu.scripps.yates.pi;
+package edu.scripps.yates.utilities.pi;
 
 import java.util.Iterator;
 
-import edu.scripps.yates.pi.exceptions.ParIteratorException;
+import edu.scripps.yates.utilities.pi.exceptions.ParIteratorException;
 
 /**
  * A Parallel Iterator over a collection. Unlike the standard sequential

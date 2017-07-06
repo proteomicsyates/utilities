@@ -1,4 +1,4 @@
-package edu.scripps.yates.pi.util;
+package edu.scripps.yates.utilities.pi.util;
 
 import java.util.Collection;
 import java.util.Iterator;

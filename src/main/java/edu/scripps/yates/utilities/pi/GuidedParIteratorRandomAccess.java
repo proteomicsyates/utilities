@@ -17,46 +17,34 @@
  *  with Parallel Iterator. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package edu.scripps.yates.pi;
+package edu.scripps.yates.utilities.pi;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * Dynamic scheduling for random access collections
+ * Guided scheduling for random access collections
  * 
  * @author Nasser Giacaman
  * @author Lama Akeila
  * @author Oliver Sinnen
  */
-public class DynamicParIteratorRandomAccess<E> extends ParIteratorAbstract<E> {
+public class GuidedParIteratorRandomAccess<E> extends ParIteratorAbstract<E> {
 
-	// The passed collection
-	private List<E> list;
-
-	// The size of the collection
 	private int size;
 
-	// represents the current pointer to the current elements. Intially point at
-	// the first element
-	// in the collection
+	private List<E> list;
+
 	private int pointer = 0;
 
-	// The number of elements remaining in the collection. Initially it equals
-	// to the size of
-	// the collection
+	private int minChunk;
+
 	private int remainingElements = 0;
 
-	// Lock to insure that one thread accesses the collection while copyin
-	// references of elements
-	// to the buffer
 	private final ReentrantLock copyLock = new ReentrantLock();
 
-	// currentIndex represents the index each thread is up to while traversing
-	// the elements. Each thread
-	// has its own value.
-	private ThreadLocal<Integer> currentIndex = new ThreadLocal<Integer>() {
+	private ThreadLocal<Integer> localChunksize = new ThreadLocal<Integer>() {
 		@Override
 		protected Integer initialValue() {
 			// initial value of bufferIndex is -1
@@ -64,11 +52,16 @@ public class DynamicParIteratorRandomAccess<E> extends ParIteratorAbstract<E> {
 		}
 	};
 
-	// cutoff represents the end of the thread index range. When reached a thead
-	// has to copy across the
-	// next chunksize assigned for it or exists if no more remaining elements
-	// left in the collection.
-	private ThreadLocal<Integer> cutoff = new ThreadLocal<Integer>() {
+	// private to each thread..
+	private ThreadLocal<Integer> bufferIndex = new ThreadLocal<Integer>() {
+		@Override
+		protected Integer initialValue() {
+			// initial value of bufferIndex is -1
+			return -1;
+		}
+	};
+
+	private ThreadLocal<Integer> bufferCutoff = new ThreadLocal<Integer>() {
 		@Override
 		protected Integer initialValue() {
 			// initial value of bufferIndex is -1
@@ -77,35 +70,33 @@ public class DynamicParIteratorRandomAccess<E> extends ParIteratorAbstract<E> {
 	};
 
 	/**
-	 * Constuctor
-	 * 
 	 * @param list
 	 * @param chunksize
 	 * @param numOfThreads
 	 */
-	public DynamicParIteratorRandomAccess(List<E> list, int chunksize, int numOfThreads, boolean ignoreBarrier) {
+	public GuidedParIteratorRandomAccess(List<E> list, int chunksize, int numOfThreads, boolean ignoreBarrier) {
 		super(numOfThreads, ignoreBarrier);
+
 		this.list = list;
-		// if the no chunksize was specified, the default is 1
-		if (chunksize == ParIterator.DEFAULT_CHUNKSIZE) {
-			this.chunksize = 1;
-		} else {
-			this.chunksize = chunksize;
-		}
 		this.size = list.size();
+
+		if (chunksize == ParIterator.DEFAULT_CHUNKSIZE) {
+			this.minChunk = 1;
+		} else {
+			this.minChunk = chunksize;
+		}
+
+		this.chunksize = (int) Math.ceil((((double) size) / numOfThreads));
+
 		remainingElements = list.size();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see pi.ParIterator#hasNext()
-	 */
 	public boolean hasNext() {
 
 		int tid = uniqueThreadIdGenerator.getCurrentThreadId();
 
 		if (iShouldBreak[tid].get()) {
+
 			if (ignoreBarrier)
 				return false;
 
@@ -118,44 +109,49 @@ public class DynamicParIteratorRandomAccess<E> extends ParIteratorAbstract<E> {
 			return false;
 		}
 
-		// True if the thread is still within its current chunksize
-		if (currentIndex.get() < cutoff.get()) {
+		if (bufferIndex.get() < bufferCutoff.get()) {
 
 			// -- record current element of this iteration boundary, used for
 			// exception handling
-			int index = currentIndex.get();
+			int index = bufferIndex.get();
 			currentElements.put(tid, list.get(index));
 
 			return true;
 
 		} else {
-			// When a thread finishes processing the its current chunk, it gets
-			// the next chunk
-			// or exits if no elements remaining
 			copyLock.lock();
-			if (currentIndex.get().equals(cutoff.get()) & remainingElements > 0) {
+			if (bufferIndex.get().equals(bufferCutoff.get()) & remainingElements > 0) {
 
 				int var;
-				if (remainingElements < chunksize) {
+				localChunksize.set((int) Math.ceil(((double) remainingElements) / numOfThreads));
+				if (localChunksize.get() < minChunk)
+					localChunksize.set(minChunk);
+				if (remainingElements < localChunksize.get()) {
 					var = remainingElements;
+					// chunksize = remainingElements;
 				} else {
-					var = chunksize;
+					var = localChunksize.get();
 				}
 
-				currentIndex.set(pointer);
-				cutoff.set(pointer + var);
+				bufferIndex.set(pointer);
+
+				bufferCutoff.set(pointer + var);
+
 				pointer += var;
+
 				remainingElements = size - pointer;
+
 				copyLock.unlock();
 
 				// -- record current element of this iteration boundary, used
 				// for exception handling
-				int index = currentIndex.get();
+				int index = bufferIndex.get();
 				currentElements.put(tid, list.get(index));
 
 				return true;
 
 			} else {
+
 				copyLock.unlock();
 
 				// -- nothing left to do, so attempt to localBreak
@@ -177,16 +173,13 @@ public class DynamicParIteratorRandomAccess<E> extends ParIteratorAbstract<E> {
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
+
 				return false;
 			}
+
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see pi.ParIterator#next()
-	 */
 	public E next() {
 
 		// -- checks the reclaimed elements
@@ -196,20 +189,19 @@ public class DynamicParIteratorRandomAccess<E> extends ParIteratorAbstract<E> {
 			return reclaimedElement;
 		}
 
-		int index = currentIndex.get();
-		currentIndex.set(currentIndex.get() + 1);
+		int index = bufferIndex.get();
+		bufferIndex.set(bufferIndex.get() + 1);
 		return list.get(index);
 	}
 
 	@Override
 	protected List<E> getUnprocessedElements() {
 		ArrayList<E> unprocessed = new ArrayList<E>();
-		while (currentIndex.get() < cutoff.get()) {
-			int index = currentIndex.get();
-			currentIndex.set(currentIndex.get() + 1);
+		while (bufferIndex.get() < bufferCutoff.get()) {
+			int index = bufferIndex.get();
+			bufferIndex.set(bufferIndex.get() + 1);
 			unprocessed.add(list.get(index));
 		}
 		return unprocessed;
 	}
-
 }

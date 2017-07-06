@@ -17,17 +17,21 @@
  *  with Parallel Iterator. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package edu.scripps.yates.pi.exceptions;
+package edu.scripps.yates.utilities.pi.exceptions;
 
 /**
- *	Represents a run-time exception due to incorrect usage of the Parallel Iterator. 
- *	
+ * 
  * @author Nasser Giacaman
  * @author Oliver Sinnen
+ *
  */
-public class ParIteratorIncorrectUsageException extends RuntimeException {
-
-	public ParIteratorIncorrectUsageException(String message) {
-		super(message);
+public class PIExceptionHelper {
+	
+	/*
+	 * The purpose of this helper is to keep the constructor of the ParIteratorException hidden from the 
+	 * user API (but still be accessible to the "pi" package).
+	 */
+	public static ParIteratorException createException(Exception exception, Object iteration, Thread registeringThread) {
+		return new ParIteratorException(exception, iteration, registeringThread);
 	}
 }

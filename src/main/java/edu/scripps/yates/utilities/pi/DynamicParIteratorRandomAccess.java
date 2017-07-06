@@ -17,37 +17,38 @@
  *  with Parallel Iterator. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package edu.scripps.yates.pi;
+package edu.scripps.yates.utilities.pi;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * Dynamic scheduling for inherently sequential collections
+ * Dynamic scheduling for random access collections
  * 
  * @author Nasser Giacaman
  * @author Lama Akeila
  * @author Oliver Sinnen
  */
-public class DynamicParIteratorSequential<E> extends ParIteratorAbstract<E> {
+public class DynamicParIteratorRandomAccess<E> extends ParIteratorAbstract<E> {
 
-	// internal sequential iterator to iterate through the collection
-	private Iterator it;
+	// The passed collection
+	private List<E> list;
 
-	// 2D array where references of the elements in the collection will be
-	// copied
-	private Object[][] buffer;
-
-	// size of the collection
+	// The size of the collection
 	private int size;
 
-	// number of elements that have been copied out to the buffer
-	private int counter = 0;
+	// represents the current pointer to the current elements. Intially point at
+	// the first element
+	// in the collection
+	private int pointer = 0;
 
-	// Lock to insure that one thread accesses the collection while copying
+	// The number of elements remaining in the collection. Initially it equals
+	// to the size of
+	// the collection
+	private int remainingElements = 0;
+
+	// Lock to insure that one thread accesses the collection while copyin
 	// references of elements
 	// to the buffer
 	private final ReentrantLock copyLock = new ReentrantLock();
@@ -67,53 +68,32 @@ public class DynamicParIteratorSequential<E> extends ParIteratorAbstract<E> {
 	// has to copy across the
 	// next chunksize assigned for it or exists if no more remaining elements
 	// left in the collection.
-	private ThreadLocal<Integer> cutoff = new ThreadLocal<Integer>();
+	private ThreadLocal<Integer> cutoff = new ThreadLocal<Integer>() {
+		@Override
+		protected Integer initialValue() {
+			// initial value of bufferIndex is -1
+			return -1;
+		}
+	};
 
 	/**
-	 * Consturctor
+	 * Constuctor
 	 * 
-	 * @param collection
+	 * @param list
 	 * @param chunksize
 	 * @param numOfThreads
 	 */
-	public DynamicParIteratorSequential(Collection<E> collection, int chunksize, int numOfThreads,
-			boolean ignoreBarrier) {
+	public DynamicParIteratorRandomAccess(List<E> list, int chunksize, int numOfThreads, boolean ignoreBarrier) {
 		super(numOfThreads, ignoreBarrier);
-
+		this.list = list;
 		// if the no chunksize was specified, the default is 1
 		if (chunksize == ParIterator.DEFAULT_CHUNKSIZE) {
 			this.chunksize = 1;
 		} else {
 			this.chunksize = chunksize;
 		}
-
-		// Creates a 2D array with numOfThread rows and chunksize columns
-		buffer = new Object[numOfThreads][this.chunksize];
-
-		// Sequential Iterator
-		this.it = collection.iterator();
-		this.size = collection.size();
-
-	}
-
-	public DynamicParIteratorSequential(Iterator<E> iterator, int size, int chunksize, int numOfThreads,
-			boolean ignoreBarrier) {
-		super(numOfThreads, ignoreBarrier);
-
-		// if the no chunksize was specified, the default is 1
-		if (chunksize == ParIterator.DEFAULT_CHUNKSIZE) {
-			this.chunksize = 1;
-		} else {
-			this.chunksize = chunksize;
-		}
-
-		// Creates a 2D array with numOfThread rows and chunksize columns
-		buffer = new Object[numOfThreads][this.chunksize];
-
-		// Sequential Iterator
-		this.it = iterator;
-		this.size = size;
-
+		this.size = list.size();
+		remainingElements = list.size();
 	}
 
 	/*
@@ -123,11 +103,9 @@ public class DynamicParIteratorSequential<E> extends ParIteratorAbstract<E> {
 	 */
 	public boolean hasNext() {
 
-		// gets thread ID
-		int id = uniqueThreadIdGenerator.getCurrentThreadId();
+		int tid = uniqueThreadIdGenerator.getCurrentThreadId();
 
-		if (iShouldBreak[id].get()) {
-
+		if (iShouldBreak[tid].get()) {
 			if (ignoreBarrier)
 				return false;
 
@@ -140,64 +118,44 @@ public class DynamicParIteratorSequential<E> extends ParIteratorAbstract<E> {
 			return false;
 		}
 
-		// see if there's any elements for this thread in THE PRIVATE BUFFER
-		if ((currentIndex.get() >= 0) & (currentIndex.get() < chunksize)) {
-
-			if (currentIndex.get().equals(cutoff.get())) {
-
-				if (ignoreBarrier)
-					return false;
-
-				latch.countDown();
-				try {
-					latch.await();
-				} catch (InterruptedException e) {
-
-					e.printStackTrace();
-				}
-				return false;
-			}
+		// True if the thread is still within its current chunksize
+		if (currentIndex.get() < cutoff.get()) {
 
 			// -- record current element of this iteration boundary, used for
 			// exception handling
 			int index = currentIndex.get();
-			currentElements.put(id, (E) buffer[id][index]);
+			currentElements.put(tid, list.get(index));
 
 			return true;
 
 		} else {
-
+			// When a thread finishes processing the its current chunk, it gets
+			// the next chunk
+			// or exits if no elements remaining
 			copyLock.lock();
-			// if there are any more elements in the collection
-			if (it.hasNext()) {
+			if (currentIndex.get().equals(cutoff.get()) & remainingElements > 0) {
 
-				int remainingElements = size - counter;
-				int toCopy = -1;
+				int var;
 				if (remainingElements < chunksize) {
-					toCopy = remainingElements;
+					var = remainingElements;
 				} else {
-					toCopy = chunksize;
+					var = chunksize;
 				}
 
-				for (int i = 0; i < toCopy; i++) {
-					buffer[id][i] = it.next();
-					counter++;
-				}
-
-				// resets the bufferIndex to zero
-				currentIndex.set(0);
-				cutoff.set(toCopy);
+				currentIndex.set(pointer);
+				cutoff.set(pointer + var);
+				pointer += var;
+				remainingElements = size - pointer;
 				copyLock.unlock();
 
 				// -- record current element of this iteration boundary, used
 				// for exception handling
 				int index = currentIndex.get();
-				currentElements.put(id, (E) buffer[id][index]);
+				currentElements.put(tid, list.get(index));
 
 				return true;
 
 			} else {
-				// unlock & return 'false'
 				copyLock.unlock();
 
 				// -- nothing left to do, so attempt to localBreak
@@ -238,24 +196,20 @@ public class DynamicParIteratorSequential<E> extends ParIteratorAbstract<E> {
 			return reclaimedElement;
 		}
 
-		int id = uniqueThreadIdGenerator.getCurrentThreadId();
 		int index = currentIndex.get();
-		currentIndex.set(index + 1);
-
-		return (E) buffer[id][index];
+		currentIndex.set(currentIndex.get() + 1);
+		return list.get(index);
 	}
 
 	@Override
 	protected List<E> getUnprocessedElements() {
 		ArrayList<E> unprocessed = new ArrayList<E>();
-		int tid = uniqueThreadIdGenerator.getCurrentThreadId();
-		while ((currentIndex.get() >= 0) & (currentIndex.get() < chunksize)) {
-			if (!currentIndex.get().equals(cutoff.get())) {
-				int index = currentIndex.get();
-				currentIndex.set(index + 1);
-				unprocessed.add((E) buffer[tid][index]);
-			}
+		while (currentIndex.get() < cutoff.get()) {
+			int index = currentIndex.get();
+			currentIndex.set(currentIndex.get() + 1);
+			unprocessed.add(list.get(index));
 		}
 		return unprocessed;
 	}
+
 }

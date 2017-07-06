@@ -17,7 +17,7 @@
  *  with Parallel Iterator. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package edu.scripps.yates.pi;
+package edu.scripps.yates.utilities.pi;
 
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -25,8 +25,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 
-import edu.scripps.yates.pi.exceptions.PIExceptionHelper;
-import edu.scripps.yates.pi.exceptions.ParIteratorException;
+import edu.scripps.yates.utilities.pi.exceptions.PIExceptionHelper;
+import edu.scripps.yates.utilities.pi.exceptions.ParIteratorException;
 import gnu.trove.map.hash.TIntObjectHashMap;
 
 /**

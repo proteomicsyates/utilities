@@ -1,4 +1,4 @@
-package edu.scripps.yates.cores;
+package edu.scripps.yates.utilities.cores;
 
 public class SystemCoreManager {
 	private static int numSystemCores = Runtime.getRuntime()

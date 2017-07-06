@@ -17,7 +17,7 @@
  *  with Parallel Iterator. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package edu.scripps.yates.pi.reductions;
+package edu.scripps.yates.utilities.pi.reductions;
 
 /**
  * Defines a reduction and includes a range of built-in reductions (only a few
