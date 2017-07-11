@@ -19,10 +19,11 @@
 
 package edu.scripps.yates.utilities.pi.reductions;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
 
 import edu.scripps.yates.utilities.pi.UniqueThreadIdGenerator;
-import gnu.trove.map.hash.TIntObjectHashMap;
 
 /**
  * Defines a Reducible. This essentials behaves like a thread-local variable,
@@ -38,7 +39,7 @@ import gnu.trove.map.hash.TIntObjectHashMap;
  */
 public class Reducible<E> {
 
-	private TIntObjectHashMap<E> threadValues = new TIntObjectHashMap<E>();
+	private Map<Integer, E> threadValues = new HashMap<Integer, E>();
 	private boolean alreadyReduced = false;
 	private ReentrantLock reductionLock = new ReentrantLock();
 
@@ -139,7 +140,7 @@ public class Reducible<E> {
 			return reducedValue;
 		}
 
-		int[] threadIDs = threadValues.keys();
+		Integer[] threadIDs = threadValues.keySet().toArray(new Integer[] {});
 		int numThreads = threadIDs.length;
 
 		if (numThreads == 0) {

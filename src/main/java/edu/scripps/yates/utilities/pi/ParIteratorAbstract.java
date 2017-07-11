@@ -19,7 +19,9 @@
 
 package edu.scripps.yates.utilities.pi;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -27,7 +29,6 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import edu.scripps.yates.utilities.pi.exceptions.PIExceptionHelper;
 import edu.scripps.yates.utilities.pi.exceptions.ParIteratorException;
-import gnu.trove.map.hash.TIntObjectHashMap;
 
 /**
  * This class is for convenience, provides an abstract implementation of the
@@ -66,7 +67,7 @@ public abstract class ParIteratorAbstract<E> implements ParIterator<E> {
 
 	// -- for each thread, it's current element (as determined by the iteration
 	// boundary) is stored. See paper.
-	protected TIntObjectHashMap<E> currentElements = new TIntObjectHashMap<E>();
+	protected Map<Integer, E> currentElements = new HashMap<Integer, E>();
 
 	protected ThreadLocal<Boolean> successfullyCalledHasNext = new ThreadLocal<Boolean>();
 
