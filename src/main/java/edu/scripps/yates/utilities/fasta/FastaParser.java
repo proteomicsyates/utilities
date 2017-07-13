@@ -16,7 +16,7 @@ import edu.scripps.yates.utilities.taxonomy.UniprotOrganism;
 import edu.scripps.yates.utilities.taxonomy.UniprotSpeciesCodeMap;
 import edu.scripps.yates.utilities.util.Pair;
 import edu.scripps.yates.utilities.util.StringPosition;
-import gnu.trove.map.hash.TIntObjectHashMap;
+import gnu.trove.map.hash.TIntDoubleHashMap;
 import gnu.trove.set.hash.THashSet;
 
 public class FastaParser {
@@ -653,11 +653,11 @@ public class FastaParser {
 	 * @return a map with the positions and modifications.<br>
 	 *         Note that positions start by 1 in the sequence.
 	 */
-	public static TIntObjectHashMap<Double> getPTMsFromSequence(String rawSeq) {
+	public static TIntDoubleHashMap getPTMsFromSequence(String rawSeq) {
 		// get the peptide inside '.'
 		String seq = removeBeforeAfterAAs(rawSeq);
 
-		TIntObjectHashMap<Double> ret = new TIntObjectHashMap<Double>();
+		TIntDoubleHashMap ret = new TIntDoubleHashMap();
 		boolean isPTM = false;
 		String ptmString = "";
 		int position = 1;
