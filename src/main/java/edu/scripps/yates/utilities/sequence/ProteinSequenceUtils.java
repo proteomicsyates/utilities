@@ -18,13 +18,13 @@ public class ProteinSequenceUtils {
 	 * @param proteinACC
 	 * @return
 	 */
-	public static List<PositionInProtein> getPositionsInProtein(String peptideSequence, String proteinSequence,
-			String proteinACC) {
+	public static List<PositionInProtein> getPositionsOfPeptideSequenceInProteinSequence(String peptideSequence,
+			String proteinSequence, String proteinACC) {
 		List<PositionInProtein> ret = new ArrayList<PositionInProtein>();
 
 		List<Integer> allPositionsOf = StringUtils.allPositionsOf(peptideSequence, proteinSequence);
 		for (Integer position : allPositionsOf) {
-			ret.add(new PositionInProtein(position, proteinACC, -1));
+			ret.add(new PositionInProtein(position, proteinACC));
 		}
 
 		return ret;
@@ -50,7 +50,7 @@ public class ProteinSequenceUtils {
 				List<Integer> positionsInProtein = StringUtils.allPositionsOf(proteinSequence, peptideSequence);
 				for (Integer positionInProtein : positionsInProtein) {
 					int positionOfSiteInProtein = positionInProtein + positionInPeptide - 1;
-					ret.add(new PositionInProtein(positionOfSiteInProtein, proteinACC, -1));
+					ret.add(new PositionInProtein(positionOfSiteInProtein, proteinACC));
 				}
 			}
 		}

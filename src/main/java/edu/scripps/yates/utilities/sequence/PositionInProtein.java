@@ -3,28 +3,34 @@ package edu.scripps.yates.utilities.sequence;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Class that represents a position in a protein sequence, where we use the
+ * protein accession as key
+ * 
+ * @author Salva
+ *
+ */
 public class PositionInProtein {
 	private final int position;
 	private final String proteinACC;
-	private final int peptidePosition;
+	protected final static String SEPARATOR = "#";
 
-	public PositionInProtein(int position, String proteinACC, int peptidePosition) {
+	public PositionInProtein(int position, String proteinACC) {
 		this.position = position;
 		this.proteinACC = proteinACC;
-		this.peptidePosition = peptidePosition;
 	}
 
 	public int getPosition() {
 		return position;
 	}
 
-	public String getProteinACC() {
+	public String getKey() {
 		return proteinACC;
 	}
 
 	@Override
 	public String toString() {
-		return proteinACC + "$" + position;
+		return proteinACC + SEPARATOR + position;
 	}
 
 	@Override
@@ -44,7 +50,7 @@ public class PositionInProtein {
 		return super.equals(obj);
 	}
 
-	public static List<PositionInProtein> parseString(String string, String separator) {
+	public static List<PositionInProtein> parseStringToPositionInProtein(String string, String separator) {
 		List<PositionInProtein> ret = new ArrayList<PositionInProtein>();
 		List<String> subStrings = new ArrayList<String>();
 		if (string.contains(separator)) {
@@ -56,11 +62,10 @@ public class PositionInProtein {
 			subStrings.add(string);
 		}
 		for (String string2 : subStrings) {
-			if (string2.contains("$")) {
+			if (string2.contains(SEPARATOR)) {
 				try {
-					String[] split = string2.split("$");
-					PositionInProtein positionInProtein = new PositionInProtein(Integer.valueOf(split[1]), split[2],
-							-1);
+					String[] split = string2.split(SEPARATOR);
+					PositionInProtein positionInProtein = new PositionInProtein(Integer.valueOf(split[1]), split[2]);
 					ret.add(positionInProtein);
 				} catch (NumberFormatException e) {
 
