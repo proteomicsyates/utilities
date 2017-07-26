@@ -132,4 +132,15 @@ public class StringUtils {
 
 		return content.toString();
 	}
+
+	public static String getSeparatedValueStringFromChars(char[] chars, String separator) {
+		StringBuilder sb = new StringBuilder();
+		for (char c : chars) {
+			if (!"".equals(sb.toString())) {
+				sb.append(separator);
+			}
+			sb.append(c);
+		}
+		return sb.toString();
+	}
 }
