@@ -1,8 +1,7 @@
 package edu.scripps.yates.utilities.cores;
 
 public class SystemCoreManager {
-	private static int numSystemCores = Runtime.getRuntime()
-			.availableProcessors();
+	private static int numSystemCores = Runtime.getRuntime().availableProcessors();
 
 	public static int getNumSystemCores() {
 		return numSystemCores;
@@ -10,6 +9,9 @@ public class SystemCoreManager {
 	}
 
 	public static int getAvailableNumSystemCores() {
+		if (true) {
+			return numSystemCores;
+		}
 		int usedCores = numSystemCores - 1;
 		if (numSystemCores == 3)
 			usedCores = 2;
