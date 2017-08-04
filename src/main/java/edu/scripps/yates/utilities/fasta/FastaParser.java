@@ -147,13 +147,15 @@ public class FastaParser {
 	}
 
 	public static boolean isUniProtACC(String id) {
-		if (id != null && !"".equals(id)) {
-			final Matcher matcher = ONLY_UNIPROT_ACC.matcher(id);
-			if (matcher.find()) {
-				return true;
-			}
-		}
-		return false;
+		return getUniProtACC(id) != null;
+
+		// if (id != null && !"".equals(id)) {
+		// final Matcher matcher = ONLY_UNIPROT_ACC.matcher(id);
+		// if (matcher.find()) {
+		// return true;
+		// }
+		// }
+		// return false;
 	}
 
 	public static String getNCBIACC(String id) {
@@ -190,6 +192,9 @@ public class FastaParser {
 	 * @return never null.
 	 */
 	public static Pair<String, String> getACC(String id) {
+		if (id == null) {
+			return null;
+		}
 		// if starts by >, remove it
 		if (id.startsWith(">"))
 			id = id.substring(1);
