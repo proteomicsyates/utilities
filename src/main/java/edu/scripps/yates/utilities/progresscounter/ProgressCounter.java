@@ -30,12 +30,12 @@ public class ProgressCounter {
 	public String printIfNecessary() {
 
 		if (progressPrintingType == ProgressPrintingType.EVERY_STEP) {
-			double percentage = count.get() * 100.0 / total;
+			double percentage = getPercentage();
 			String ret = new StringBuilder().append(count.get()).append("/").append(total).append(" (")
 					.append(df.format(percentage)).append("%)").toString();
 			return ret;
 		} else if (progressPrintingType == ProgressPrintingType.PERCENTAGE_STEPS) {
-			String percentage = df.format(Double.valueOf(count.get() * 100.0 / total));
+			String percentage = df.format(getPercentage());
 			if (!percentage.equals(previousPercentage)) {
 				String ret = new StringBuilder().append(count.get()).append("/").append(total).append(" (")
 						.append(percentage).append("%)").toString();
@@ -48,5 +48,9 @@ public class ProgressCounter {
 
 	public int getCount() {
 		return count.get();
+	}
+
+	public double getPercentage() {
+		return count.get() * 100.0 / total;
 	}
 }
