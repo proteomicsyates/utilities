@@ -87,6 +87,7 @@ public class FastaParser {
 	 * @return nulls if that is not a uniprot entry
 	 */
 	public static String getUniProtACC(String id) {
+
 		if (id != null && !"".equals(id)) {
 			if (id.length() > 600) {
 				return null;
@@ -193,7 +194,7 @@ public class FastaParser {
 	 */
 	public static Pair<String, String> getACC(String id) {
 		if (id == null) {
-			return null;
+			return new Pair<String, String>("", "UNKNOWN");
 		}
 		// if starts by >, remove it
 		if (id.startsWith(">"))
