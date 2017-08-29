@@ -26,7 +26,7 @@ import org.apache.log4j.Logger;
 
 public class FileUtils {
 	private final static Logger log = Logger.getLogger(FileUtils.class);
-	private static final DecimalFormat df = new DecimalFormat("#.#");
+	private static DecimalFormat df;
 
 	public static void mergeFiles(Collection<File> files, File mergedFile, boolean skipHeaderOfNotFirstFiles) {
 		File[] fileArray = new File[files.size()];
@@ -36,6 +36,13 @@ public class FileUtils {
 			i++;
 		}
 		mergeFiles(fileArray, mergedFile, skipHeaderOfNotFirstFiles);
+	}
+
+	private static DecimalFormat getDecimalFormat() {
+		if (df == null) {
+			df = new DecimalFormat("#.#");
+		}
+		return df;
 	}
 
 	public static void mergeFiles(File[] files, File mergedFile, boolean skipHeaderOfNotFirstFiles) {
@@ -147,28 +154,29 @@ public class FileUtils {
 	}
 
 	public static String getDescriptiveSizeFromBytes(long sizeInBytes) {
+		log.info("Getting file descriptive string from a number of bytes: " + sizeInBytes);
 		if (sizeInBytes < 1024) {
-			return df.format(sizeInBytes) + " bytes";
+			return getDecimalFormat().format(sizeInBytes) + " bytes";
 		}
 		double sizeInKBytes = sizeInBytes / 1024;
 		if (sizeInKBytes < 1024) {
-			return df.format(sizeInKBytes) + " Kb";
+			return getDecimalFormat().format(sizeInKBytes) + " Kb";
 		}
 		double sizeInMBytes = sizeInKBytes / 1024;
 		if (sizeInMBytes < 1024) {
-			return df.format(sizeInMBytes) + " Mb";
+			return getDecimalFormat().format(sizeInMBytes) + " Mb";
 		}
 		double sizeInGBytes = sizeInMBytes / 1024;
 		if (sizeInGBytes < 1024) {
-			return df.format(sizeInGBytes) + " Gb";
+			return getDecimalFormat().format(sizeInGBytes) + " Gb";
 		}
 		double sizeInTBytes = sizeInGBytes / 1024;
 		if (sizeInTBytes < 1024) {
-			return df.format(sizeInTBytes) + " Tb";
+			return getDecimalFormat().format(sizeInTBytes) + " Tb";
 		}
 		double sizeInPBytes = sizeInTBytes / 1024;
 		// if (sizeInPBytes < 1024) {
-		return df.format(sizeInPBytes) + " Pb";
+		return getDecimalFormat().format(sizeInPBytes) + " Pb";
 		// }
 	}
 
