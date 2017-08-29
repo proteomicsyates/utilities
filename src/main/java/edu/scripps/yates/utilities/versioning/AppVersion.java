@@ -1,4 +1,4 @@
-package edu.scripps.yates.utilities.util.versioning;
+package edu.scripps.yates.utilities.versioning;
 
 import org.apache.log4j.Logger;
 
