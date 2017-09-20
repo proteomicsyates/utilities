@@ -3,6 +3,9 @@ package edu.scripps.yates.utilities.staticstorage;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.map.hash.TIntObjectHashMap;
@@ -10,15 +13,46 @@ import gnu.trove.set.hash.THashSet;
 
 public class ItemStorage<T> {
 	private final Map<String, Set<T>> itemByRunID = new THashMap<String, Set<T>>();
+	private final ReentrantReadWriteLock itemByRunIDLock = new ReentrantReadWriteLock();
+
 	private final Map<String, Set<T>> itemByConditionID = new THashMap<String, Set<T>>();
+	private final ReentrantReadWriteLock itemByConditionIDLock = new ReentrantReadWriteLock();
+
 	private final TIntObjectHashMap<Set<T>> itemByExcelRow = new TIntObjectHashMap<Set<T>>();
+	private final ReentrantReadWriteLock itemByExcelRowLock = new ReentrantReadWriteLock();
+
 	private final Map<String, Set<T>> itemByKey = new THashMap<String, Set<T>>();
+	private final ReentrantReadWriteLock itemByKeyLock = new ReentrantReadWriteLock();
 
 	public void clearData() {
-		itemByConditionID.clear();
-		itemByExcelRow.clear();
-		itemByRunID.clear();
-		itemByKey.clear();
+		WriteLock wl = itemByConditionIDLock.writeLock();
+		try {
+			wl.lock();
+			itemByConditionID.clear();
+		} finally {
+			wl.unlock();
+		}
+		wl = itemByExcelRowLock.writeLock();
+		try {
+			wl.lock();
+			itemByExcelRow.clear();
+		} finally {
+			wl.unlock();
+		}
+		wl = itemByRunIDLock.writeLock();
+		try {
+			wl.lock();
+			itemByRunID.clear();
+		} finally {
+			wl.unlock();
+		}
+		wl = itemByKeyLock.writeLock();
+		try {
+			wl.lock();
+			itemByKey.clear();
+		} finally {
+			wl.unlock();
+		}
 	}
 
 	/**
@@ -33,16 +67,40 @@ public class ItemStorage<T> {
 	public void add(T item, String msRunID, String conditionID, int excelRowIndex, String key) {
 		if (item != null) {
 			if (msRunID != null && !"".equals(msRunID)) {
-				addToMap(item, itemByRunID, msRunID);
+				WriteLock writeLock = itemByRunIDLock.writeLock();
+				try {
+					writeLock.lock();
+					addToMap(item, itemByRunID, msRunID);
+				} finally {
+					writeLock.unlock();
+				}
 			}
 			if (conditionID != null && !"".equals(conditionID)) {
-				addToMap(item, itemByConditionID, conditionID);
+				WriteLock writeLock = itemByConditionIDLock.writeLock();
+				try {
+					writeLock.lock();
+					addToMap(item, itemByConditionID, conditionID);
+				} finally {
+					writeLock.unlock();
+				}
 			}
 			if (excelRowIndex > -1) {
-				addToMap(item, itemByExcelRow, excelRowIndex);
+				WriteLock writeLock = itemByExcelRowLock.writeLock();
+				try {
+					writeLock.lock();
+					addToMap(item, itemByExcelRow, excelRowIndex);
+				} finally {
+					writeLock.unlock();
+				}
 			}
 			if (key != null && !"".equals(key)) {
-				addToMap(item, itemByKey, key);
+				WriteLock writeLock = itemByKeyLock.writeLock();
+				try {
+					writeLock.lock();
+					addToMap(item, itemByKey, key);
+				} finally {
+					writeLock.unlock();
+				}
 			}
 		}
 	}
@@ -62,28 +120,40 @@ public class ItemStorage<T> {
 	public Set<T> get(String msRunID, String conditionID, int excelRowIndex, String key) {
 		Set<T> ret = new THashSet<T>();
 		if (key != null && !"".equals(key)) {
-			if (itemByKey.containsKey(key)) {
-				if (ret.isEmpty()) {
-					ret.addAll(itemByKey.get(key));
+			ReadLock readLock = itemByKeyLock.readLock();
+			try {
+				readLock.lock();
+				if (itemByKey.containsKey(key)) {
+					if (ret.isEmpty()) {
+						ret.addAll(itemByKey.get(key));
+					} else {
+						ret = getIntersection(ret, itemByKey.get(key));
+					}
 				} else {
-					ret = getIntersection(ret, itemByKey.get(key));
+					return Collections.EMPTY_SET;
 				}
-			} else {
-				return Collections.EMPTY_SET;
+			} finally {
+				readLock.unlock();
 			}
 			if (ret.isEmpty()) {
 				return Collections.EMPTY_SET;
 			}
 		}
 		if (excelRowIndex > -1) {
-			if (itemByExcelRow.containsKey(excelRowIndex)) {
-				if (ret.isEmpty()) {
-					ret.addAll(itemByExcelRow.get(excelRowIndex));
+			ReadLock readLock = itemByExcelRowLock.readLock();
+			try {
+				readLock.lock();
+				if (itemByExcelRow.containsKey(excelRowIndex)) {
+					if (ret.isEmpty()) {
+						ret.addAll(itemByExcelRow.get(excelRowIndex));
+					} else {
+						ret = getIntersection(ret, itemByExcelRow.get(excelRowIndex));
+					}
 				} else {
-					ret = getIntersection(ret, itemByExcelRow.get(excelRowIndex));
+					return Collections.EMPTY_SET;
 				}
-			} else {
-				return Collections.EMPTY_SET;
+			} finally {
+				readLock.unlock();
 			}
 			if (ret.isEmpty()) {
 				return Collections.EMPTY_SET;
@@ -91,14 +161,20 @@ public class ItemStorage<T> {
 		}
 
 		if (msRunID != null && !"".equals(msRunID)) {
-			if (itemByRunID.containsKey(msRunID)) {
-				if (ret.isEmpty()) {
-					ret.addAll(itemByRunID.get(msRunID));
+			ReadLock readLock = itemByRunIDLock.readLock();
+			try {
+				readLock.lock();
+				if (itemByRunID.containsKey(msRunID)) {
+					if (ret.isEmpty()) {
+						ret.addAll(itemByRunID.get(msRunID));
+					} else {
+						ret = getIntersection(ret, itemByRunID.get(msRunID));
+					}
 				} else {
-					ret = getIntersection(ret, itemByRunID.get(msRunID));
+					return Collections.EMPTY_SET;
 				}
-			} else {
-				return Collections.EMPTY_SET;
+			} finally {
+				readLock.unlock();
 			}
 			if (ret.isEmpty()) {
 				return Collections.EMPTY_SET;
@@ -112,15 +188,20 @@ public class ItemStorage<T> {
 		// matter the msrun) this would be useful
 		if (msRunID == null) {
 			if (conditionID != null && !"".equals(conditionID)) {
-
-				if (itemByConditionID.containsKey(conditionID)) {
-					if (ret.isEmpty()) {
-						ret.addAll(itemByConditionID.get(conditionID));
+				ReadLock readLock = itemByConditionIDLock.readLock();
+				try {
+					readLock.lock();
+					if (itemByConditionID.containsKey(conditionID)) {
+						if (ret.isEmpty()) {
+							ret.addAll(itemByConditionID.get(conditionID));
+						} else {
+							ret = getIntersection(ret, itemByConditionID.get(conditionID));
+						}
 					} else {
-						ret = getIntersection(ret, itemByConditionID.get(conditionID));
+						return Collections.EMPTY_SET;
 					}
-				} else {
-					return Collections.EMPTY_SET;
+				} finally {
+					readLock.unlock();
 				}
 				if (ret.isEmpty()) {
 					return Collections.EMPTY_SET;
