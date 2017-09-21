@@ -127,29 +127,32 @@ public class PSMEx implements PSM, Serializable {
 	}
 
 	public void addPtm(PTM newPtm) {
-		if (ptms == null)
-			ptms = new ArrayList<PTM>();
-		boolean found = false;
-		for (PTM ptm : ptms) {
-			if (ptm.getName().equals(newPtm.getName())) {
-				boolean anyPtmIsNew = false;
-				for (PTMSite newPtmSite : newPtm.getPTMSites()) {
-					boolean ptmSiteFound = false;
-					for (PTMSite ptmSite : ptm.getPTMSites()) {
-						if (newPtmSite.getPosition() == ptmSite.getPosition()) {
-							ptmSiteFound = true;
+		if (newPtm != null) {
+			if (ptms == null) {
+				ptms = new ArrayList<PTM>();
+			}
+			boolean found = false;
+			for (PTM ptm : ptms) {
+				if (ptm.getName().equals(newPtm.getName())) {
+					boolean anyPtmIsNew = false;
+					for (PTMSite newPtmSite : newPtm.getPTMSites()) {
+						boolean ptmSiteFound = false;
+						for (PTMSite ptmSite : ptm.getPTMSites()) {
+							if (newPtmSite.getPosition() == ptmSite.getPosition()) {
+								ptmSiteFound = true;
+							}
+						}
+						if (!ptmSiteFound) {
+							anyPtmIsNew = true;
 						}
 					}
-					if (!ptmSiteFound) {
-						anyPtmIsNew = true;
-					}
+					if (!anyPtmIsNew)
+						found = true;
 				}
-				if (!anyPtmIsNew)
-					found = true;
 			}
-		}
-		if (!found) {
-			ptms.add(newPtm);
+			if (!found) {
+				ptms.add(newPtm);
+			}
 		}
 	}
 
@@ -222,7 +225,9 @@ public class PSMEx implements PSM, Serializable {
 	public void addScore(Score score) {
 		if (scores == null)
 			scores = new THashSet<Score>();
-		scores.add(score);
+		if (score != null) {
+			scores.add(score);
+		}
 	}
 
 	@Override
@@ -232,11 +237,13 @@ public class PSMEx implements PSM, Serializable {
 
 	@Override
 	public void addRatio(Ratio ratio) {
-		for (Ratio ratio2 : ratios) {
-			if (ratio2.equals(ratio))
-				return;
+		if (ratio != null) {
+			for (Ratio ratio2 : ratios) {
+				if (ratio2.equals(ratio))
+					return;
+			}
+			ratios.add(ratio);
 		}
-		ratios.add(ratio);
 	}
 
 	@Override
@@ -246,7 +253,9 @@ public class PSMEx implements PSM, Serializable {
 
 	@Override
 	public void addAmount(Amount amount) {
-		amounts.add(amount);
+		if (amount != null) {
+			amounts.add(amount);
+		}
 	}
 
 	@Override
@@ -256,12 +265,12 @@ public class PSMEx implements PSM, Serializable {
 
 	@Override
 	public void addProtein(Protein protein) {
-		if (!proteins.contains(protein)) {
+		if (protein != null && !proteins.contains(protein)) {
 			proteins.add(protein);
+			protein.addPSM(this);
+			protein.addPeptide(getPeptide());
 		}
-		// else {
-		// log.info("Protein already present on PSM");
-		// }
+
 	}
 
 	@Override
@@ -285,7 +294,15 @@ public class PSMEx implements PSM, Serializable {
 
 	@Override
 	public void setPeptide(Peptide peptide) {
-		this.peptide = peptide;
+		if (peptide != null) {
+			this.peptide = peptide;
+			peptide.addPSM(this);
+			Set<Protein> proteins2 = getProteins();
+			for (Protein protein : proteins2) {
+				peptide.addProtein(protein);
+				protein.addPeptide(peptide);
+			}
+		}
 	}
 
 	@Override
@@ -301,16 +318,19 @@ public class PSMEx implements PSM, Serializable {
 	 */
 	@Override
 	public void addCondition(Condition newCondition) {
-		boolean found = false;
-		for (Condition condition : conditions) {
-			if (condition.getName().equals(newCondition.getName())) {
-				if (condition.getProject().getName().equals(newCondition.getProject().getName()))
-					found = true;
-			}
+		if (newCondition != null) {
+			boolean found = false;
+			for (Condition condition : conditions) {
+				if (condition.getName().equals(newCondition.getName())) {
+					if (condition.getProject().getName().equals(newCondition.getProject().getName()))
+						found = true;
+				}
 
+			}
+			if (!found) {
+				conditions.add(newCondition);
+			}
 		}
-		if (!found)
-			conditions.add(newCondition);
 	}
 
 	@Override

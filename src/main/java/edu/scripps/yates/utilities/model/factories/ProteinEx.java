@@ -119,18 +119,23 @@ public class ProteinEx implements Protein, Serializable, GroupableProtein {
 	}
 
 	public void addSecondaryAccession(Accession accession) {
-		secondaryAccessions.add(accession);
+		if (accession != null) {
+			secondaryAccessions.add(accession);
+		}
 	}
 
 	@Override
 	public void addGene(Gene entrezGene) {
-		genes.add(entrezGene);
+		if (entrezGene != null) {
+			genes.add(entrezGene);
+		}
 	}
 
 	@Override
 	public void addAmount(Amount proteinAmount) {
-
-		proteinAmounts.add(proteinAmount);
+		if (proteinAmount != null) {
+			proteinAmounts.add(proteinAmount);
+		}
 	}
 
 	/**
@@ -144,18 +149,24 @@ public class ProteinEx implements Protein, Serializable, GroupableProtein {
 	public void addProteinAnnotation(ProteinAnnotation proteinAnnotation) {
 		if (proteinAnnotations == null)
 			proteinAnnotations = new THashSet<ProteinAnnotation>();
-		proteinAnnotations.add(proteinAnnotation);
+		if (proteinAnnotation != null) {
+			proteinAnnotations.add(proteinAnnotation);
+		}
 	}
 
 	public void addProteinThreshold(Threshold threshold) {
 		if (thresholds == null)
 			thresholds = new THashSet<Threshold>();
-		thresholds.add(threshold);
+		if (threshold != null) {
+			thresholds.add(threshold);
+		}
 	}
 
 	@Override
 	public void addRatio(Ratio proteinRatio) {
-		ratios.add(proteinRatio);
+		if (proteinRatio != null) {
+			ratios.add(proteinRatio);
+		}
 	}
 
 	/**
@@ -169,17 +180,19 @@ public class ProteinEx implements Protein, Serializable, GroupableProtein {
 	public void addThreshold(Threshold threshold) {
 		if (thresholds == null)
 			thresholds = new THashSet<Threshold>();
-		thresholds.add(threshold);
+		if (threshold != null) {
+			thresholds.add(threshold);
+		}
 	}
 
 	@Override
 	public void addPSM(PSM psm) {
 
-		if (psm != null && !psms.contains(psm))
+		if (psm != null && !psms.contains(psm)) {
 			psms.add(psm);
-		// else
-		// log.info("PSM already in the list of the protein");
-
+			psm.addProtein(this);
+			addPeptide(psm.getPeptide());
+		}
 	}
 
 	@Override
@@ -284,10 +297,13 @@ public class ProteinEx implements Protein, Serializable, GroupableProtein {
 
 	@Override
 	public void addPeptide(Peptide peptide) {
-		if (!peptides.contains(peptide))
+		if (!peptides.contains(peptide)) {
 			peptides.add(peptide);
-		// else
-		// log.info("Peptide already in the list of the protein");
+			for (PSM psm : peptide.getPSMs()) {
+				addPSM(psm);
+				psm.addProtein(this);
+			}
+		}
 	}
 
 	@Override
@@ -311,7 +327,9 @@ public class ProteinEx implements Protein, Serializable, GroupableProtein {
 
 	@Override
 	public void addScore(Score score) {
-		scores.add(score);
+		if (score != null) {
+			scores.add(score);
+		}
 	}
 
 	@Override
@@ -331,7 +349,9 @@ public class ProteinEx implements Protein, Serializable, GroupableProtein {
 
 	@Override
 	public void addCondition(Condition condition) {
-		conditions.add(condition);
+		if (condition != null) {
+			conditions.add(condition);
+		}
 	}
 
 	@Override

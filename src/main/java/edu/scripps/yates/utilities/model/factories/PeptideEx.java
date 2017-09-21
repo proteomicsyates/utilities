@@ -38,18 +38,20 @@ public class PeptideEx implements Peptide {
 
 	@Override
 	public void addPSM(PSM psm) {
-		String runId = psm.getMSRun().getRunId();
+		if (psm != null) {
+			String runId = psm.getMSRun().getRunId();
 
-		for (PSM psm2 : psms) {
-			if (!psm2.getMSRun().getRunId().equals(runId)) {
-				throw new IllegalArgumentException("A peptide should belong to PSMs from the same RUN id\n"
-						+ "Should be the same run id: '" + psm2.getMSRun().getRunId() + "'\t'" + runId + "'");
+			for (PSM psm2 : psms) {
+				if (!psm2.getMSRun().getRunId().equals(runId)) {
+					throw new IllegalArgumentException("A peptide should belong to PSMs from the same RUN id\n"
+							+ "Should be the same run id: '" + psm2.getMSRun().getRunId() + "'\t'" + runId + "'");
+				}
+			}
+			if (!psms.contains(psm)) {
+				psms.add(psm);
+				psm.setPeptide(this);
 			}
 		}
-		if (!psms.contains(psm))
-			psms.add(psm);
-		// else
-		// log.info("PSM already in the list of the peptide");
 	}
 
 	@Override
@@ -59,10 +61,9 @@ public class PeptideEx implements Peptide {
 
 	@Override
 	public void addRatio(Ratio ratio) {
-		if (!ratios.contains(ratio))
+		if (ratio != null && !ratios.contains(ratio)) {
 			ratios.add(ratio);
-		else
-			System.out.println("Äsdf");
+		}
 	}
 
 	@Override
@@ -72,7 +73,7 @@ public class PeptideEx implements Peptide {
 
 	@Override
 	public void addAmount(Amount amount) {
-		if (!amounts.contains(amount))
+		if (amount != null && !amounts.contains(amount))
 			amounts.add(amount);
 	}
 
@@ -83,9 +84,12 @@ public class PeptideEx implements Peptide {
 
 	@Override
 	public void addScore(Score score) {
-		if (scores == null)
+		if (scores == null) {
 			scores = new THashSet<Score>();
-		scores.add(score);
+		}
+		if (score != null) {
+			scores.add(score);
+		}
 	}
 
 	@Override
@@ -109,10 +113,14 @@ public class PeptideEx implements Peptide {
 	@Override
 	public void addProtein(Protein protein) {
 
-		if (!proteins.contains(protein))
+		if (protein != null && !proteins.contains(protein)) {
 			proteins.add(protein);
-		// else
-		// log.info("Protein already in the list of the peptide");
+			protein.addPeptide(this);
+			for (PSM psm : getPSMs()) {
+				protein.addPSM(psm);
+				psm.addProtein(protein);
+			}
+		}
 	}
 
 	@Override
@@ -122,17 +130,19 @@ public class PeptideEx implements Peptide {
 
 	@Override
 	public void addCondition(Condition newCondition) {
+		if (newCondition != null) {
+			boolean found = false;
+			for (Condition condition : conditions) {
+				if (condition.getName().equals(newCondition.getName())) {
+					if (condition.getProject().getName().equals(newCondition.getProject().getName()))
+						found = true;
+				}
 
-		boolean found = false;
-		for (Condition condition : conditions) {
-			if (condition.getName().equals(newCondition.getName())) {
-				if (condition.getProject().getName().equals(newCondition.getProject().getName()))
-					found = true;
 			}
-
+			if (!found) {
+				conditions.add(newCondition);
+			}
 		}
-		if (!found)
-			conditions.add(newCondition);
 	}
 
 	@Override
