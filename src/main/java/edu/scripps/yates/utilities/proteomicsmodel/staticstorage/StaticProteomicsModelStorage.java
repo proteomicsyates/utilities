@@ -30,8 +30,17 @@ public class StaticProteomicsModelStorage {
 	private static final ItemStorage<PSM> psmStorage = new ItemStorage<PSM>();
 
 	public static void clearData() {
+		if (!proteinStorage.isEmpty()) {
+			log.info("Clearing static protein storage with " + proteinStorage.sizeByKeys());
+		}
 		proteinStorage.clearData();
+		if (!peptideStorage.isEmpty()) {
+			log.info("Clearing static peptide storage with " + peptideStorage.sizeByKeys());
+		}
 		peptideStorage.clearData();
+		if (!psmStorage.isEmpty()) {
+			log.info("Clearing static psm storage with " + psmStorage.sizeByKeys());
+		}
 		psmStorage.clearData();
 	}
 
