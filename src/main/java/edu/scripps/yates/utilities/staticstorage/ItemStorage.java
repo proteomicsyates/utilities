@@ -257,4 +257,34 @@ public class ItemStorage<T> {
 	public boolean contains(String msRunID, String conditionID, int excelRowIndex, String key) {
 		return !get(msRunID, conditionID, excelRowIndex, key).isEmpty();
 	}
+
+	public boolean isEmpty() {
+		ReadLock readLock = itemByConditionIDLock.readLock();
+		ReadLock readLock2 = itemByExcelRowLock.readLock();
+		ReadLock readLock3 = itemByKeyLock.readLock();
+		ReadLock readLock4 = itemByRunIDLock.readLock();
+		try {
+			readLock.lock();
+			readLock2.lock();
+			readLock3.lock();
+			readLock4.lock();
+			return itemByConditionID.isEmpty() || itemByExcelRow.isEmpty() || itemByKey.isEmpty()
+					|| itemByRunID.isEmpty();
+		} finally {
+			readLock.unlock();
+			readLock2.unlock();
+			readLock3.unlock();
+			readLock4.unlock();
+		}
+	}
+
+	public int sizeByKeys() {
+		ReadLock readLock = itemByKeyLock.readLock();
+		try {
+			readLock.lock();
+			return itemByKey.size();
+		} finally {
+			readLock.unlock();
+		}
+	}
 }
