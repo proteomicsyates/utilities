@@ -2,16 +2,30 @@ package edu.scripps.yates.utilities.progresscounter;
 
 import java.text.DecimalFormat;
 
+import org.apache.commons.lang.mutable.MutableLong;
+import org.apache.log4j.Logger;
+
+import edu.scripps.yates.utilities.dates.DatesUtil;
+
 public class ProgressCounter {
-	private final int total;
-	private final MutableInteger count;
+	private final static Logger log = Logger.getLogger(ProgressCounter.class);
+	private long total;
+	private MutableLong count;
 	private String previousPercentage = "";
 	private final ProgressPrintingType progressPrintingType;
 	private final DecimalFormat df;
+	private final boolean showRemainingTime;
+	private long t1 = -1;
+	private ProgressNumberFormatter formatter;
 
-	public ProgressCounter(int total, ProgressPrintingType progressPrintingType, int numDecimals) {
+	public ProgressCounter(long total, ProgressPrintingType progressPrintingType, int numDecimals) {
+		this(total, progressPrintingType, numDecimals, false);
+	}
+
+	public ProgressCounter(long total, ProgressPrintingType progressPrintingType, int numDecimals,
+			boolean showTimeRemaining) {
 		this.total = total;
-		count = new MutableInteger(0);
+		count = new MutableLong(0);
 		this.progressPrintingType = progressPrintingType;
 		StringBuilder sb = new StringBuilder("#");
 		for (int i = 0; i < numDecimals; i++) {
@@ -21,36 +35,100 @@ public class ProgressCounter {
 			sb.append("#");
 		}
 		df = new DecimalFormat(sb.toString());
+		this.showRemainingTime = showTimeRemaining;
 	}
 
 	public void increment() {
-		count.set(count.get() + 1);
+		count.add(1);
+		startTimeWithFirstIncrement();
+
+	}
+
+	private void startTimeWithFirstIncrement() {
+		// start time with the first increment
+		if (showRemainingTime && t1 == -1) {
+			log.info("taking time at the first increment");
+			t1 = System.currentTimeMillis();
+		}
+	}
+
+	private String getRemainingTime() {
+		if (showRemainingTime) {
+			long currentTimeMillis = System.currentTimeMillis();
+			long timeConsumed = currentTimeMillis - t1;
+			double timeConsumedPerItem = 1.0 * timeConsumed / getCount();
+			double estimatedRemainingTime = timeConsumedPerItem * (1.0 * total - getCount());
+			return DatesUtil.getDescriptiveTimeFromMillisecs(estimatedRemainingTime);
+		}
+		return "";
 	}
 
 	public String printIfNecessary() {
 
+		StringBuilder sb = new StringBuilder();
 		if (progressPrintingType == ProgressPrintingType.EVERY_STEP) {
 			double percentage = getPercentage();
-			String ret = new StringBuilder().append(count.get()).append("/").append(total).append(" (")
-					.append(df.format(percentage)).append("%)").toString();
-			return ret;
+			sb.append(count.longValue()).append("/").append(total).append(" (").append(df.format(percentage))
+					.append("%)").toString();
+			if (showRemainingTime) {
+				sb.append(" (" + getRemainingTime() + " remaining...)");
+			}
+			return sb.toString();
 		} else if (progressPrintingType == ProgressPrintingType.PERCENTAGE_STEPS) {
 			String percentage = df.format(getPercentage());
 			if (!percentage.equals(previousPercentage)) {
-				String ret = new StringBuilder().append(count.get()).append("/").append(total).append(" (")
-						.append(percentage).append("%)").toString();
+				sb.append(getFormatter().format(count.longValue())).append("/").append(getFormatter().format(total))
+						.append(" (").append(percentage).append("%)").toString();
+				if (showRemainingTime) {
+					sb.append(" (" + getRemainingTime() + " remaining...)");
+				}
 				previousPercentage = percentage;
-				return ret;
+				return sb.toString();
 			}
 		}
 		return "";
 	}
 
-	public int getCount() {
-		return count.get();
+	public long getCount() {
+		return count.longValue();
 	}
 
 	public double getPercentage() {
-		return count.get() * 100.0 / total;
+		return count.longValue() * 100.0 / total;
+	}
+
+	public void setTotal(long max) {
+		this.total = max;
+		count = new MutableLong(0);
+		t1 = -1;
+	}
+
+	public void setCount(long count2) {
+		count.setValue(count2);
+		if (count2 > 0) {
+			startTimeWithFirstIncrement();
+		}
+	}
+
+	public void addCount(long count2) {
+		count.add(count2);
+		startTimeWithFirstIncrement();
+	}
+
+	public void setProgressNumberFormatter(ProgressNumberFormatter formatter) {
+		this.formatter = formatter;
+	}
+
+	public ProgressNumberFormatter getFormatter() {
+		if (formatter == null) {
+			formatter = new ProgressNumberFormatter() {
+
+				@Override
+				public String format(long number) {
+					return String.valueOf(number);
+				}
+			};
+		}
+		return formatter;
 	}
 }
