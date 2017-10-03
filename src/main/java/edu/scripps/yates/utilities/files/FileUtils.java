@@ -154,7 +154,7 @@ public class FileUtils {
 	}
 
 	public static String getDescriptiveSizeFromBytes(long sizeInBytes) {
-		log.info("Getting file descriptive string from a number of bytes: " + sizeInBytes);
+		log.debug("Getting file descriptive string from a number of bytes: " + sizeInBytes);
 		if (sizeInBytes < 1024) {
 			return getDecimalFormat().format(sizeInBytes) + " bytes";
 		}
