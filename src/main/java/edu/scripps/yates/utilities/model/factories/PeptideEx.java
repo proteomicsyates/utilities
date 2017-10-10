@@ -141,6 +141,12 @@ public class PeptideEx implements Peptide {
 			}
 			if (!found) {
 				conditions.add(newCondition);
+				// set condition to amounts
+				for (Amount amount : getAmounts()) {
+					if (amount.getCondition() == null && amount instanceof AmountEx) {
+						((AmountEx) amount).setCondition(newCondition);
+					}
+				}
 			}
 		}
 	}
