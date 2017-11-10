@@ -5,7 +5,7 @@ import java.text.DecimalFormat;
 import edu.scripps.yates.utilities.files.FileUtils;
 
 public class MemoryUsageReport {
-	private final static DecimalFormat df = new DecimalFormat("#.#");
+	private final static DecimalFormat df = new DecimalFormat("#.0");
 	public static final double RECOMMENDED_MINIMUM_MEMORY_PERCENTAGE = 10.0;
 
 	public static String getMemoryUsageReport() {
@@ -20,8 +20,9 @@ public class MemoryUsageReport {
 		long realFreeMemory = maxMemory - usedMemory;
 		double usedPercentage = usedMemory * 100.0 / maxMemory;
 		double realFreePercentage = realFreeMemory * 100.0 / maxMemory;
-		return FileUtils.getDescriptiveSizeFromBytes(usedMemory) + " used (" + df.format(usedPercentage) + "%), free ("
-				+ FileUtils.getDescriptiveSizeFromBytes(realFreeMemory) + " " + df.format(realFreePercentage) + "%)";
+		return FileUtils.getDescriptiveSizeFromBytes(usedMemory) + " used (" + df.format(usedPercentage) + "%), "
+				+ FileUtils.getDescriptiveSizeFromBytes(realFreeMemory) + " free (" + df.format(realFreePercentage)
+				+ "%)";
 	}
 
 	public static String getUsedMemoryDescriptiveString() {
