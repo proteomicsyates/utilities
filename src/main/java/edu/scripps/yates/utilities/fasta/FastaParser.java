@@ -210,6 +210,17 @@ public class FastaParser {
 				return new Pair<String, String>(id.trim(), "UNKNOWN");
 			}
 		}
+		String contaminant = "contaminant";
+		if (id.length() >= contaminant.length()
+				&& id.substring(0, contaminant.length()).equalsIgnoreCase(contaminant)) {
+
+			final Matcher matcher = untilSpace.matcher(id);
+			if (matcher.find()) {
+				return new Pair<String, String>(matcher.group(0).trim(), "UNKNOWN");
+			} else {
+				return new Pair<String, String>(id.trim(), "UNKNOWN");
+			}
+		}
 		final String ipiacc = getIPIACC(id);
 		if (ipiacc != null) {
 			return new Pair<String, String>(ipiacc, "IPI");
