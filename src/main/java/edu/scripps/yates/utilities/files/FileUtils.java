@@ -243,7 +243,7 @@ public class FileUtils {
 				lines = lines.skip(1);
 			}
 			final List<String> collect = lines.map(line -> line.split(separator)[columnIndex])
-					.filter(line -> skipHeader).collect(Collectors.toList());
+					.collect(Collectors.toList());
 			return collect;
 		} catch (IndexOutOfBoundsException e) {
 			log.error(e);
