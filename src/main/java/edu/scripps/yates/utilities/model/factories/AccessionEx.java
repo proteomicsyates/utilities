@@ -57,6 +57,7 @@ public class AccessionEx implements Accession, Serializable {
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
@@ -68,6 +69,7 @@ public class AccessionEx implements Accession, Serializable {
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
@@ -95,5 +97,10 @@ public class AccessionEx implements Accession, Serializable {
 		if (alternativeNames == null)
 			alternativeNames = new ArrayList<String>();
 		alternativeNames.add(alternativeName);
+	}
+
+	@Override
+	public int hashCode() {
+		return -1;
 	}
 }
