@@ -52,6 +52,10 @@
                <artifactId>jshortcut</artifactId>
                <groupId>net.jimmc</groupId>
             </exclusion>
+            <exclusion>
+            	<groupId>jfree</groupId>
+            	<artifactId>jfreechart</artifactId>
+            </exclusion>
          </exclusions>
       </dependency>
      
