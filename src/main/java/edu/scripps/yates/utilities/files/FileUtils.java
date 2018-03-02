@@ -15,6 +15,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.text.DecimalFormat;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,6 +24,8 @@ import java.util.stream.Stream;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
+
+import edu.scripps.yates.utilities.dates.DatesUtil;
 
 public class FileUtils {
 	private final static Logger log = Logger.getLogger(FileUtils.class);
@@ -262,5 +265,19 @@ public class FileUtils {
 
 		IOUtils.closeQuietly(is);
 		return targetFile;
+	}
+
+	public static List<String> readFirstLines(File file, long maxLines) {
+		long t1 = System.currentTimeMillis();
+		try (Stream<String> lines = Files.lines(Paths.get(file.toURI()))) {
+			List<String> ret = lines.limit(maxLines)
+					.onClose(() -> log.info("File readed in "
+							+ DatesUtil.getDescriptiveTimeFromMillisecs((System.currentTimeMillis() - t1))))
+					.collect(Collectors.toList());
+			return ret;
+		} catch (IOException e) {
+			e.printStackTrace();
+			return Collections.emptyList();
+		}
 	}
 }
