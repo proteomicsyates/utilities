@@ -1,7 +1,6 @@
 package edu.scripps.yates.utilities.remote;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -19,6 +18,8 @@ import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpException;
+
+import edu.scripps.yates.utilities.files.FileUtils;
 
 /**
  * This class is used for getting remote file names by ssh
@@ -122,7 +123,7 @@ public class RemoteSSHFileReference {
 				&& !overrideIfExists) {
 
 			try {
-				return new FileInputStream(outputFile);
+				return FileUtils.getInputStream(outputFile);
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 				log.warn(e.getMessage());
