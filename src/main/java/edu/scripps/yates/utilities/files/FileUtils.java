@@ -14,12 +14,15 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.ZipInputStream;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -267,17 +270,76 @@ public class FileUtils {
 		return targetFile;
 	}
 
-	public static List<String> readFirstLines(File file, long maxLines) {
+	public static List<String> readFirstLines(InputStream inputStream, long maxLines) {
 		long t1 = System.currentTimeMillis();
-		try (Stream<String> lines = Files.lines(Paths.get(file.toURI()))) {
-			List<String> ret = lines.limit(maxLines)
-					.onClose(() -> log.info("File readed in "
-							+ DatesUtil.getDescriptiveTimeFromMillisecs((System.currentTimeMillis() - t1))))
-					.collect(Collectors.toList());
+		BufferedReader reader = null;
+		try {
+			reader = new BufferedReader(new InputStreamReader(inputStream));
+			String line = null;
+			List<String> ret = new ArrayList<String>();
+			while ((line = reader.readLine()) != null) {
+				ret.add(line);
+				if (ret.size() == maxLines) {
+					break;
+				}
+			}
 			return ret;
 		} catch (IOException e) {
 			e.printStackTrace();
 			return Collections.emptyList();
+		} finally {
+			if (reader != null) {
+				try {
+					reader.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+			log.info("File readed in " + DatesUtil.getDescriptiveTimeFromMillisecs((System.currentTimeMillis() - t1)));
 		}
+	}
+
+	/**
+	 * Read the first (maxLines) lines from the file.<br>
+	 * It supports GZIP and ZIP files
+	 * 
+	 * @param file
+	 * @param maxLines
+	 * @return
+	 */
+	public static List<String> readFirstLines(File file, long maxLines) {
+
+		InputStream inputStream;
+		try {
+			inputStream = getInputStream(file);
+			if (inputStream != null) {
+				return readFirstLines(inputStream, maxLines);
+			}
+		} catch (FileNotFoundException e) {
+
+		}
+
+		return Collections.emptyList();
+	}
+
+	/**
+	 * Gets the appropriate {@link InputStream} from a {@link File}, taking into
+	 * account GZIP or ZIP files
+	 * 
+	 * @param file
+	 * @return
+	 * @throws FileNotFoundException
+	 */
+	public static InputStream getInputStream(File file) throws FileNotFoundException {
+		try {
+			return new GZIPInputStream(new FileInputStream(file));
+		} catch (IOException e) {
+			try {
+				return new ZipInputStream(new FileInputStream(file));
+			} catch (FileNotFoundException e1) {
+				return new FileInputStream(file);
+			}
+		}
+
 	}
 }
