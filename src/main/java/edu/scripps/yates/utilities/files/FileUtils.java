@@ -17,12 +17,14 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.GZIPInputStream;
-import java.util.zip.ZipInputStream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -334,12 +336,22 @@ public class FileUtils {
 		try {
 			return new GZIPInputStream(new FileInputStream(file));
 		} catch (IOException e) {
+			ZipFile zip = null;
 			try {
-				return new ZipInputStream(new FileInputStream(file));
-			} catch (FileNotFoundException e1) {
-				return new FileInputStream(file);
+				zip = new ZipFile(file);
+				Enumeration<? extends ZipEntry> entries = zip.entries();
+				while (entries.hasMoreElements()) {
+					ZipEntry zipEntry = entries.nextElement();
+					if (!zipEntry.isDirectory()) {
+						return zip.getInputStream(zipEntry);
+					}
+				}
+			} catch (IOException e2) {
+			} finally {
+				// do not close zip, because that would close the stream
 			}
-		}
+			return new FileInputStream(file);
 
+		}
 	}
 }
