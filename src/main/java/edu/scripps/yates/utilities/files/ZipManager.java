@@ -13,7 +13,6 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.io.FilenameUtils;
@@ -90,7 +89,7 @@ public class ZipManager {
 	 */
 
 	public static File decompressGZipFile(File file) throws FileNotFoundException, IOException {
-		log.info("processing GZip file: " + file.getAbsolutePath());
+		log.debug("processing GZip file: " + file.getAbsolutePath());
 
 		FileInputStream fin = new FileInputStream(file);
 		BufferedInputStream bufferedIn = new BufferedInputStream(new GZIPInputStream(fin));
@@ -101,25 +100,6 @@ public class ZipManager {
 			outputName = outputName + "_";
 		BufferedOutputStream bufferedOut = new BufferedOutputStream(new FileOutputStream(outputName));
 		log.info("Decompressing to : " + outputName);
-
-		copyInputStream(bufferedIn, bufferedOut);
-
-		return new File(outputName);
-
-	}
-
-	public static File decompressSingleZipFile(File file) throws FileNotFoundException, IOException {
-		log.debug("processing single Zip file: " + file.getAbsolutePath());
-
-		FileInputStream fin = new FileInputStream(file);
-		BufferedInputStream bufferedIn = new BufferedInputStream(new ZipInputStream(fin));
-
-		String outputName = FilenameUtils.getFullPath(file.getAbsolutePath())
-				+ FilenameUtils.getBaseName(file.getAbsolutePath());
-		if (outputName.equals(file.getAbsolutePath()))
-			outputName = outputName + "_";
-		BufferedOutputStream bufferedOut = new BufferedOutputStream(new FileOutputStream(outputName));
-		log.debug("Decompressing to : " + outputName);
 
 		copyInputStream(bufferedIn, bufferedOut);
 
@@ -213,15 +193,7 @@ public class ZipManager {
 			} catch (IOException e) {
 				log.debug("The file " + file.getAbsolutePath() + " is not a zipped file.");
 			}
-			try {
-				return ZipManager.decompressSingleZipFile(file);
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-				log.warn("The file " + file.getAbsolutePath() + " has not found");
-				return file;
-			} catch (IOException e) {
-				log.debug("The file " + file.getAbsolutePath() + " is not a zipped file.");
-			}
+
 			try {
 				return ZipManager.decompressGZipFile(file);
 			} catch (FileNotFoundException e) {
@@ -237,21 +209,6 @@ public class ZipManager {
 				log.info("File " + originalPath + " has been decompressed to " + file.getAbsolutePath());
 			}
 		}
-	}
-
-	public static File decompressSingleZipFileIfNeccessary(File file) {
-		log.info("Decompressing file " + file.getAbsolutePath());
-
-		try {
-			return ZipManager.decompressSingleZipFile(file);
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-			log.info("The file " + file.getAbsolutePath() + " has not found");
-		} catch (IOException e) {
-			log.info("The file " + file.getAbsolutePath() + " is not a zipped file. Returning the original file");
-		}
-
-		return file;
 	}
 
 	public static File decompressZipFileIfNeccessary(File file) {
@@ -311,35 +268,6 @@ public class ZipManager {
 
 		try {
 			File decompressZipFile = ZipManager.decompressZipFile(file);
-			if (decompressZipFile != null && deleteOnExit) {
-				if (decompressZipFile.getAbsolutePath() != file.getAbsolutePath()) {
-					log.info("Setting 'deleteOnExit' to file: '" + decompressZipFile.getAbsolutePath() + "'");
-					decompressZipFile.deleteOnExit();
-					file.deleteOnExit();
-				}
-			}
-			return decompressZipFile;
-		} catch (Exception e) {
-			log.info("The file " + file.getAbsolutePath() + " is not a zipped file. Returning the original file");
-			log.warn(e.getMessage());
-		}
-
-		return file;
-	}
-
-	/**
-	 * 
-	 * @param file
-	 * @param deleteOnExit
-	 *            indicates if the decompressed file (if the source is is a gzip
-	 *            file) will be delete on exit or not
-	 * @return
-	 */
-	public static File decompressSingleZipFileIfNeccessary(File file, boolean deleteOnExit) {
-		log.info("Decompressing file " + file.getAbsolutePath());
-
-		try {
-			File decompressZipFile = ZipManager.decompressSingleZipFile(file);
 			if (decompressZipFile != null && deleteOnExit) {
 				if (decompressZipFile.getAbsolutePath() != file.getAbsolutePath()) {
 					log.info("Setting 'deleteOnExit' to file: '" + decompressZipFile.getAbsolutePath() + "'");
