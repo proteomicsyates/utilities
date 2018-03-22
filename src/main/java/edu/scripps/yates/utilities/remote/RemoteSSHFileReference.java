@@ -233,7 +233,7 @@ public class RemoteSSHFileReference {
 			sftpChannel.exit();
 			session.disconnect();
 			failedConnectionAttemps = 0;
-			log.debug("File retrieved at '" + outputFile.getAbsolutePath() + "' location ("
+			log.info("File retrieved at '" + outputFile.getAbsolutePath() + "' location ("
 					+ getFileLengthString(outputFile) + ")");
 			return outputFile;
 		} catch (JSchException e) {
@@ -253,21 +253,7 @@ public class RemoteSSHFileReference {
 	}
 
 	private String getFileLengthString(File file) {
-		Long length = file.length();
-		String ret = length + " bytes";
-		if (length / 1024 > 1) {
-			length = length / 1024;
-			ret = length + " Kbytes";
-			if (length / 1024 > 1) {
-				length = length / 1024;
-				ret = length + " Mbytes";
-				if (length / 1024 > 1) {
-					length = length / 1024;
-					ret = length + " Gbytes";
-				}
-			}
-		}
-		return ret;
+		return FileUtils.getDescriptiveSizeFromBytes(file.length());
 	}
 
 	/**
