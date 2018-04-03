@@ -130,7 +130,7 @@ public class FastaParser {
 					// check that there is no more words before the id
 
 					if (startingByWord.matcher(tmp).find()) {
-						return null;
+						return id;
 					}
 
 				}
@@ -196,6 +196,7 @@ public class FastaParser {
 		if (id == null) {
 			return new Pair<String, String>("", "UNKNOWN");
 		}
+
 		// if starts by >, remove it
 		if (id.startsWith(">"))
 			id = id.substring(1);
@@ -484,6 +485,8 @@ public class FastaParser {
 	public static String getDescription(String description) {
 		if (description == null)
 			return null;
+		if (description.startsWith(">"))
+			description = description.substring(1);
 		// log.debug("Trying to get description from '" + description + "'");
 		final String ncbiacc = getNCBIACC(description);
 		if (ncbiacc != null && !description.equals(ncbiacc)) {
