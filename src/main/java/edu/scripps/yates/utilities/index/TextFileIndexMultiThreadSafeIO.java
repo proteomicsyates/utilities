@@ -153,7 +153,7 @@ public class TextFileIndexMultiThreadSafeIO {
 	 *         stored
 	 * @throws IOException
 	 */
-	public synchronized Map<String, Pair<Long, Long>> addNewItem(String item, Set<String> keys) throws IOException {
+	public Map<String, Pair<Long, Long>> addNewItem(String item, Set<String> keys) throws IOException {
 
 		if (!item.startsWith(beginToken)) {
 			if (item.contains(beginToken)) {
