@@ -68,10 +68,13 @@ public class FastaParser {
 	private static final Pattern endingByWord = Pattern.compile("\\w+$");
 	private static final Pattern untilSpace = Pattern.compile("^(\\S+)");
 
+	public static final String conflict = "_conflict_";
+	public static final String mutated = "_mutated_";
+	public static final String variant = "_variant_";
 	static {
 		FASTA_ANNOTATION_PATTERNS = new Pattern[FASTA_ANNOTATIONS.length];
 		int index = 0;
-		for (String fasta_annotation : FASTA_ANNOTATIONS) {
+		for (final String fasta_annotation : FASTA_ANNOTATIONS) {
 			FASTA_ANNOTATION_PATTERNS[index] = Pattern.compile(fasta_annotation);
 			index++;
 		}
@@ -104,7 +107,7 @@ public class FastaParser {
 				if (!"".equals(group))
 					id = group.trim();
 			}
-			Matcher matcher5 = null;
+			final Matcher matcher5 = null;
 			String trim = null;
 			final Matcher matcher2 = UNIPROT_ACC_TYPE1.matcher(id);
 			if (matcher2.find()) {
@@ -201,7 +204,7 @@ public class FastaParser {
 		if (id.startsWith(">"))
 			id = id.substring(1);
 		// if starts by Reverse, take the word as the id
-		String reverse = "Reverse";
+		final String reverse = "Reverse";
 		if (id.length() >= reverse.length() && id.substring(0, reverse.length()).equalsIgnoreCase(reverse)) {
 
 			final Matcher matcher = untilSpace.matcher(id);
@@ -211,7 +214,7 @@ public class FastaParser {
 				return new Pair<String, String>(id.trim(), "UNKNOWN");
 			}
 		}
-		String contaminant = "contaminant";
+		final String contaminant = "contaminant";
 		if (id.length() >= contaminant.length()
 				&& id.substring(0, contaminant.length()).equalsIgnoreCase(contaminant)) {
 
@@ -265,7 +268,7 @@ public class FastaParser {
 				final String string = split[i];
 				if (startsWithUniprotKeyword(string)) {
 					if (string.startsWith(UNIPROT_FASTA_KEYWORD.OS.name())) {
-						String tmp = getStringAfterEqual(string);
+						final String tmp = getStringAfterEqual(string);
 						String ret = "";
 						// if (tmp != null) {
 						// ret = tmp;
@@ -321,7 +324,7 @@ public class FastaParser {
 			}
 			// try to get from the code of the uniprot like _DROVI
 
-			String code = getUniprotTaxonomyCode(fullaccession);
+			final String code = getUniprotTaxonomyCode(fullaccession);
 			if (code != null) {
 				final UniprotOrganism organism = UniprotSpeciesCodeMap.getInstance().get(code);
 				if (organism != null) {
@@ -331,7 +334,7 @@ public class FastaParser {
 		}
 		if (fastaheader != null && !"".equals(fastaheader)) {
 
-			String code = getUniprotTaxonomyCode(fastaheader);
+			final String code = getUniprotTaxonomyCode(fastaheader);
 			if (code != null) {
 				final UniprotOrganism organism = UniprotSpeciesCodeMap.getInstance().get(code);
 				if (organism != null) {
@@ -370,7 +373,7 @@ public class FastaParser {
 	 * @return
 	 */
 	private static boolean startsWithUniprotKeyword(String string) {
-		for (UNIPROT_FASTA_KEYWORD keyw : UNIPROT_FASTA_KEYWORD.values()) {
+		for (final UNIPROT_FASTA_KEYWORD keyw : UNIPROT_FASTA_KEYWORD.values()) {
 			if (string.startsWith(keyw.name())) {
 				return true;
 			}
@@ -507,8 +510,8 @@ public class FastaParser {
 				description = group.trim();
 		}
 
-		for (Pattern regex : FASTA_ANNOTATION_PATTERNS) {
-			Matcher regexMatcher = regex.matcher(description);
+		for (final Pattern regex : FASTA_ANNOTATION_PATTERNS) {
+			final Matcher regexMatcher = regex.matcher(description);
 			description = regexMatcher.replaceFirst("").trim();
 		}
 
@@ -516,9 +519,9 @@ public class FastaParser {
 		int firstAnnotationIndex = Integer.MAX_VALUE;
 
 		// Annotations that are always after the description
-		String[] annotations = { "OS=", "GN=", "PE=", "SV=" };
+		final String[] annotations = { "OS=", "GN=", "PE=", "SV=" };
 
-		for (String annotation : annotations) {
+		for (final String annotation : annotations) {
 			final int os = description.indexOf(annotation);
 			if (os != -1 && os < firstAnnotationIndex) {
 				firstAnnotationIndex = os;
@@ -546,7 +549,7 @@ public class FastaParser {
 					description = description.replaceFirst(quote, "").trim();
 				}
 			}
-		} catch (PatternSyntaxException e) {
+		} catch (final PatternSyntaxException e) {
 			e.printStackTrace();
 		}
 		return description.trim();
@@ -569,27 +572,27 @@ public class FastaParser {
 	public static String cleanSequence(String seq) {
 		if (seq == null)
 			return null;
-		String seqTmp = seq.trim();
+		final String seqTmp = seq.trim();
 		try {
 			if (somethingExtrangeInSequence(seqTmp)) {
 
 				// parenthesis or brackets
-				List<String> outside = getOutside(seqTmp);
+				final List<String> outside = getOutside(seqTmp);
 				if (!outside.isEmpty()) {
-					String tmp = appendList(outside);
+					final String tmp = appendList(outside);
 					return removeBeforeAfterAAs(tmp);
 				}
 
 			}
 			return seq.toUpperCase();
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			return seqTmp;
 		}
 	}
 
 	public static List<String> getOutside(String seq) {
 		int numOpen = 0;
-		List<String> ret = new ArrayList<String>();
+		final List<String> ret = new ArrayList<String>();
 		StringBuffer outside = new StringBuffer();
 		for (int i = 0; i < seq.length(); i++) {
 			final char charAt = seq.charAt(i);
@@ -626,7 +629,7 @@ public class FastaParser {
 	 */
 	public static List<StringPosition> getInside(String seq) {
 		int numOpen = 0;
-		List<StringPosition> ret = new ArrayList<StringPosition>();
+		final List<StringPosition> ret = new ArrayList<StringPosition>();
 		StringBuffer inside = new StringBuffer();
 		int lastNormal = 0;
 		int lenthInsides = 0;
@@ -675,9 +678,9 @@ public class FastaParser {
 	 */
 	public static TIntDoubleHashMap getPTMsFromSequence(String rawSeq) {
 		// get the peptide inside '.'
-		String seq = removeBeforeAfterAAs(rawSeq);
+		final String seq = removeBeforeAfterAAs(rawSeq);
 
-		TIntDoubleHashMap ret = new TIntDoubleHashMap();
+		final TIntDoubleHashMap ret = new TIntDoubleHashMap();
 		boolean isPTM = false;
 		String ptmString = "";
 		int position = 1;
@@ -700,12 +703,12 @@ public class FastaParser {
 						ptm = -ptm;
 					}
 					if (modifiedAAMass) {
-						double AAMass = AssignMass.getInstance(true).getMass(currentAA);
+						final double AAMass = AssignMass.getInstance(true).getMass(currentAA);
 						ptm = ptm - AAMass;
 					}
 					ret.put(position - 1, ptm);
 					ptmString = "";
-				} catch (NumberFormatException e) {
+				} catch (final NumberFormatException e) {
 					log.warn("Error parsing PTM string '" + ptmString + "' in peptide '" + seq + "'. Ignoring it...");
 				}
 			} else if (isPTM) {
@@ -720,8 +723,8 @@ public class FastaParser {
 	}
 
 	private static String appendList(List<String> list) {
-		StringBuffer sb = new StringBuffer();
-		for (String string : list) {
+		final StringBuffer sb = new StringBuffer();
+		for (final String string : list) {
 			sb.append(string);
 		}
 		return sb.toString();
@@ -767,8 +770,8 @@ public class FastaParser {
 	public static String getBeforeSeq(String seq) {
 		final String point = ".";
 		if (seq.contains(point)) {
-			Integer firstPoint = getBeforeSeqPointIndex(seq);
-			Integer lastPoint = getAfterSeqPointIndex(seq);
+			final Integer firstPoint = getBeforeSeqPointIndex(seq);
+			final Integer lastPoint = getAfterSeqPointIndex(seq);
 
 			if (firstPoint != null && lastPoint != null && firstPoint != lastPoint) {
 				final String substring = seq.substring(0, firstPoint);
@@ -807,8 +810,8 @@ public class FastaParser {
 	public static String getAfterSeq(String seq) {
 		final String point = ".";
 		if (seq.contains(point)) {
-			Integer firstPoint = getBeforeSeqPointIndex(seq);
-			Integer lastPoint = getAfterSeqPointIndex(seq);
+			final Integer firstPoint = getBeforeSeqPointIndex(seq);
+			final Integer lastPoint = getAfterSeqPointIndex(seq);
 
 			if (firstPoint != null && lastPoint != null && firstPoint != lastPoint) {
 				final String substring = seq.substring(lastPoint + 1, seq.length());
@@ -834,7 +837,7 @@ public class FastaParser {
 				try {
 					Integer.valueOf(sequence.substring(index + 1, index + 2));
 
-				} catch (NumberFormatException e) {
+				} catch (final NumberFormatException e) {
 					return index;
 				}
 			}
@@ -858,7 +861,7 @@ public class FastaParser {
 				try {
 					Integer.valueOf(sequence.substring(index + 1, index + 2));
 
-				} catch (NumberFormatException e) {
+				} catch (final NumberFormatException e) {
 					return index;
 
 				}
@@ -924,7 +927,7 @@ public class FastaParser {
 			return null;
 		}
 		if (psmId.contains(".")) {
-			String[] split = psmId.split("\\.");
+			final String[] split = psmId.split("\\.");
 			return split[split.length - 3];
 		}
 		return null;
@@ -941,7 +944,7 @@ public class FastaParser {
 			return null;
 		}
 		if (psmId.contains(".")) {
-			String[] split = psmId.split("\\.");
+			final String[] split = psmId.split("\\.");
 			return split[split.length - 2];
 		}
 		return null;
@@ -959,11 +962,11 @@ public class FastaParser {
 		}
 		if (psmId.contains(".")) {
 			final int indexOf = psmId.indexOf(".");
-			String fileName = psmId.substring(0, indexOf);
+			final String fileName = psmId.substring(0, indexOf);
 			return fileName;
 		} else {
 			if (psmId.contains("-")) {
-				int index = psmId.lastIndexOf("-");
+				final int index = psmId.lastIndexOf("-");
 				return psmId.substring(0, index);
 			}
 		}
@@ -976,10 +979,10 @@ public class FastaParser {
 		}
 		if (psmId.contains(".")) {
 			final int indexOf = psmId.lastIndexOf(".");
-			String chargeStateString = psmId.substring(indexOf + 1);
+			final String chargeStateString = psmId.substring(indexOf + 1);
 			try {
 				return Integer.valueOf(chargeStateString);
-			} catch (NumberFormatException e) {
+			} catch (final NumberFormatException e) {
 
 			}
 		}
@@ -1018,5 +1021,12 @@ public class FastaParser {
 			return uniprotAcc.substring(uniprotAcc.indexOf("-") + 1);
 		}
 		return null;
+	}
+
+	public static boolean isProteoform(String acc) {
+		if (acc.contains(mutated) || acc.contains(conflict) || acc.contains(variant)) {
+			return true;
+		}
+		return false;
 	}
 }
