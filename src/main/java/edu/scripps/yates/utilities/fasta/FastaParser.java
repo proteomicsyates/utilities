@@ -237,7 +237,10 @@ public class FastaParser {
 		if (ncbiacc != null) {
 			return new Pair<String, String>(ncbiacc, "NCBI");
 		}
-
+		// if contains an space, take the string before the space
+		if (id.contains(" ")) {
+			return new Pair<String, String>(id.substring(0, id.indexOf(" ")), "UNKNOWN");
+		}
 		return new Pair<String, String>(id.trim(), "UNKNOWN");
 	}
 
