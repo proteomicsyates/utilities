@@ -49,9 +49,9 @@ public class ZipManager {
 			outputFile = new File(inputFile.getAbsolutePath() + ".gz");
 
 		// Create the GZIP file
-		BufferedOutputStream bufferedOut = new BufferedOutputStream(
+		final BufferedOutputStream bufferedOut = new BufferedOutputStream(
 				new GZIPOutputStream(new FileOutputStream(outputFile)));
-		BufferedInputStream bufferedIn = new BufferedInputStream(new FileInputStream(inputFile));
+		final BufferedInputStream bufferedIn = new BufferedInputStream(new FileInputStream(inputFile));
 
 		copyInputStream(bufferedIn, bufferedOut);
 
@@ -68,9 +68,9 @@ public class ZipManager {
 			outputFile = new File(inputFile.getAbsolutePath() + ".gz");
 
 		// Create the GZIP file
-		BufferedOutputStream bufferedOut = new BufferedOutputStream(
+		final BufferedOutputStream bufferedOut = new BufferedOutputStream(
 				new ZipOutputStream(new FileOutputStream(outputFile)));
-		BufferedInputStream bufferedIn = new BufferedInputStream(new FileInputStream(inputFile));
+		final BufferedInputStream bufferedIn = new BufferedInputStream(new FileInputStream(inputFile));
 
 		copyInputStream(bufferedIn, bufferedOut);
 
@@ -91,14 +91,14 @@ public class ZipManager {
 	public static File decompressGZipFile(File file) throws FileNotFoundException, IOException {
 		log.debug("processing GZip file: " + file.getAbsolutePath());
 
-		FileInputStream fin = new FileInputStream(file);
-		BufferedInputStream bufferedIn = new BufferedInputStream(new GZIPInputStream(fin));
+		final FileInputStream fin = new FileInputStream(file);
+		final BufferedInputStream bufferedIn = new BufferedInputStream(new GZIPInputStream(fin));
 
 		String outputName = FilenameUtils.getFullPath(file.getAbsolutePath())
 				+ FilenameUtils.getBaseName(file.getAbsolutePath());
 		if (outputName.equals(file.getAbsolutePath()))
 			outputName = outputName + "_";
-		BufferedOutputStream bufferedOut = new BufferedOutputStream(new FileOutputStream(outputName));
+		final BufferedOutputStream bufferedOut = new BufferedOutputStream(new FileOutputStream(outputName));
 		log.info("Decompressing to : " + outputName);
 
 		copyInputStream(bufferedIn, bufferedOut);
@@ -112,17 +112,17 @@ public class ZipManager {
 		ZipFile zip = null;
 		try {
 			zip = new ZipFile(file);
-			for (Enumeration<? extends ZipEntry> e = zip.entries(); e.hasMoreElements();) {
-				ZipEntry entry = e.nextElement();
+			for (final Enumeration<? extends ZipEntry> e = zip.entries(); e.hasMoreElements();) {
+				final ZipEntry entry = e.nextElement();
 				if (!entry.isDirectory()) {
-					InputStream inputStream = zip.getInputStream(entry);
-					BufferedInputStream bufferedIn = new BufferedInputStream(inputStream);
+					final InputStream inputStream = zip.getInputStream(entry);
+					final BufferedInputStream bufferedIn = new BufferedInputStream(inputStream);
 
 					String outputName = FilenameUtils.getFullPath(file.getAbsolutePath())
 							+ FilenameUtils.getBaseName(file.getAbsolutePath());
 					if (outputName.equals(file.getAbsolutePath()))
 						outputName = outputName + "_";
-					BufferedOutputStream bufferedOut = new BufferedOutputStream(new FileOutputStream(outputName));
+					final BufferedOutputStream bufferedOut = new BufferedOutputStream(new FileOutputStream(outputName));
 					log.debug("Decompressing to : " + outputName);
 
 					copyInputStream(bufferedIn, bufferedOut);
@@ -140,11 +140,11 @@ public class ZipManager {
 	public static final void copyInputStream(BufferedInputStream bufferedIn, BufferedOutputStream bufferedOut)
 			throws IOException {
 		int totalAmountRead = 0;
-		byte[] buffer = new byte[BUFFER_SIZE];
+		final byte[] buffer = new byte[BUFFER_SIZE];
 		try {
 
 			while (true) {
-				int amountRead = bufferedIn.read(buffer);
+				final int amountRead = bufferedIn.read(buffer);
 				if (amountRead == -1) {
 					break;
 				}
@@ -165,61 +165,41 @@ public class ZipManager {
 	}
 
 	public static File decompressGZipFileIfNeccessary(File file) {
-		log.info("Decompressing file " + file.getAbsolutePath());
-
-		try {
-			return ZipManager.decompressGZipFile(file);
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-			log.info("The file " + file.getAbsolutePath() + " has not found");
-		} catch (IOException e) {
-			log.info("The file " + file.getAbsolutePath() + " is not a zipped file. Returning the original file");
-		}
-
-		return file;
+		return decompressGZipFileIfNeccessary(file, false, false);
 	}
 
 	public static File decompressFileIfNeccessary(File file) {
-		log.debug("Trying to decompressing file " + file.getAbsolutePath());
-		String originalPath = file.getAbsolutePath();
-		try {
-
-			try {
-				return ZipManager.decompressZipFile(file);
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-				log.warn("The file " + file.getAbsolutePath() + " has not found");
-				return file;
-			} catch (IOException e) {
-				log.debug("The file " + file.getAbsolutePath() + " is not a zipped file.");
-			}
-
-			try {
-				return ZipManager.decompressGZipFile(file);
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-				log.warn("The file " + file.getAbsolutePath() + " has not found");
-				return file;
-			} catch (IOException e) {
-				log.debug("The  file " + file.getAbsolutePath() + " is not a zipped file.");
-			}
-			return file;
-		} finally {
-			if (!originalPath.equals(file.getAbsolutePath())) {
-				log.info("File " + originalPath + " has been decompressed to " + file.getAbsolutePath());
-			}
-		}
+		return decompressFileIfNeccessary(file, false);
 	}
 
-	public static File decompressZipFileIfNeccessary(File file) {
+	public static File decompressFileIfNeccessary(File file, boolean ignoreExtension) {
+		return decompressFileIfNeccessary(file, ignoreExtension, false);
+	}
+
+	private static boolean isCompressedFileExtension(String extension) {
+		// the most common
+		if ("xml".equals(extension) || "txt".equals(extension)) {
+			return false;
+		}
+		if ("gz".equals(extension) || "tar.gz".equals(extension) || "rar".equals(extension) || "zip".equals(extension)
+				|| "gzip".equals(extension)) {
+			return true;
+		}
+		return false;
+	}
+
+	public static File decompressZipFileIfNeccessary(File file, boolean ignoreExtension) {
 		log.info("Decompressing file " + file.getAbsolutePath());
 
 		try {
+			if (!ignoreExtension && !isCompressedFileExtension(FilenameUtils.getExtension(file.getAbsolutePath()))) {
+				return file;
+			}
 			return ZipManager.decompressZipFile(file);
-		} catch (FileNotFoundException e) {
+		} catch (final FileNotFoundException e) {
 			e.printStackTrace();
 			log.info("The file " + file.getAbsolutePath() + " has not found");
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			log.info("The file " + file.getAbsolutePath() + " is not a zipped file. Returning the original file");
 		}
 
@@ -234,11 +214,14 @@ public class ZipManager {
 	 *            file) will be delete on exit or not
 	 * @return
 	 */
-	public static File decompressGZipFileIfNeccessary(File file, boolean deleteOnExit) {
+	public static File decompressGZipFileIfNeccessary(File file, boolean ignoreExtension, boolean deleteOnExit) {
 		log.info("Decompressing file " + file.getAbsolutePath());
 
 		try {
-			File decompressGZipFile = ZipManager.decompressGZipFile(file);
+			if (!ignoreExtension && !isCompressedFileExtension(FilenameUtils.getExtension(file.getAbsolutePath()))) {
+				return file;
+			}
+			final File decompressGZipFile = ZipManager.decompressGZipFile(file);
 			if (decompressGZipFile != null && deleteOnExit) {
 				if (decompressGZipFile.getAbsolutePath() != file.getAbsolutePath()) {
 					log.info("Setting 'deleteOnExit' to file: '" + decompressGZipFile.getAbsolutePath() + "'");
@@ -247,7 +230,7 @@ public class ZipManager {
 				}
 			}
 			return decompressGZipFile;
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			log.info("The file " + file.getAbsolutePath() + " is not a zipped file. Returning the original file");
 			log.warn(e.getMessage());
 		}
@@ -263,11 +246,14 @@ public class ZipManager {
 	 *            file) will be delete on exit or not
 	 * @return
 	 */
-	public static File decompressZipFileIfNeccessary(File file, boolean deleteOnExit) {
+	public static File decompressZipFileIfNeccessary(File file, boolean ignoreExtension, boolean deleteOnExit) {
 		log.info("Decompressing file " + file.getAbsolutePath());
 
 		try {
-			File decompressZipFile = ZipManager.decompressZipFile(file);
+			if (!ignoreExtension && !isCompressedFileExtension(FilenameUtils.getExtension(file.getAbsolutePath()))) {
+				return file;
+			}
+			final File decompressZipFile = ZipManager.decompressZipFile(file);
 			if (decompressZipFile != null && deleteOnExit) {
 				if (decompressZipFile.getAbsolutePath() != file.getAbsolutePath()) {
 					log.info("Setting 'deleteOnExit' to file: '" + decompressZipFile.getAbsolutePath() + "'");
@@ -276,7 +262,7 @@ public class ZipManager {
 				}
 			}
 			return decompressZipFile;
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			log.info("The file " + file.getAbsolutePath() + " is not a zipped file. Returning the original file");
 			log.warn(e.getMessage());
 		}
@@ -292,11 +278,13 @@ public class ZipManager {
 	 *            file) will be delete on exit or not
 	 * @return
 	 */
-	public static File decompressFileIfNeccessary(File file, boolean deleteOnExit) {
+	public static File decompressFileIfNeccessary(File file, boolean ignoreExtension, boolean deleteOnExit) {
 		log.info("Decompressing file " + file.getAbsolutePath());
-
+		if (!ignoreExtension && !isCompressedFileExtension(FilenameUtils.getExtension(file.getAbsolutePath()))) {
+			return file;
+		}
 		try {
-			File decompressZipFile = ZipManager.decompressZipFile(file);
+			final File decompressZipFile = ZipManager.decompressZipFile(file);
 			if (decompressZipFile != null && deleteOnExit) {
 				if (decompressZipFile.getAbsolutePath() != file.getAbsolutePath()) {
 					log.info("Setting 'deleteOnExit' to file: '" + decompressZipFile.getAbsolutePath() + "'");
@@ -305,12 +293,12 @@ public class ZipManager {
 				}
 			}
 			return decompressZipFile;
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			log.info("The file " + file.getAbsolutePath() + " is not a zipped file. Returning the original file");
 			log.warn(e.getMessage());
 		}
 		try {
-			File decompressGZipFile = ZipManager.decompressGZipFile(file);
+			final File decompressGZipFile = ZipManager.decompressGZipFile(file);
 			if (decompressGZipFile != null && deleteOnExit) {
 				if (decompressGZipFile.getAbsolutePath() != file.getAbsolutePath()) {
 					log.info("Setting 'deleteOnExit' to file: '" + decompressGZipFile.getAbsolutePath() + "'");
@@ -319,7 +307,7 @@ public class ZipManager {
 				}
 			}
 			return decompressGZipFile;
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			log.info("The file " + file.getAbsolutePath() + " is not a zipped file. Returning the original file");
 			log.warn(e.getMessage());
 		}
