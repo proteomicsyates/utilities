@@ -31,6 +31,13 @@ public class TextFileIndex implements FileIndex<String> {
 
 	private Status status = Status.NOT_READY;
 
+	public TextFileIndex(File file, TextFileIndexIO textFileIndexIO) throws IOException {
+		fileToIndex = file;
+		// create the index file
+		indexFile = new File(getIndexPathName(file));
+		this.textFileIndexIO = textFileIndexIO;
+	}
+
 	public TextFileIndex(File file, String beginToken, String endToken) throws IOException {
 		fileToIndex = file;
 		// create the index file
@@ -39,7 +46,7 @@ public class TextFileIndex implements FileIndex<String> {
 	}
 
 	private String getIndexPathName(File file) {
-		String pathName = file.getParent() + File.separator + FilenameUtils.getBaseName(file.getAbsolutePath())
+		final String pathName = file.getParent() + File.separator + FilenameUtils.getBaseName(file.getAbsolutePath())
 				+ INDEX_EXT;
 		return pathName;
 	}
@@ -48,7 +55,7 @@ public class TextFileIndex implements FileIndex<String> {
 		this(new File(path), beginToken, endToken);
 	}
 
-	private void indexFile() throws IOException {
+	public void indexFile() throws IOException {
 		log.info("Indexing file " + FilenameUtils.getName(fileToIndex.getAbsolutePath()) + "...");
 		// read the index, getting the positions of the items
 		final Map<String, Pair<Long, Long>> indexMap = textFileIndexIO.getIndexMap();
@@ -62,9 +69,9 @@ public class TextFileIndex implements FileIndex<String> {
 	private void writePositionsInIndex(Map<String, Pair<Long, Long>> itemPositions, boolean appendOnIndexFile)
 			throws IOException {
 		// write the positions in the index
-		FileWriter fw = new FileWriter(indexFile, appendOnIndexFile);
+		final FileWriter fw = new FileWriter(indexFile, appendOnIndexFile);
 		try {
-			for (String key : itemPositions.keySet()) {
+			for (final String key : itemPositions.keySet()) {
 				final Pair<Long, Long> pair = itemPositions.get(key);
 				fw.write(key + TAB + pair.getFirstelement() + TAB + pair.getSecondElement() + NEWLINE);
 			}
@@ -84,10 +91,10 @@ public class TextFileIndex implements FileIndex<String> {
 			// look for the provided key
 			if (indexMap.containsKey(key)) {
 				final Pair<Long, Long> pair = indexMap.get(key);
-				String item = textFileIndexIO.getItem(pair.getFirstelement(), pair.getSecondElement());
+				final String item = textFileIndexIO.getItem(pair.getFirstelement(), pair.getSecondElement());
 				return item;
 			}
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			e.printStackTrace();
 			log.error(e.getMessage());
 		}
@@ -103,15 +110,15 @@ public class TextFileIndex implements FileIndex<String> {
 		}
 		// if index Map is empty, read the index file
 		if (indexMap.isEmpty()) {
-			BufferedReader fr = new BufferedReader(new InputStreamReader(new FileInputStream(indexFile)));
+			final BufferedReader fr = new BufferedReader(new InputStreamReader(new FileInputStream(indexFile)));
 			try {
 				String line;
 				while ((line = fr.readLine()) != null) {
 					final String[] split = line.split(TAB);
-					String key = split[0];
-					long start = new Long(split[1]);
-					long end = new Long(split[2]);
-					Pair<Long, Long> pair = new Pair<Long, Long>(start, end);
+					final String key = split[0];
+					final long start = new Long(split[1]);
+					final long end = new Long(split[2]);
+					final Pair<Long, Long> pair = new Pair<Long, Long>(start, end);
 					indexMap.put(key, pair);
 				}
 			} finally {
@@ -147,7 +154,7 @@ public class TextFileIndex implements FileIndex<String> {
 
 			// return the positions
 			return itemPositions;
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			e.printStackTrace();
 			log.error(e.getMessage());
 		}
@@ -156,7 +163,7 @@ public class TextFileIndex implements FileIndex<String> {
 
 	@Override
 	public boolean isEmpty() {
-		if (status == Status.READY && this.indexMap.isEmpty()) {
+		if (status == Status.READY && indexMap.isEmpty()) {
 			return true;
 		}
 		return false;
