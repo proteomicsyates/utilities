@@ -27,7 +27,7 @@ public class ProgressCounter {
 		this.total = total;
 		count = new MutableLong(0);
 		this.progressPrintingType = progressPrintingType;
-		StringBuilder sb = new StringBuilder("#");
+		final StringBuilder sb = new StringBuilder("#");
 		for (int i = 0; i < numDecimals; i++) {
 			if ("#".equals(sb.toString())) {
 				sb.append(".");
@@ -35,7 +35,19 @@ public class ProgressCounter {
 			sb.append("#");
 		}
 		df = new DecimalFormat(sb.toString());
-		this.showRemainingTime = showTimeRemaining;
+		showRemainingTime = showTimeRemaining;
+	}
+
+	public void increment(long increment) {
+		count.add(increment);
+		startTimeWithFirstIncrement();
+
+	}
+
+	public void setProgress(long progress) {
+		count.setValue(progress);
+		startTimeWithFirstIncrement();
+
 	}
 
 	public void increment() {
@@ -54,10 +66,10 @@ public class ProgressCounter {
 
 	private String getRemainingTime() {
 		if (showRemainingTime) {
-			long currentTimeMillis = System.currentTimeMillis();
-			long timeConsumed = currentTimeMillis - t1;
-			double timeConsumedPerItem = 1.0 * timeConsumed / getCount();
-			double estimatedRemainingTime = timeConsumedPerItem * (1.0 * total - getCount());
+			final long currentTimeMillis = System.currentTimeMillis();
+			final long timeConsumed = currentTimeMillis - t1;
+			final double timeConsumedPerItem = 1.0 * timeConsumed / getCount();
+			final double estimatedRemainingTime = timeConsumedPerItem * (1.0 * total - getCount());
 			return DatesUtil.getDescriptiveTimeFromMillisecs(estimatedRemainingTime);
 		}
 		return "";
@@ -65,9 +77,9 @@ public class ProgressCounter {
 
 	public String printIfNecessary() {
 
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 		if (progressPrintingType == ProgressPrintingType.EVERY_STEP) {
-			double percentage = getPercentage();
+			final double percentage = getPercentage();
 			sb.append(count.longValue()).append("/").append(total).append(" (").append(df.format(percentage))
 					.append("%)").toString();
 			if (showRemainingTime) {
@@ -75,7 +87,7 @@ public class ProgressCounter {
 			}
 			return sb.toString();
 		} else if (progressPrintingType == ProgressPrintingType.PERCENTAGE_STEPS) {
-			String percentage = df.format(getPercentage());
+			final String percentage = df.format(getPercentage());
 			if (!percentage.equals(previousPercentage)) {
 				sb.append(getFormatter().format(count.longValue())).append("/").append(getFormatter().format(total))
 						.append(" (").append(percentage).append("%)").toString();
@@ -98,7 +110,7 @@ public class ProgressCounter {
 	}
 
 	public void setTotal(long max) {
-		this.total = max;
+		total = max;
 		count = new MutableLong(0);
 		t1 = -1;
 	}
