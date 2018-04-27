@@ -41,7 +41,7 @@ public class Maths {
 
 	public static double max(Double... doubles) {
 		double max = -Double.MAX_VALUE;
-		for (Double double1 : doubles) {
+		for (final Double double1 : doubles) {
 			if (max < double1) {
 				max = double1;
 			}
@@ -51,7 +51,7 @@ public class Maths {
 
 	public static float max(Float... numbers) {
 		float max = -Float.MAX_VALUE;
-		for (Float number : numbers) {
+		for (final Float number : numbers) {
 			if (max < number) {
 				max = number;
 			}
@@ -61,7 +61,7 @@ public class Maths {
 
 	public static double min(Double... doubles) {
 		double min = Double.MAX_VALUE;
-		for (Double double1 : doubles) {
+		for (final Double double1 : doubles) {
 			if (min > double1) {
 				min = double1;
 			}
@@ -71,7 +71,7 @@ public class Maths {
 
 	public static float min(Float... numbers) {
 		float min = Float.MAX_VALUE;
-		for (Float number : numbers) {
+		for (final Float number : numbers) {
 			if (min > number) {
 				min = number;
 			}
@@ -155,7 +155,7 @@ public class Maths {
 	public static double mean(Double[] a) {
 		if (a.length == 0)
 			return Double.NaN;
-		double sum = sum(a);
+		final double sum = sum(a);
 		return sum / a.length;
 	}
 
@@ -164,12 +164,12 @@ public class Maths {
 	 * value.
 	 */
 	public static double mean(double[] a, int lo, int hi) {
-		int length = hi - lo + 1;
+		final int length = hi - lo + 1;
 		if (lo < 0 || hi >= a.length || lo > hi)
 			throw new RuntimeException("Subarray indices out of bounds");
 		if (length == 0)
 			return Double.NaN;
-		double sum = sum(a, lo, hi);
+		final double sum = sum(a, lo, hi);
 		return sum / length;
 	}
 
@@ -192,7 +192,7 @@ public class Maths {
 	public static double var(Double[] a) {
 		if (a.length == 0)
 			return Double.NaN;
-		double avg = mean(a);
+		final double avg = mean(a);
 		double sum = 0.0;
 		for (int i = 0; i < a.length; i++) {
 			sum += (a[i] - avg) * (a[i] - avg);
@@ -205,12 +205,12 @@ public class Maths {
 	 * value.
 	 */
 	public static double var(double[] a, int lo, int hi) {
-		int length = hi - lo + 1;
+		final int length = hi - lo + 1;
 		if (lo < 0 || hi >= a.length || lo > hi)
 			throw new RuntimeException("Subarray indices out of bounds");
 		if (length == 0)
 			return Double.NaN;
-		double avg = mean(a, lo, hi);
+		final double avg = mean(a, lo, hi);
 		double sum = 0.0;
 		for (int i = lo; i <= hi; i++) {
 			sum += (a[i] - avg) * (a[i] - avg);
@@ -224,7 +224,7 @@ public class Maths {
 	public static double var(Integer[] a) {
 		if (a.length == 0)
 			return Double.NaN;
-		double avg = mean(a);
+		final double avg = mean(a);
 		double sum = 0.0;
 		for (int i = 0; i < a.length; i++) {
 			sum += (a[i] - avg) * (a[i] - avg);
@@ -238,7 +238,7 @@ public class Maths {
 	public static double varp(Double[] a) {
 		if (a.length == 0)
 			return Double.NaN;
-		double avg = mean(a);
+		final double avg = mean(a);
 		double sum = 0.0;
 		for (int i = 0; i < a.length; i++) {
 			sum += (a[i] - avg) * (a[i] - avg);
@@ -251,12 +251,12 @@ public class Maths {
 	 * value.
 	 */
 	public static double varp(double[] a, int lo, int hi) {
-		int length = hi - lo + 1;
+		final int length = hi - lo + 1;
 		if (lo < 0 || hi >= a.length || lo > hi)
 			throw new RuntimeException("Subarray indices out of bounds");
 		if (length == 0)
 			return Double.NaN;
-		double avg = mean(a, lo, hi);
+		final double avg = mean(a, lo, hi);
 		double sum = 0.0;
 		for (int i = lo; i <= hi; i++) {
 			sum += (a[i] - avg) * (a[i] - avg);
@@ -362,14 +362,14 @@ public class Maths {
 	 */
 	public static double mad(double[] values) {
 		final Median medianCalculator = new Median();
-		double median = medianCalculator.evaluate(values);
+		final double median = medianCalculator.evaluate(values);
 
-		double[] tmp = new double[values.length];
+		final double[] tmp = new double[values.length];
 		for (int i = 0; i < values.length; i++) {
-			double value = values[i];
+			final double value = values[i];
 			tmp[i] = Math.abs(value - median);
 		}
-		double ret = medianCalculator.evaluate(tmp);
+		final double ret = medianCalculator.evaluate(tmp);
 		return ret;
 	}
 
@@ -387,10 +387,10 @@ public class Maths {
 	public static double iglewiczHoaglinTest(double valueToTest, double[] populationValues) {
 		final double factor = 0.6745;
 		final Median medianCalculator = new Median();
-		double populationMedian = medianCalculator.evaluate(populationValues);
-		double mad = mad(populationValues);
+		final double populationMedian = medianCalculator.evaluate(populationValues);
+		final double mad = mad(populationValues);
 
-		double ret = Math.abs(factor * (valueToTest - populationMedian) / mad);
+		final double ret = Math.abs(factor * (valueToTest - populationMedian) / mad);
 		return ret;
 
 	}
@@ -405,18 +405,29 @@ public class Maths {
 	 */
 	public static double zScore(double valueToTest, double[] populationValues) {
 
-		double populationMean = new Mean().evaluate(populationValues);
-		double populationSTD = new StandardDeviation().evaluate(populationValues);
+		final double populationMean = new Mean().evaluate(populationValues);
+		final double populationSTD = new StandardDeviation().evaluate(populationValues);
 
-		double ret = (valueToTest - populationMean) / populationSTD;
+		final double ret = (valueToTest - populationMean) / populationSTD;
 		return ret;
 
 	}
 
 	public static void main(String[] args) {
-		double[] data = { 1.58, 0, 1.73 };
+		final double[] data = { 1.58, 0, 1.73 };
 
 		System.out.println(iglewiczHoaglinTest(0, data));
 
+	}
+
+	public static int factorial(int n) {
+		if (n >= 13) {
+			throw new IllegalArgumentException("n cannot be greater than 13, otherwise the integer overflows");
+		}
+		if (n == 0) {
+			return 1;
+		} else {
+			return n * factorial(n - 1);
+		}
 	}
 }
