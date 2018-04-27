@@ -24,10 +24,10 @@ public abstract class AbstractCache<T, K> implements Cache<T, K> {
 		if (t == null) {
 			return;
 		}
-		WriteLock writeLock = lock.writeLock();
+		final WriteLock writeLock = lock.writeLock();
 		try {
 			writeLock.lock();
-			K processedKey = processKey(key);
+			final K processedKey = processKey(key);
 			map.put(processedKey, t);
 		} finally {
 			writeLock.unlock();
@@ -40,7 +40,7 @@ public abstract class AbstractCache<T, K> implements Cache<T, K> {
 		if (map2 == null) {
 			return;
 		}
-		WriteLock writeLock = lock.writeLock();
+		final WriteLock writeLock = lock.writeLock();
 		try {
 			writeLock.lock();
 			map.putAll(map2);
@@ -52,10 +52,10 @@ public abstract class AbstractCache<T, K> implements Cache<T, K> {
 
 	@Override
 	public T getFromCache(K key) {
-		ReadLock readLock = lock.readLock();
+		final ReadLock readLock = lock.readLock();
 		try {
 			readLock.lock();
-			K processedKey = processKey(key);
+			final K processedKey = processKey(key);
 			return map.get(processedKey);
 		} finally {
 			readLock.unlock();
@@ -64,12 +64,12 @@ public abstract class AbstractCache<T, K> implements Cache<T, K> {
 
 	@Override
 	public Set<T> getFromCache(Collection<K> keys) {
-		ReadLock readLock = lock.readLock();
+		final ReadLock readLock = lock.readLock();
 		try {
 			readLock.lock();
-			Set<T> ret = new THashSet<T>();
-			for (K key : keys) {
-				K processedKey = processKey(key);
+			final Set<T> ret = new THashSet<T>();
+			for (final K key : keys) {
+				final K processedKey = processKey(key);
 				if (contains(processedKey)) {
 					ret.add(getFromCache(processedKey));
 				}
@@ -82,10 +82,10 @@ public abstract class AbstractCache<T, K> implements Cache<T, K> {
 
 	@Override
 	public boolean contains(K key) {
-		ReadLock readLock = lock.readLock();
+		final ReadLock readLock = lock.readLock();
 		try {
 			readLock.lock();
-			K processedKey = processKey(key);
+			final K processedKey = processKey(key);
 			return map.containsKey(processedKey);
 		} finally {
 			readLock.unlock();
@@ -94,10 +94,10 @@ public abstract class AbstractCache<T, K> implements Cache<T, K> {
 
 	@Override
 	public T removeFromCache(K key) {
-		WriteLock writeLock = lock.writeLock();
+		final WriteLock writeLock = lock.writeLock();
 		try {
 			writeLock.lock();
-			K processedKey = processKey(key);
+			final K processedKey = processKey(key);
 			return map.remove(processedKey);
 		} finally {
 			writeLock.unlock();
@@ -106,11 +106,11 @@ public abstract class AbstractCache<T, K> implements Cache<T, K> {
 
 	@Override
 	public boolean containsAll(Collection<K> keys) {
-		ReadLock readLock = lock.readLock();
+		final ReadLock readLock = lock.readLock();
 		try {
 			readLock.lock();
-			for (K key : keys) {
-				K processedKey = processKey(key);
+			for (final K key : keys) {
+				final K processedKey = processKey(key);
 				if (!contains(processedKey))
 					return false;
 			}
@@ -127,7 +127,7 @@ public abstract class AbstractCache<T, K> implements Cache<T, K> {
 
 	@Override
 	public void clearCache() {
-		WriteLock writeLock = lock.writeLock();
+		final WriteLock writeLock = lock.writeLock();
 		try {
 			writeLock.lock();
 			map.clear();
