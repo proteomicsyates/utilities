@@ -1,0 +1,26 @@
+One-letter code 	Three-letter code 	Amino-acid name
+A 	Ala 	  Alanine
+R 	Arg 	  Arginine
+N 	Asn 	  Asparagine
+D 	Asp 	  Aspartic acid
+C 	Cys 	  Cysteine
+Q 	Gln 	  Glutamine
+E 	Glu 	  Glutamic acid
+G 	Gly 	  Glycine
+H 	His 	  Histidine
+I 	Ile 	  Isoleucine
+L 	Leu 	  Leucine
+K 	Lys 	  Lysine
+M 	Met 	  Methionine
+F 	Phe 	  Phenylalanine
+P 	Pro 	  Proline
+S 	Ser 	  Serine
+T 	Thr 	  Threonine
+W 	Trp 	  Tryptophan
+Y 	Tyr 	  Tyrosine
+V 	Val 	  Valine
+O 	Pyl 	  Pyrrolysine
+U 	Sec 	  Selenocysteine
+B 	Asx 	  Aspartic acid or Asparagine
+Z 	Glx 	  Glutamic acid or Glutamine
+X 	Xaa 	  Any amino acid
