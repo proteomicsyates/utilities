@@ -1027,6 +1027,12 @@ public class FastaParser {
 		return null;
 	}
 
+	/**
+	 * Returns true if the acc contains _mutated_ _conflict_ or _variant_
+	 * 
+	 * @param acc
+	 * @return
+	 */
 	public static boolean isProteoform(String acc) {
 		if (acc.contains(mutated) || acc.contains(conflict) || acc.contains(variant)) {
 			return true;
