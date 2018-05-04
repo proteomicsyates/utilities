@@ -70,10 +70,10 @@ public class StringUtils {
 	 * @return the list of positions or an empty list if not found
 	 */
 	public static List<Integer> allPositionsOf(String sourceString, String targetString) {
-		List<Integer> ret = new ArrayList<Integer>();
+		final List<Integer> ret = new ArrayList<Integer>();
 		if (sourceString != null && targetString != null && !"".equals(sourceString) && !"".equals(targetString)) {
-			Pattern p = Pattern.compile(targetString, Pattern.LITERAL);
-			Matcher m = p.matcher(sourceString);
+			final Pattern p = Pattern.compile(targetString, Pattern.LITERAL);
+			final Matcher m = p.matcher(sourceString);
 			int start = 0;
 			while (m.find(start)) {
 				start = m.start() + 1;
@@ -104,12 +104,12 @@ public class StringUtils {
 	 * @return
 	 */
 	public static List<Integer> getPositions(String sourceString, char[] chars) {
-		List<Integer> ret = new ArrayList<Integer>();
+		final List<Integer> ret = new ArrayList<Integer>();
 
 		for (int index = 0; index < sourceString.length(); index++) {
-			for (char c : chars) {
+			for (final char c : chars) {
 				if (c == sourceString.charAt(index)) {
-					int position = index + 1;
+					final int position = index + 1;
 					ret.add(position);
 					break;
 				}
@@ -121,9 +121,9 @@ public class StringUtils {
 
 	public static String convertStreamToString(InputStream is, int bufferSize, String encoding) throws IOException {
 
-		Reader reader = new BufferedReader(new InputStreamReader(is, encoding));
-		StringBuffer content = new StringBuffer();
-		char[] buffer = new char[bufferSize];
+		final Reader reader = new BufferedReader(new InputStreamReader(is, encoding));
+		final StringBuffer content = new StringBuffer();
+		final char[] buffer = new char[bufferSize];
 		int n;
 
 		while ((n = reader.read(buffer)) != -1) {
@@ -134,13 +134,27 @@ public class StringUtils {
 	}
 
 	public static String getSeparatedValueStringFromChars(char[] chars, String separator) {
-		StringBuilder sb = new StringBuilder();
-		for (char c : chars) {
+		final StringBuilder sb = new StringBuilder();
+		for (final char c : chars) {
 			if (!"".equals(sb.toString())) {
 				sb.append(separator);
 			}
 			sb.append(c);
 		}
 		return sb.toString();
+	}
+
+	public static String getCommonBeginning(String string1, String string2) {
+		final StringBuilder ret = new StringBuilder();
+		for (int index = 0; index < Math.min(string1.length(), string2.length()); index++) {
+
+			final char charAt = string1.charAt(index);
+			if (charAt == string2.charAt(index)) {
+				ret.append(charAt);
+			} else {
+				break;
+			}
+		}
+		return ret.toString();
 	}
 }
