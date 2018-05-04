@@ -11,6 +11,8 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
+import edu.scripps.yates.utilities.progresscounter.ProgressCounter;
+import edu.scripps.yates.utilities.progresscounter.ProgressPrintingType;
 import edu.scripps.yates.utilities.util.Pair;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
@@ -88,7 +90,7 @@ public class TextFileIndexMultiThreadSafeIO {
 	 * @return
 	 */
 	protected Set<String> getKeys(String string) {
-		Set<String> set = new THashSet<String>();
+		final Set<String> set = new THashSet<String>();
 		set.add(String.valueOf(numEntries));
 		return set;
 	}
@@ -98,23 +100,27 @@ public class TextFileIndexMultiThreadSafeIO {
 	 * @throws IOException
 	 */
 	public Map<String, Pair<Long, Long>> getIndexMap() throws IOException {
-		Map<String, Pair<Long, Long>> ret = new THashMap<String, Pair<Long, Long>>();
+		final Map<String, Pair<Long, Long>> ret = new THashMap<String, Pair<Long, Long>>();
 		if (!fileToIndex.exists())
 			return ret;
 		final long totalLength = fileToIndex.length();
-		RandomAccessFile raf = new RandomAccessFile(fileToIndex, "r");
-		FileLock lock = raf.getChannel().lock();
+		final RandomAccessFile raf = new RandomAccessFile(fileToIndex, "rw");
+		final FileLock lock = raf.getChannel().lock();
 		String line;
 		try {
+			final ProgressCounter counter = new ProgressCounter(totalLength, ProgressPrintingType.PERCENTAGE_STEPS, 0);
 			long offset = 0;
 			long init = 0;
 			long end = 0;
-			long mb = 1024 * 1024;
+
 			StringBuilder sb = new StringBuilder();
 			while ((line = raf.readLine()) != null) {
+				counter.setProgress(offset);
+				final String printIfNecessary = counter.printIfNecessary();
+				if (!"".equals(printIfNecessary)) {
+					log.info("File index progress: " + printIfNecessary);
+				}
 
-				if (offset % mb == 0)
-					log.info(offset / mb + "/" + totalLength / mb + " Mb readed...");
 				line = line.trim();
 				sb.append(line + "\n");
 				if (line.startsWith(beginToken)) {
@@ -127,9 +133,9 @@ public class TextFileIndexMultiThreadSafeIO {
 				offset = raf.getFilePointer();
 				if (line.endsWith(endToken)) {
 					end = offset;
-					Pair<Long, Long> pair = new Pair<Long, Long>(init, end);
+					final Pair<Long, Long> pair = new Pair<Long, Long>(init, end);
 					final Set<String> keys = getKeys(sb.toString());
-					for (String key : keys) {
+					for (final String key : keys) {
 						ret.put(key, pair);
 					}
 				}
@@ -168,14 +174,14 @@ public class TextFileIndexMultiThreadSafeIO {
 					"The provided item '" + item + "' is not ending with the end Token '" + endToken + "'");
 		long init = 0l;
 		item = "\n" + item;
-		byte[] bytes = item.getBytes();
+		final byte[] bytes = item.getBytes();
 
 		MappedByteBuffer buffer = null;
 		RandomAccessFile raf = null;
 		try {
 			raf = new RandomAccessFile(fileToIndex, "rws");
 			// request the record reservation system
-			FileRecordReservation fileRecordReservation = getFileRecordReservation(fileToIndex);
+			final FileRecordReservation fileRecordReservation = getFileRecordReservation(fileToIndex);
 			// book the position in the file (thread safe)
 			log.debug("Requesting reservation for writting in position " + fileRecordReservation.getCurrentposition()
 					+ " writting " + bytes.length + " bytes in thread " + Thread.currentThread().getId());
@@ -188,25 +194,25 @@ public class TextFileIndexMultiThreadSafeIO {
 			// char[] itemInChars = item.toCharArray();
 
 			buffer.put(bytes);
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			e.printStackTrace();
 			log.warn("Error from thread " + Thread.currentThread().getId());
 		} finally {
 			raf.close();
 			log.debug("Closing file access from thread " + Thread.currentThread().getId());
 		}
-		Map<String, Pair<Long, Long>> ret = new THashMap<String, Pair<Long, Long>>();
+		final Map<String, Pair<Long, Long>> ret = new THashMap<String, Pair<Long, Long>>();
 
 		// it is important to increase this variable before getKeys() is
 		// called
 		numEntries++;
 		// if everything is fine, store in the map
-		long end = init + bytes.length;
+		final long end = init + bytes.length;
 		final Pair<Long, Long> pair = new Pair<Long, Long>(init, end);
 		if (keys == null || keys.isEmpty()) {
 			keys = getKeys(item);
 		}
-		for (String key : keys) {
+		for (final String key : keys) {
 			ret.put(key, pair);
 		}
 		return ret;
@@ -236,15 +242,15 @@ public class TextFileIndexMultiThreadSafeIO {
 	 */
 	public String getItem(Long start, Long end) throws IOException {
 
-		RandomAccessFile raf = new RandomAccessFile(fileToIndex, "r");
+		final RandomAccessFile raf = new RandomAccessFile(fileToIndex, "r");
 		try {
 			// go to the start
 			raf.seek(start);
-			int lenthToRead = new Long(end - start).intValue();
+			final int lenthToRead = new Long(end - start).intValue();
 			// array to store the readed item
-			byte[] bytesToRead = new byte[lenthToRead];
+			final byte[] bytesToRead = new byte[lenthToRead];
 			raf.read(bytesToRead);
-			String readed = new String(bytesToRead);
+			final String readed = new String(bytesToRead);
 			return readed;
 		} finally {
 			raf.close();
