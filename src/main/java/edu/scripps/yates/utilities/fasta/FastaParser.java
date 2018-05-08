@@ -23,7 +23,7 @@ public class FastaParser {
 	private static Set<String> notRecognizedFastas = new THashSet<String>();
 
 	public static enum UNIPROT_FASTA_KEYWORD {
-		OS, GN, PE, SV
+		OS, GN, PE, SV, OX
 	};
 
 	// taken from http://www.uniprot.org/help/accession_numbers
@@ -243,6 +243,51 @@ public class FastaParser {
 			return new Pair<String, String>(id.substring(0, id.indexOf(" ")), "UNKNOWN");
 		}
 		return new Pair<String, String>(id.trim(), "UNKNOWN");
+	}
+
+	/**
+	 * Gets the OX=1960 name from the fasta header.
+	 *
+	 * @param fastaheader
+	 * @return
+	 */
+	public static String getOrganismNCBIIDFromFastaHeader(String fastaheader) {
+		if (fastaheader != null && notRecognizedFastas.contains(fastaheader)) {
+			return null;
+		}
+		if (fastaheader != null && fastaheader.length() > 600) {
+			return null;
+		}
+		if (fastaheader != null) {
+			// new way 4 Feb 2015
+			final String[] split = fastaheader.split(" ");
+			for (int i = 0; i < split.length; i++) {
+				final String string = split[i];
+				if (startsWithUniprotKeyword(string)) {
+					if (string.startsWith(UNIPROT_FASTA_KEYWORD.OX.name())) {
+						final String tmp = getStringAfterEqual(string);
+						String ret = "";
+						// if (tmp != null) {
+						// ret = tmp;
+						// }
+						if (tmp == null) {
+							continue;
+						}
+						ret = tmp;
+						for (int j = i + 1; j < split.length; j++) {
+							// get everything until another keyword
+							if (!startsWithUniprotKeyword(split[j])) {
+								ret += " " + split[j];
+							} else {
+								break;
+							}
+						}
+						return ret.trim();
+					}
+				}
+			}
+		}
+		return null;
 	}
 
 	/**
