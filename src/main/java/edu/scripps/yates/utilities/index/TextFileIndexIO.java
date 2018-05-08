@@ -128,7 +128,7 @@ public class TextFileIndexIO {
 				counter.setProgress(offset);
 				final String printIfNecessary = counter.printIfNecessary();
 				if (!"".equals(printIfNecessary)) {
-					log.info(FileUtils.getDescriptiveSizeFromBytes(offset) + "/"
+					log.debug(FileUtils.getDescriptiveSizeFromBytes(offset) + "/"
 							+ FileUtils.getDescriptiveSizeFromBytes(totalLength) + " (" + printIfNecessary
 							+ ") readed...");
 				}
