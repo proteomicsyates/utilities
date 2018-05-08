@@ -80,8 +80,8 @@ public class ProgressCounter {
 		final StringBuilder sb = new StringBuilder();
 		if (progressPrintingType == ProgressPrintingType.EVERY_STEP) {
 			final double percentage = getPercentage();
-			sb.append(count.longValue()).append("/").append(total).append(" (").append(df.format(percentage))
-					.append("%)").toString();
+			sb.append(getFormatter().format(count.longValue())).append("/").append(getFormatter().format(total))
+					.append(" (").append(df.format(percentage)).append("%)").toString();
 			if (showRemainingTime) {
 				sb.append(" (" + getRemainingTime() + " remaining...)");
 			}
