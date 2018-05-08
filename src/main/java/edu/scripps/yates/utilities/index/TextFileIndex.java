@@ -6,12 +6,16 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
 
+import edu.scripps.yates.utilities.files.FileUtils;
 import edu.scripps.yates.utilities.util.Pair;
 import gnu.trove.map.hash.THashMap;
 
@@ -78,7 +82,7 @@ public class TextFileIndex implements FileIndex<String> {
 		} finally {
 			fw.close();
 			status = Status.READY;
-			log.info("Indexing done. File of index: " + indexFile.length() + " bytes");
+			log.info("Indexing done. File of index: " + FileUtils.getDescriptiveSizeFromBytes(indexFile.length()));
 		}
 
 	}
@@ -167,6 +171,18 @@ public class TextFileIndex implements FileIndex<String> {
 			return true;
 		}
 		return false;
+	}
+
+	@Override
+	public List<String> getItems(Collection<String> keys) {
+		final List<String> ret = new ArrayList<String>();
+		for (final String key : keys) {
+			final String item = getItem(key);
+			if (item != null) {
+				ret.add(item);
+			}
+		}
+		return ret;
 	}
 
 }
