@@ -19,23 +19,7 @@ public class Pair<T, V> {
 
 	/*
 	 * (non-Javadoc)
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
-	@Override
-	public boolean equals(Object obj) {
-		if (obj instanceof Pair) {
-			Pair newPair = (Pair) obj;
-			if (newPair.firstElement.equals(firstElement)
-					&& newPair.secondElement.equals(secondElement)) {
-				return true;
-			}
-			return false;
-		}
-		return super.equals(obj);
-	}
-
-	/*
-	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
@@ -45,11 +29,27 @@ public class Pair<T, V> {
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override
 	public int hashCode() {
-		return 0;
+		int hash = 17;
+		hash = hash * 31 + firstElement.hashCode();
+		hash = hash * 31 + secondElement.hashCode();
+		return hash;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof Pair) {
+			final Pair pair2 = (Pair) obj;
+			if (this.firstElement.equals(pair2.firstElement) && this.secondElement.equals(pair2.secondElement)) {
+				return true;
+			}
+			return false;
+		}
+		return super.equals(obj);
 	}
 
 }
