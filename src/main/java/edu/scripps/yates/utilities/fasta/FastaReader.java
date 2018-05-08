@@ -1,15 +1,21 @@
 package edu.scripps.yates.utilities.fasta;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.compomics.dbtoolkit.io.implementations.FASTADBLoader;
+import com.compomics.dbtoolkit.io.interfaces.DBLoader;
+import com.compomics.util.protein.Protein;
 
 import gnu.trove.set.hash.THashSet;
 
@@ -19,6 +25,7 @@ public class FastaReader {
 	public static final int DEFAULTSEQENCELENGTH = 1024;
 	protected final String fastaFileName;
 	private Integer numberFastas;
+	private Set<String> uniprotACCs;
 
 	public FastaReader(String fastaFileName) {
 		this.fastaFileName = fastaFileName;
@@ -26,8 +33,8 @@ public class FastaReader {
 
 	// Becareful, might need lots of memory
 	public List<Fasta> getFastaList() throws IOException {
-		List<Fasta> fastaList = new LinkedList<Fasta>();
-		for (Iterator<Fasta> fastas = getFastas(); fastas.hasNext();) {
+		final List<Fasta> fastaList = new LinkedList<Fasta>();
+		for (final Iterator<Fasta> fastas = getFastas(); fastas.hasNext();) {
 			fastaList.add(fastas.next());
 		}
 		return fastaList;
@@ -42,8 +49,8 @@ public class FastaReader {
 	 */
 	public int getNumberFastas() throws IOException {
 		if (numberFastas == null) {
-			FileInputStream fis = new FileInputStream(fastaFileName);
-			BufferedReader br = new BufferedReader(new InputStreamReader(fis));
+			final FileInputStream fis = new FileInputStream(fastaFileName);
+			final BufferedReader br = new BufferedReader(new InputStreamReader(fis));
 			String line;
 			int total = 0;
 			while ((line = br.readLine()) != null) {
@@ -59,7 +66,7 @@ public class FastaReader {
 	}
 
 	public Iterator<Fasta> getFastas() throws IOException {
-		FileInputStream is = new FileInputStream(fastaFileName);
+		final FileInputStream is = new FileInputStream(fastaFileName);
 		return new Iterator<Fasta>() {
 			private String lastLine = ""; // remember the last line read
 			private BufferedReader br;
@@ -86,7 +93,7 @@ public class FastaReader {
 				Fasta fasta = null;
 				try {
 					fasta = getFasta();
-				} catch (IOException e) {
+				} catch (final IOException e) {
 					e.printStackTrace();
 				}
 
@@ -101,14 +108,14 @@ public class FastaReader {
 			private Fasta getFasta() throws IOException {
 
 				final StringBuilder sb = new StringBuilder(DEFAULTSEQENCELENGTH);
-				String defline = lastLine;
+				final String defline = lastLine;
 
 				// if the line read is a empty string, ignore it
 				while ((lastLine = br.readLine()) != null
 						&& (lastLine.equals("") || lastLine.charAt(0) != FIRSTCHAROFDEFLINE)) {
 					// System.out.println(lastLine);
 					if (!lastLine.equals("")) {
-						String line = lastLine.trim();
+						final String line = lastLine.trim();
 						sb.append(line);
 					}
 				}
@@ -122,7 +129,7 @@ public class FastaReader {
 			protected void finalize() throws IOException {
 				try {
 					super.finalize();
-				} catch (Throwable ex) {
+				} catch (final Throwable ex) {
 					Logger.getLogger(FastaReader.class.getName()).log(Level.SEVERE, null, ex);
 				}
 
@@ -145,15 +152,15 @@ public class FastaReader {
 			return;
 
 		int numEntries = 0;
-		Set<String> accessions = new THashSet<String>(1000000);
-		Set<String> sequestLikeAccs = new THashSet<String>(1000000);
-		for (Iterator itr = new FastaReader(args[0]).getFastas(); itr.hasNext();) {
-			FastaImpl fasta = (FastaImpl) itr.next();
+		final Set<String> accessions = new THashSet<String>(1000000);
+		final Set<String> sequestLikeAccs = new THashSet<String>(1000000);
+		for (final Iterator itr = new FastaReader(args[0]).getFastas(); itr.hasNext();) {
+			final FastaImpl fasta = (FastaImpl) itr.next();
 			// System.out.println(fasta.getSequestLikeAccession());
 			numEntries++;
 
-			String defLine = fasta.getDefline();
-			String seq = fasta.getSequence();
+			final String defLine = fasta.getDefline();
+			final String seq = fasta.getSequence();
 
 			accessions.add(fasta.getSequestLikeAccession());
 			String sequestlikeac = fasta.getSequestLikeAccession();
@@ -182,5 +189,28 @@ public class FastaReader {
 		 * System.out.println(">" + defLine); System.out.println(seq); }
 		 */
 
+	}
+
+	public Set<String> getUniprotACCsFromFasta() throws IOException {
+		if (uniprotACCs == null || uniprotACCs.isEmpty()) {
+			uniprotACCs = new HashSet<String>();
+			final DBLoader loader = new FASTADBLoader();
+			if (loader.canReadFile(new File(fastaFileName))) {
+
+				Protein protein = null;
+				loader.load(fastaFileName);
+				while ((protein = loader.nextProtein()) != null) {
+					String accession = protein.getHeader().getAccession();
+					if (accession == null) {
+						accession = protein.getHeader().getAccessionOrRest();
+					}
+					final String uniprotAccession = FastaParser.getUniProtACC(accession);
+					if (uniprotAccession != null) {
+						uniprotACCs.add(uniprotAccession);
+					}
+				}
+			}
+		}
+		return uniprotACCs;
 	}
 }
