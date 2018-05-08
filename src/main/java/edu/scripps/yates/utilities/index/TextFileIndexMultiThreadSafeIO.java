@@ -11,7 +11,9 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
+import edu.scripps.yates.utilities.files.FileUtils;
 import edu.scripps.yates.utilities.progresscounter.ProgressCounter;
+import edu.scripps.yates.utilities.progresscounter.ProgressNumberFormatter;
 import edu.scripps.yates.utilities.progresscounter.ProgressPrintingType;
 import edu.scripps.yates.utilities.util.Pair;
 import gnu.trove.map.hash.THashMap;
@@ -104,11 +106,19 @@ public class TextFileIndexMultiThreadSafeIO {
 		if (!fileToIndex.exists())
 			return ret;
 		final long totalLength = fileToIndex.length();
+		log.info("Reading file of " + FileUtils.getDescriptiveSizeFromBytes(totalLength));
 		final RandomAccessFile raf = new RandomAccessFile(fileToIndex, "rw");
 		final FileLock lock = raf.getChannel().lock();
 		String line;
 		try {
 			final ProgressCounter counter = new ProgressCounter(totalLength, ProgressPrintingType.PERCENTAGE_STEPS, 0);
+			counter.setProgressNumberFormatter(new ProgressNumberFormatter() {
+
+				@Override
+				public String format(long number) {
+					return FileUtils.getDescriptiveSizeFromBytes(number);
+				}
+			});
 			long offset = 0;
 			long init = 0;
 			long end = 0;
