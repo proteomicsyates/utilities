@@ -11,6 +11,7 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
+import edu.scripps.yates.utilities.bytes.DynByteBuffer;
 import edu.scripps.yates.utilities.files.FileUtils;
 import edu.scripps.yates.utilities.progresscounter.ProgressCounter;
 import edu.scripps.yates.utilities.progresscounter.ProgressNumberFormatter;
@@ -225,6 +226,84 @@ public class TextFileIndexMultiThreadSafeIO {
 		for (final String key : keys) {
 			ret.put(key, pair);
 		}
+		return ret;
+
+	}
+
+	/**
+	 * Adds a new item in the file to index and return the keys and the position
+	 * in which the item has been written
+	 * 
+	 * @param item
+	 * @return a map containing the keys and position in where the item was
+	 *         stored
+	 * @throws IOException
+	 */
+	public Map<String, Pair<Long, Long>> addNewItems(Map<String, Set<String>> keysByItems) throws IOException {
+		final Map<String, Pair<Long, Long>> ret = new THashMap<String, Pair<Long, Long>>();
+
+		long firstInit = 0l;
+		final DynByteBuffer byteBuffer = new DynByteBuffer();
+
+		for (String item : keysByItems.keySet()) {
+			Set<String> keys = keysByItems.get(item);
+
+			// prepare item
+			if (!item.startsWith(beginToken)) {
+				if (item.contains(beginToken)) {
+					item = item.substring(item.indexOf(beginToken));
+				} else {
+					throw new IllegalArgumentException("The provided item '" + item
+							+ "' is not starting with the begin Token '" + beginToken + "'");
+				}
+			}
+			if (!item.endsWith(endToken))
+				throw new IllegalArgumentException(
+						"The provided item '" + item + "' is not ending with the end Token '" + endToken + "'");
+
+			item = "\n" + item;
+			final byte[] bytes = item.getBytes();
+			byteBuffer.add(bytes);
+			// item is ready
+
+			// request the record reservation system
+			final FileRecordReservation fileRecordReservation = getFileRecordReservation(fileToIndex);
+			// book the position in the file (thread safe)
+			log.debug("Requesting reservation for writting in position " + fileRecordReservation.getCurrentposition()
+					+ " writting " + bytes.length + " bytes in thread " + Thread.currentThread().getId());
+			final long init = fileRecordReservation.reserveRecord(bytes);
+			if (firstInit == 0l) {
+				firstInit = init;
+			}
+			final long end = init + bytes.length;
+			log.debug("Reserved from " + init + " to " + end + " in thread " + Thread.currentThread().getId());
+			// it is important to increase this variable before getKeys() is
+			// called
+			numEntries++;
+			// if everything is fine, store in the map
+
+			final Pair<Long, Long> pair = new Pair<Long, Long>(init, end);
+			if (keys == null || keys.isEmpty()) {
+				keys = getKeys(item);
+			}
+			for (final String key : keys) {
+				ret.put(key, pair);
+			}
+		}
+		MappedByteBuffer buffer = null;
+		RandomAccessFile raf = null;
+		try {
+			raf = new RandomAccessFile(fileToIndex, "rws");
+			buffer = raf.getChannel().map(MapMode.READ_WRITE, firstInit, byteBuffer.getSize());
+			buffer.put(byteBuffer.getData());
+		} catch (final IOException e) {
+			e.printStackTrace();
+			log.warn("Error from thread " + Thread.currentThread().getId());
+		} finally {
+			raf.close();
+			log.debug("Closing file access from thread " + Thread.currentThread().getId());
+		}
+
 		return ret;
 
 	}
