@@ -35,13 +35,16 @@ public class PositionInProtein {
 
 	@Override
 	public int hashCode() {
-		return -1;
+		int hash = 23;
+		hash = hash * 31 + position;
+		hash = hash * 31 + proteinACC.hashCode();
+		return hash;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof PositionInProtein) {
-			PositionInProtein positionInProtein = (PositionInProtein) obj;
+			final PositionInProtein positionInProtein = (PositionInProtein) obj;
 			if (positionInProtein.position == position && positionInProtein.proteinACC.equals(proteinACC)) {
 				return true;
 			}
@@ -51,23 +54,24 @@ public class PositionInProtein {
 	}
 
 	public static List<PositionInProtein> parseStringToPositionInProtein(String string, String separator) {
-		List<PositionInProtein> ret = new ArrayList<PositionInProtein>();
-		List<String> subStrings = new ArrayList<String>();
+		final List<PositionInProtein> ret = new ArrayList<PositionInProtein>();
+		final List<String> subStrings = new ArrayList<String>();
 		if (string.contains(separator)) {
-			String[] split = string.split(separator);
-			for (String string2 : split) {
+			final String[] split = string.split(separator);
+			for (final String string2 : split) {
 				subStrings.add(string2);
 			}
 		} else {
 			subStrings.add(string);
 		}
-		for (String string2 : subStrings) {
+		for (final String string2 : subStrings) {
 			if (string2.contains(SEPARATOR)) {
 				try {
-					String[] split = string2.split(SEPARATOR);
-					PositionInProtein positionInProtein = new PositionInProtein(Integer.valueOf(split[1]), split[2]);
+					final String[] split = string2.split(SEPARATOR);
+					final PositionInProtein positionInProtein = new PositionInProtein(Integer.valueOf(split[1]),
+							split[2]);
 					ret.add(positionInProtein);
-				} catch (NumberFormatException e) {
+				} catch (final NumberFormatException e) {
 
 				}
 			}
