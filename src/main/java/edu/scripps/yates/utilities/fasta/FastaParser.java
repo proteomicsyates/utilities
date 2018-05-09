@@ -131,10 +131,10 @@ public class FastaParser {
 						return trim + matcher6.group(1);
 					}
 					// check that there is no more words before the id
-
-					if (startingByWord.matcher(tmp).find()) {
-						return id;
-					}
+					// ??
+					// if (startingByWord.matcher(tmp).find()) {
+					// return id;
+					// }
 
 				}
 				tmp = id.substring(0, id.indexOf(trim));
