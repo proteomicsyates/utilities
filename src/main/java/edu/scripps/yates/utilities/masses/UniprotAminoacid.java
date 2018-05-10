@@ -27,7 +27,8 @@ public class UniprotAminoacid {
 
 	public Double getMonoMass() {
 		if (monoMass == null) {
-			monoMass = AssignMass.getInstance(true).getMass(oneLetterCode);
+			AssignMass.getInstance(true);
+			monoMass = AssignMass.getMass(oneLetterCode);
 		}
 		return monoMass;
 	}
