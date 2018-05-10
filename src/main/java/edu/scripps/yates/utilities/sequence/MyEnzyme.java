@@ -1,15 +1,16 @@
 package edu.scripps.yates.utilities.sequence;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
 import com.compomics.util.protein.Enzyme;
 
+import gnu.trove.map.hash.THashMap;
+
 public class MyEnzyme extends Enzyme {
-	private final Map<String, List<String>> cleavagesBySequence = new HashMap<String, List<String>>();
+	private final Map<String, List<String>> cleavagesBySequence = new THashMap<String, List<String>>();
 	private boolean cacheEnabled = false;
 
 	public MyEnzyme(String aTitle, String aCleavage, String aRestrict, String aPosition, int aMiscleavages) {

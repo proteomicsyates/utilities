@@ -16,6 +16,7 @@ import edu.scripps.yates.utilities.taxonomy.UniprotOrganism;
 import edu.scripps.yates.utilities.taxonomy.UniprotSpeciesCodeMap;
 import edu.scripps.yates.utilities.util.Pair;
 import edu.scripps.yates.utilities.util.StringPosition;
+import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.TIntDoubleHashMap;
 import gnu.trove.set.hash.THashSet;
 
@@ -878,7 +879,7 @@ public class FastaParser {
 	 * @return
 	 */
 	private static Integer getBeforeSeqPointIndex(String sequence) {
-		final List<Integer> allPositionsOf = StringUtils.allPositionsOf(sequence, ".");
+		final TIntArrayList allPositionsOf = StringUtils.allPositionsOf(sequence, ".");
 		for (int i = 0; i < allPositionsOf.size(); i++) {
 			final Integer index = allPositionsOf.get(i) - 1;
 			if (index < sequence.length() - 1) {
@@ -902,7 +903,7 @@ public class FastaParser {
 	 * @return
 	 */
 	private static Integer getAfterSeqPointIndex(String sequence) {
-		final List<Integer> allPositionsOf = StringUtils.allPositionsOf(sequence, ".");
+		final TIntArrayList allPositionsOf = StringUtils.allPositionsOf(sequence, ".");
 		for (int i = allPositionsOf.size() - 1; i >= 0; i--) {
 			final Integer index = allPositionsOf.get(i) - 1;
 			if (index < sequence.length() - 1) {

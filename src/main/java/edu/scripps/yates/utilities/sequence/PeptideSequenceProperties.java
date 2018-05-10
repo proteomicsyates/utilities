@@ -22,7 +22,7 @@ public class PeptideSequenceProperties {
 	private static Logger log = Logger.getLogger(PeptideSequenceProperties.class);
 
 	public static double calculateGravy(String sequence) {
-		AASequenceImpl seqImpl = new AASequenceImpl(sequence);
+		final AASequenceImpl seqImpl = new AASequenceImpl(sequence);
 		return seqImpl.getGravy();
 	}
 
@@ -36,7 +36,7 @@ public class PeptideSequenceProperties {
 		if (sequence == null || "".equals(sequence)) {
 			throw new IllegalArgumentException("Sequence is null or empty. pI cannot be calculated");
 		}
-		int length = sequence.length();
+		final int length = sequence.length();
 		int looper;
 		int countLys = 0;
 		int countArg = 0;
@@ -138,7 +138,7 @@ public class PeptideSequenceProperties {
 		if (Places == 0) {
 			return new Integer(Math.round(Value)).intValue();
 		} else {
-			double Multiplier = Math.pow(10, Places);
+			final double Multiplier = Math.pow(10, Places);
 			return new Double(Math.rint(Value * Multiplier) / Multiplier).floatValue();
 		}
 	}
@@ -166,7 +166,7 @@ public class PeptideSequenceProperties {
 	 * charged?
 	 */
 	private static float percentPositive(float pH, float pK) {
-		double concentrationRatio = Math.pow(10f, pK - pH);
+		final double concentrationRatio = Math.pow(10f, pK - pH);
 		return new Double(concentrationRatio / (concentrationRatio + 1)).floatValue();
 	}
 
@@ -175,7 +175,7 @@ public class PeptideSequenceProperties {
 	 * charged?
 	 */
 	public static float percentNegative(float pH, float pK) {
-		double concentrationRatio = Math.pow(10, pH - pK);
+		final double concentrationRatio = Math.pow(10, pH - pK);
 		return new Double(concentrationRatio / (concentrationRatio + 1)).floatValue();
 	}
 
@@ -188,7 +188,7 @@ public class PeptideSequenceProperties {
 	 * @return
 	 */
 	public static Set<String> permutatePeptideLeucineIsoleucine(String originalPeptide) {
-		String[] aas = { "I", "L" };
+		final String[] aas = { "I", "L" };
 		return permutatePeptideAAs(originalPeptide, aas);
 	}
 
@@ -204,32 +204,32 @@ public class PeptideSequenceProperties {
 	 */
 	public static Set<String> permutatePeptideAAs(String originalPeptide, String[] aas) {
 
-		Set<String> ret = new THashSet<String>();
-		List<Integer> positions = new ArrayList<Integer>();
-		for (String aa : aas) {
-			positions.addAll(StringUtils.allPositionsOf(originalPeptide, aa));
+		final Set<String> ret = new THashSet<String>();
+		final List<Integer> positions = new ArrayList<Integer>();
+		for (final String aa : aas) {
+			StringUtils.allPositionsOf(originalPeptide, aa).forEach(position -> positions.add(position));
 		}
 
 		if (positions.isEmpty()) {
 			ret.add(originalPeptide);
 			return ret;
 		}
-		double numCombinations = Math.pow(2, positions.size());
+		final double numCombinations = Math.pow(2, positions.size());
 		String pattern = "";
 		for (int n = 0; n < positions.size(); n++) {
 			pattern += "0";
 		}
-		DecimalFormat df = new DecimalFormat(pattern);
+		final DecimalFormat df = new DecimalFormat(pattern);
 
 		for (int n = 0; n < numCombinations; n++) {
-			String num = df.format(Double.valueOf(Integer.toBinaryString(n)));
+			final String num = df.format(Double.valueOf(Integer.toBinaryString(n)));
 
-			StringBuilder peptide = new StringBuilder(originalPeptide);
+			final StringBuilder peptide = new StringBuilder(originalPeptide);
 			for (int index = 0; index < num.length(); index++) {
-				char charAt = num.charAt(index);
-				Integer valueOf = Integer.valueOf(String.valueOf(charAt));
-				String string = aas[valueOf];
-				char charAt2 = string.charAt(0);
+				final char charAt = num.charAt(index);
+				final Integer valueOf = Integer.valueOf(String.valueOf(charAt));
+				final String string = aas[valueOf];
+				final char charAt2 = string.charAt(0);
 				peptide.setCharAt(positions.get(index) - 1, charAt2);
 			}
 			ret.add(peptide.toString());

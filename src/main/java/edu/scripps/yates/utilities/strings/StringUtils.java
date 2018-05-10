@@ -5,11 +5,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import gnu.trove.list.array.TIntArrayList;
 
 /**
  * Class that provides a {@link String} comparator with some additional features
@@ -69,8 +68,8 @@ public class StringUtils {
 	 * @param targetString
 	 * @return the list of positions or an empty list if not found
 	 */
-	public static List<Integer> allPositionsOf(String sourceString, String targetString) {
-		final List<Integer> ret = new ArrayList<Integer>();
+	public static TIntArrayList allPositionsOf(String sourceString, String targetString) {
+		final TIntArrayList ret = new TIntArrayList();
 		if (sourceString != null && targetString != null && !"".equals(sourceString) && !"".equals(targetString)) {
 			final Pattern p = Pattern.compile(targetString, Pattern.LITERAL);
 			final Matcher m = p.matcher(sourceString);
@@ -91,7 +90,7 @@ public class StringUtils {
 	 * @param targetString
 	 * @return
 	 */
-	public static List<Integer> allPositionsOf(String sourceString, char targetCharacter) {
+	public static TIntArrayList allPositionsOf(String sourceString, char targetCharacter) {
 		return allPositionsOf(sourceString, String.valueOf(targetCharacter));
 	}
 
@@ -103,8 +102,8 @@ public class StringUtils {
 	 * @param quantifiedAAs
 	 * @return
 	 */
-	public static List<Integer> getPositions(String sourceString, char[] chars) {
-		final List<Integer> ret = new ArrayList<Integer>();
+	public static TIntArrayList getPositions(String sourceString, char[] chars) {
+		final TIntArrayList ret = new TIntArrayList();
 
 		for (int index = 0; index < sourceString.length(); index++) {
 			for (final char c : chars) {
@@ -115,7 +114,8 @@ public class StringUtils {
 				}
 			}
 		}
-		Collections.sort(ret);
+		ret.sort();
+
 		return ret;
 	}
 
