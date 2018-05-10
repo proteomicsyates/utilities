@@ -4,6 +4,10 @@ import org.apache.commons.math3.stat.descriptive.moment.Mean;
 import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation;
 import org.apache.commons.math3.stat.descriptive.rank.Median;
 
+import gnu.trove.list.array.TDoubleArrayList;
+import gnu.trove.list.array.TFloatArrayList;
+import gnu.trove.list.array.TIntArrayList;
+
 public class Maths {
 	private Maths() {
 	}
@@ -42,8 +46,10 @@ public class Maths {
 	public static double max(Double... doubles) {
 		double max = -Double.MAX_VALUE;
 		for (final Double double1 : doubles) {
-			if (max < double1) {
-				max = double1;
+			if (double1 != null) {
+				if (max < double1) {
+					max = double1;
+				}
 			}
 		}
 		return max;
@@ -52,8 +58,10 @@ public class Maths {
 	public static float max(Float... numbers) {
 		float max = -Float.MAX_VALUE;
 		for (final Float number : numbers) {
-			if (max < number) {
-				max = number;
+			if (number != null) {
+				if (max < number) {
+					max = number;
+				}
 			}
 		}
 		return max;
@@ -62,14 +70,16 @@ public class Maths {
 	public static double min(Double... doubles) {
 		double min = Double.MAX_VALUE;
 		for (final Double double1 : doubles) {
-			if (min > double1) {
-				min = double1;
+			if (double1 != null) {
+				if (min > double1) {
+					min = double1;
+				}
 			}
 		}
 		return min;
 	}
 
-	public static float min(Float... numbers) {
+	public static float min(float... numbers) {
 		float min = Float.MAX_VALUE;
 		for (final Float number : numbers) {
 			if (min > number) {
@@ -77,19 +87,6 @@ public class Maths {
 			}
 		}
 		return min;
-	}
-
-	/**
-	 * Returns the maximum value in the array a[], Integer.MIN_VALUE if no such
-	 * value.
-	 */
-	public static int max(Integer[] a) {
-		int max = Integer.MIN_VALUE;
-		for (int i = 0; i < a.length; i++) {
-			if (a[i] > max)
-				max = a[i];
-		}
-		return max;
 	}
 
 	/**
@@ -140,7 +137,7 @@ public class Maths {
 	 * Returns the minimum value in the array a[], Integer.MAX_VALUE if no such
 	 * value.
 	 */
-	public static int min(Integer[] a) {
+	public static int min(int[] a) {
 		int min = Integer.MAX_VALUE;
 		for (int i = 0; i < a.length; i++) {
 			if (a[i] < min)
@@ -152,11 +149,51 @@ public class Maths {
 	/**
 	 * Returns the average value in the array a[], NaN if no such value.
 	 */
+	public static double mean(double[] a) {
+		if (a.length == 0)
+			return Double.NaN;
+		final double sum = sum(a);
+		return sum / a.length;
+	}
+
+	/**
+	 * Returns the average value in the array a[], NaN if no such value.
+	 */
 	public static double mean(Double[] a) {
 		if (a.length == 0)
 			return Double.NaN;
 		final double sum = sum(a);
 		return sum / a.length;
+	}
+
+	/**
+	 * Returns the average value in the array a[], NaN if no such value.
+	 */
+	public static double mean(TDoubleArrayList a) {
+		if (a.isEmpty())
+			return Double.NaN;
+
+		return a.sum() / a.size();
+	}
+
+	/**
+	 * Returns the average value in the array a[], NaN if no such value.
+	 */
+	public static double mean(TIntArrayList a) {
+		if (a.isEmpty())
+			return Double.NaN;
+
+		return 1.0 * a.sum() / a.size();
+	}
+
+	/**
+	 * Returns the average value in the array a[], NaN if no such value.
+	 */
+	public static float mean(TFloatArrayList a) {
+		if (a.isEmpty())
+			return Float.NaN;
+
+		return a.sum() / a.size();
 	}
 
 	/**
@@ -176,7 +213,7 @@ public class Maths {
 	/**
 	 * Returns the average value in the array a[], NaN if no such value.
 	 */
-	public static double mean(Integer[] a) {
+	public static double mean(int[] a) {
 		if (a.length == 0)
 			return Double.NaN;
 		double sum = 0.0;
@@ -189,7 +226,7 @@ public class Maths {
 	/**
 	 * Returns the sample variance in the array a[], NaN if no such value.
 	 */
-	public static double var(Double[] a) {
+	public static double var(double[] a) {
 		if (a.length == 0)
 			return Double.NaN;
 		final double avg = mean(a);
@@ -221,7 +258,7 @@ public class Maths {
 	/**
 	 * Returns the sample variance in the array a[], NaN if no such value.
 	 */
-	public static double var(Integer[] a) {
+	public static double var(int[] a) {
 		if (a.length == 0)
 			return Double.NaN;
 		final double avg = mean(a);
@@ -235,7 +272,7 @@ public class Maths {
 	/**
 	 * Returns the population variance in the array a[], NaN if no such value.
 	 */
-	public static double varp(Double[] a) {
+	public static double varp(double[] a) {
 		if (a.length == 0)
 			return Double.NaN;
 		final double avg = mean(a);
@@ -268,8 +305,16 @@ public class Maths {
 	 * Returns the sample standard deviation in the array a[], NaN if no such
 	 * value.
 	 */
-	public static double stddev(Double[] a) {
+	public static double stddev(double[] a) {
 		return Math.sqrt(var(a));
+	}
+
+	/**
+	 * Returns the sample standard deviation in the array a[], NaN if no such
+	 * value.
+	 */
+	public static double stddev(TDoubleArrayList a) {
+		return stddev(a.toArray());
 	}
 
 	/**
@@ -284,15 +329,23 @@ public class Maths {
 	 * Returns the sample standard deviation in the array a[], NaN if no such
 	 * value.
 	 */
-	public static double stddev(Integer[] a) {
+	public static double stddev(int[] a) {
 		return Math.sqrt(var(a));
+	}
+
+	/**
+	 * Returns the sample standard deviation in the array a[], NaN if no such
+	 * value.
+	 */
+	public static double stddev(TIntArrayList a) {
+		return stddev(a.toArray());
 	}
 
 	/**
 	 * Returns the population standard deviation in the array a[], NaN if no
 	 * such value.
 	 */
-	public static double stddevp(Double[] a) {
+	public static double stddevp(double[] a) {
 		return Math.sqrt(varp(a));
 	}
 
@@ -307,10 +360,20 @@ public class Maths {
 	/**
 	 * Returns the sum of all values in the array a[].
 	 */
-	public static double sum(Double[] a) {
+	public static double sum(double[] a) {
 		double sum = 0.0;
 		for (int i = 0; i < a.length; i++) {
 			sum += a[i];
+		}
+		return sum;
+	}
+
+	public static double sum(Double[] a) {
+		double sum = 0.0;
+		for (int i = 0; i < a.length; i++) {
+			if (a[i] != null) {
+				sum += a[i];
+			}
 		}
 		return sum;
 	}
