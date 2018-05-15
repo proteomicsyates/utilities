@@ -89,6 +89,29 @@ public class FastaParser {
 	}
 
 	/**
+	 * From a header like >sp|Q96PG8|BBC3B_HUMAN Bcl-2-binding component 3
+	 * OS=Homo sapiens OX=9606 GN=BBC3 PE=2 SV=2 it returns BBC3B_HUMAN, which
+	 * is the string after the second '|' and before the first space
+	 * 
+	 * @param fastaHeader
+	 * @return
+	 */
+	public static String getUniProtProteinName(String fastaHeader) {
+		final TIntArrayList allPositionsOfPipe = StringUtils.allPositionsOf(fastaHeader, "|");
+		final TIntArrayList allPositionsOfSpace = StringUtils.allPositionsOf(fastaHeader, " ");
+
+		if (!allPositionsOfPipe.isEmpty()) {
+			if (!allPositionsOfSpace.isEmpty()) {
+				final int secondPipePosition = allPositionsOfPipe.get(1);
+				final int firstPositionOfSpace = allPositionsOfSpace.get(0);
+				final String name = fastaHeader.substring(secondPipePosition, firstPositionOfSpace);
+				return name;
+			}
+		}
+		return null;
+	}
+
+	/**
 	 * This function parses the uniprot accession, getting the resulting string
 	 * after applying this regular expression:
 	 * ".*([OPQ][0-9][A-Z0-9]{3}[0-9]|[A-NR-Z][0-9]([A-Z][A-Z0-9]{2}[0-9]){1,2}).*"
