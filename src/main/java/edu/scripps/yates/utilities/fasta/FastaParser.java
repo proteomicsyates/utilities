@@ -27,6 +27,13 @@ public class FastaParser {
 		OS, GN, PE, SV, OX
 	};
 
+	public static final String UNKNOWN = "UNKNOWN";
+	public static final String CONTAMINANT = "contaminant";
+	public static final String UNIPROT = "UNIPROT";
+	public static final String NCBI = "NCBI";
+
+	public static final String REVERSE = "Reverse";
+
 	// taken from http://www.uniprot.org/help/accession_numbers
 	public static final Pattern UNIPROT_ACC = Pattern
 			.compile("[\\W^]([OPQ][0-9][A-Z0-9]{3}[0-9](\\-[0-9]{1,2})?|[A-NR-Z][0-9]([A-Z][A-Z0-9]{2}[0-9]){1,2})");
@@ -198,41 +205,41 @@ public class FastaParser {
 	 */
 	public static Pair<String, String> getACC(String id) {
 		if (id == null) {
-			return new Pair<String, String>("", "UNKNOWN");
+			return new Pair<String, String>("", UNKNOWN);
 		}
 
 		// if starts by >, remove it
 		if (id.startsWith(">"))
 			id = id.substring(1);
 		// if starts by Reverse, take the word as the id
-		final String reverse = "Reverse";
+		final String reverse = REVERSE;
 		if (id.length() >= reverse.length() && id.substring(0, reverse.length()).equalsIgnoreCase(reverse)) {
 
 			final Matcher matcher = untilSpace.matcher(id);
 			if (matcher.find()) {
-				return new Pair<String, String>(matcher.group(0).trim(), "UNKNOWN");
+				return new Pair<String, String>(matcher.group(0).trim(), UNKNOWN);
 			} else {
-				return new Pair<String, String>(id.trim(), "UNKNOWN");
+				return new Pair<String, String>(id.trim(), UNKNOWN);
 			}
 		}
-		final String contaminant = "contaminant";
+		final String contaminant = CONTAMINANT;
 		if (id.length() >= contaminant.length()
 				&& id.substring(0, contaminant.length()).equalsIgnoreCase(contaminant)) {
 
 			final Matcher matcher = untilSpace.matcher(id);
 			if (matcher.find()) {
-				return new Pair<String, String>(matcher.group(0).trim(), "UNKNOWN");
+				return new Pair<String, String>(matcher.group(0).trim(), UNKNOWN);
 			} else {
-				return new Pair<String, String>(id.trim(), "UNKNOWN");
+				return new Pair<String, String>(id.trim(), UNKNOWN);
 			}
 		}
 		final String uniProtACC = getUniProtACC(id);
 		if (uniProtACC != null) {
-			return new Pair<String, String>(uniProtACC, "UNIPROT");
+			return new Pair<String, String>(uniProtACC, UNIPROT);
 		}
 		final String ncbiacc = getNCBIACC(id);
 		if (ncbiacc != null) {
-			return new Pair<String, String>(ncbiacc, "NCBI");
+			return new Pair<String, String>(ncbiacc, NCBI);
 		}
 		final String ipiacc = getIPIACC(id);
 		if (ipiacc != null) {
@@ -241,9 +248,9 @@ public class FastaParser {
 
 		// if contains an space, take the string before the space
 		if (id.contains(" ")) {
-			return new Pair<String, String>(id.substring(0, id.indexOf(" ")), "UNKNOWN");
+			return new Pair<String, String>(id.substring(0, id.indexOf(" ")), UNKNOWN);
 		}
-		return new Pair<String, String>(id.trim(), "UNKNOWN");
+		return new Pair<String, String>(id.trim(), UNKNOWN);
 	}
 
 	/**
@@ -569,7 +576,11 @@ public class FastaParser {
 		int firstAnnotationIndex = Integer.MAX_VALUE;
 
 		// Annotations that are always after the description
-		final String[] annotations = { "OS=", "GN=", "PE=", "SV=" };
+		final String[] annotations = new String[UNIPROT_FASTA_KEYWORD.values().length];
+		int i = 0;
+		for (final UNIPROT_FASTA_KEYWORD keyword : UNIPROT_FASTA_KEYWORD.values()) {
+			annotations[i++] = keyword.name() + "=";
+		}
 
 		for (final String annotation : annotations) {
 			final int os = description.indexOf(annotation);
@@ -753,7 +764,8 @@ public class FastaParser {
 						ptm = -ptm;
 					}
 					if (modifiedAAMass) {
-						final double AAMass = AssignMass.getInstance(true).getMass(currentAA);
+						AssignMass.getInstance(true);
+						final double AAMass = AssignMass.getMass(currentAA);
 						ptm = ptm - AAMass;
 					}
 					ret.put(position - 1, ptm);
