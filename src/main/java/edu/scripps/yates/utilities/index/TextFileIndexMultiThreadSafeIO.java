@@ -170,7 +170,7 @@ public class TextFileIndexMultiThreadSafeIO {
 	 *         stored
 	 * @throws IOException
 	 */
-	public Map<String, Pair<Long, Long>> addNewItem(String item, Set<String> keys) throws IOException {
+	public synchronized Map<String, Pair<Long, Long>> addNewItem(String item, Set<String> keys) throws IOException {
 
 		if (!item.startsWith(beginToken)) {
 			if (item.contains(beginToken)) {
@@ -207,7 +207,7 @@ public class TextFileIndexMultiThreadSafeIO {
 			buffer.put(bytes);
 		} catch (final IOException e) {
 			e.printStackTrace();
-			log.warn("Error from thread " + Thread.currentThread().getId());
+			log.error("Error from thread " + Thread.currentThread().getId() + ": " + e.getMessage());
 		} finally {
 			raf.close();
 			log.debug("Closing file access from thread " + Thread.currentThread().getId());
@@ -239,10 +239,11 @@ public class TextFileIndexMultiThreadSafeIO {
 	 *         stored
 	 * @throws IOException
 	 */
-	public Map<String, Pair<Long, Long>> addNewItems(Map<String, Set<String>> keysByItems) throws IOException {
+	public synchronized Map<String, Pair<Long, Long>> addNewItems(Map<String, Set<String>> keysByItems)
+			throws IOException {
 		final Map<String, Pair<Long, Long>> ret = new THashMap<String, Pair<Long, Long>>();
 
-		long firstInit = 0l;
+		long firstInit = -1l;
 		final DynByteBuffer byteBuffer = new DynByteBuffer();
 
 		for (String item : keysByItems.keySet()) {
@@ -257,10 +258,10 @@ public class TextFileIndexMultiThreadSafeIO {
 							+ "' is not starting with the begin Token '" + beginToken + "'");
 				}
 			}
-			if (!item.endsWith(endToken))
+			if (!item.endsWith(endToken)) {
 				throw new IllegalArgumentException(
 						"The provided item '" + item + "' is not ending with the end Token '" + endToken + "'");
-
+			}
 			item = "\n" + item;
 			final byte[] bytes = item.getBytes();
 			byteBuffer.add(bytes);
@@ -269,10 +270,10 @@ public class TextFileIndexMultiThreadSafeIO {
 			// request the record reservation system
 			final FileRecordReservation fileRecordReservation = getFileRecordReservation(fileToIndex);
 			// book the position in the file (thread safe)
-			log.debug("Requesting reservation for writting in position " + fileRecordReservation.getCurrentposition()
+			log.debug(" Requesting reservation for writting in position " + fileRecordReservation.getCurrentposition()
 					+ " writting " + bytes.length + " bytes in thread " + Thread.currentThread().getId());
 			final long init = fileRecordReservation.reserveRecord(bytes);
-			if (firstInit == 0l) {
+			if (firstInit == -1l) {
 				firstInit = init;
 			}
 			final long end = init + bytes.length;
