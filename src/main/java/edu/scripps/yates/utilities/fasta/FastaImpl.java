@@ -18,13 +18,14 @@ public class FastaImpl implements Fasta {
 	private static final Pattern pattern = Pattern.compile("(.*)\\d");
 
 	public FastaImpl(String defline, String sequence) {
-		this.defline = defline;
+		FastaImpl.defline = defline;
 		// System.out.println("defline: " + this.defline);
 		sequence = sequence.toUpperCase();
 		// seq = sequence;
 		try {
+			seq = sequence;
 			this.sequence = sequence.getBytes("US-ASCII");
-		} catch (UnsupportedEncodingException e) {
+		} catch (final UnsupportedEncodingException e) {
 			System.err.println("Unknow charset");
 			System.exit(1);
 		}
@@ -59,7 +60,7 @@ public class FastaImpl implements Fasta {
 
 	@Override
 	public String getAccessionWithNoVersion() {
-		int index = accession.indexOf(".");
+		final int index = accession.indexOf(".");
 		if (index == -1) {
 			return accession;
 		} else {
