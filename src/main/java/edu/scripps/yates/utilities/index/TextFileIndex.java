@@ -37,7 +37,7 @@ public class TextFileIndex implements FileIndex<String> {
 
 	public TextFileIndex(File file, TextFileIndexIO textFileIndexIO) throws IOException {
 		fileToIndex = file;
-		// create the index file
+		// create the index file .idx
 		indexFile = new File(getIndexPathName(file));
 		this.textFileIndexIO = textFileIndexIO;
 	}
