@@ -18,7 +18,6 @@ import org.apache.log4j.Logger;
 public class ThreadSafeHttpClient {
 	private final static Logger log = Logger.getLogger(ThreadSafeHttpClient.class);
 	private static PoolingHttpClientConnectionManager cm;
-	private static CloseableHttpClient client;
 
 	private static PoolingHttpClientConnectionManager getConnectionManager() {
 		if (cm == null) {
@@ -34,7 +33,7 @@ public class ThreadSafeHttpClient {
 		return cm;
 	}
 
-	public static CloseableHttpClient createHttpClient() {
+	public static CloseableHttpClient createNewHttpClient() {
 		return HttpClients.custom().setConnectionManager(getConnectionManager()).build();
 
 	}
@@ -42,7 +41,6 @@ public class ThreadSafeHttpClient {
 	public static String getStringResponse(CloseableHttpClient httpClient, HttpGet httpGet)
 			throws ClientProtocolException, IOException {
 		try {
-
 			final CloseableHttpResponse response = httpClient.execute(httpGet, HttpClientContext.create());
 			if (response.getStatusLine().getStatusCode() == 200) {
 				final HttpEntity entity = response.getEntity();
@@ -56,5 +54,16 @@ public class ThreadSafeHttpClient {
 			httpGet.releaseConnection();
 		}
 
+	}
+
+	/**
+	 * shutdown the singleton connection manager and set it to null so that next
+	 * time a new HTTPClient is created, a new connection manager will be
+	 * created.<br>
+	 * call this method after closing your client.
+	 */
+	public static void closeConnectionManager() {
+		getConnectionManager().shutdown();
+		cm = null;
 	}
 }
