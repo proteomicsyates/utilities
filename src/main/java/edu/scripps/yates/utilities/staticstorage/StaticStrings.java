@@ -24,7 +24,7 @@ public class StaticStrings {
 	 * @param string
 	 * @return
 	 */
-	public static String getUniqueInstance(String string) {
+	public synchronized static String getUniqueInstance(String string) {
 		if (string == null) {
 			return null;
 		}
