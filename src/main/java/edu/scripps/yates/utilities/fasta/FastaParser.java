@@ -657,21 +657,34 @@ public class FastaParser {
 		if (seq == null)
 			return null;
 		final String seqTmp = seq.trim();
-		try {
-			if (somethingExtrangeInSequence(seqTmp)) {
 
-				// parenthesis or brackets
-				final List<String> outside = getOutside(seqTmp);
-				if (!outside.isEmpty()) {
-					final String tmp = appendList(outside);
-					return removeBeforeAfterAAs(tmp);
-				}
+		if (somethingExtrangeInSequence(seqTmp)) {
 
+			// parenthesis or brackets
+			final List<String> outside = getOutside(seqTmp);
+			if (!outside.isEmpty()) {
+				final String tmp = appendList(outside);
+				return cleanSequence(removeBeforeAfterAAs(tmp));
 			}
-			return seq.toUpperCase();
-		} catch (final Exception e) {
-			return seqTmp;
+
 		}
+		final String errorMessage = "Peptide sequence '" + seq
+				+ "' is not supported. Either having not recognizable characteres or in lower case? Has it a non standard PTM enconded on it? PTMs can be encoded as in PEPTID[+45.92]E";
+		AssignMass.getInstance(true);
+		for (int index = 0; index < seq.length(); index++) {
+			final char aa = seq.charAt(index);
+			if (!AssignMass.containsMass(aa)) {
+				throw new IllegalArgumentException("'" + aa + "' not recognized. " + errorMessage);
+			}
+		}
+		if (!seq.toUpperCase().equals(seq)) {
+			// it has something in lower case
+
+			throw new IllegalArgumentException(errorMessage);
+
+		}
+		return seq.toUpperCase();
+
 	}
 
 	public static List<String> getOutside(String seq) {
@@ -775,6 +788,7 @@ public class FastaParser {
 				isPTM = true;
 			} else if (charAt == ')' || charAt == ']') {
 				isPTM = false;
+
 				try {
 					// if the ptm is like [+18.00] is a difference
 					// if the ptm is like [180.00] is the modified aminoacid
@@ -783,6 +797,7 @@ public class FastaParser {
 						modifiedAAMass = true;
 					}
 					Double ptm = Double.valueOf(ptmString.replace("+", "").replace("-", ""));
+
 					if (ptmString.contains("-")) {
 						ptm = -ptm;
 					}
