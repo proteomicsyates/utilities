@@ -664,7 +664,8 @@ public class FastaParser {
 			final List<String> outside = getOutside(seqTmp);
 			if (!outside.isEmpty()) {
 				final String tmp = appendList(outside);
-				return cleanSequence(removeBeforeAfterAAs(tmp));
+				final String removeBeforeAfterAAs = removeBeforeAfterAAs(tmp);
+				return cleanSequence(removeBeforeAfterAAs);
 			}
 
 		}
@@ -856,6 +857,10 @@ public class FastaParser {
 					return seq;
 				}
 				return seq.substring(firstPoint + 1, lastPoint);
+			} else if (seq.startsWith(".")) {
+				return seq.substring(1);
+			} else if (seq.endsWith(".")) {
+				return seq.substring(0, seq.length() - 1);
 			}
 		}
 		return seq;
