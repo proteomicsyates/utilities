@@ -758,7 +758,7 @@ public class AssignMass {
 		// void ASSIGN_MASS(double *pdAAMass,int bUseMonoMasses,double *dHplus,
 		// double *dH, double *dOH)
 
-		useMono = useMono;
+		AssignMass.useMono = useMono;
 
 		// System.out.println("=======" + useMono);
 
@@ -786,7 +786,7 @@ public class AssignMass {
 	}
 
 	public static void setHplus(double hplus) {
-		hplus = hplus;
+		AssignMass.hplus = hplus;
 	}
 
 	public static double getH() {
@@ -794,7 +794,7 @@ public class AssignMass {
 	}
 
 	public static void setH(double h) {
-		h = h;
+		AssignMass.h = h;
 	}
 
 	public static double getOh() {
@@ -802,7 +802,7 @@ public class AssignMass {
 	}
 
 	public static void setOh(double oh) {
-		oh = oh;
+		AssignMass.oh = oh;
 	}
 
 	public static double getBinWidth() {
@@ -810,7 +810,7 @@ public class AssignMass {
 	}
 
 	public static void setBinWidth(double binWidth) {
-		binWidth = binWidth;
+		AssignMass.binWidth = binWidth;
 	}
 
 	public double[] getPdAAMass() {
@@ -825,7 +825,7 @@ public class AssignMass {
 	}
 
 	public static void setAaMasses(double[] aaMasses) {
-		aaMasses = aaMasses;
+		AssignMass.aaMasses = aaMasses;
 	}
 
 	public boolean isUseMono() {
@@ -833,7 +833,7 @@ public class AssignMass {
 	}
 
 	public void setUseMono(boolean useMono) {
-		useMono = useMono;
+		AssignMass.useMono = useMono;
 	}
 
 	public static AssignMass getAssignMass() {
@@ -841,7 +841,7 @@ public class AssignMass {
 	}
 
 	public static void setAssignMass(AssignMass assignMass) {
-		assignMass = assignMass;
+		AssignMass.assignMass = assignMass;
 	}
 
 	public static double getcTerm() {
@@ -849,7 +849,7 @@ public class AssignMass {
 	}
 
 	public static void setcTerm(double cTerm) {
-		cTerm = cTerm;
+		AssignMass.cTerm = cTerm;
 	}
 
 	public static double getnTerm() {
@@ -857,7 +857,7 @@ public class AssignMass {
 	}
 
 	public static void setnTerm(double nTerm) {
-		nTerm = nTerm;
+		AssignMass.nTerm = nTerm;
 	}
 
 	public static double getBionfragment() {
@@ -865,7 +865,7 @@ public class AssignMass {
 	}
 
 	public static void setBionfragment(double bionfragment) {
-		bionfragment = bionfragment;
+		AssignMass.bionfragment = bionfragment;
 	}
 
 	public static double getYionfragment() {
@@ -873,7 +873,7 @@ public class AssignMass {
 	}
 
 	public static void setYionfragment(double yionfragment) {
-		yionfragment = yionfragment;
+		AssignMass.yionfragment = yionfragment;
 	}
 
 	public static int getBinnedValue(double mass, double shift) {
@@ -929,5 +929,16 @@ public class AssignMass {
 			}
 
 		}
+	}
+
+	public static boolean containsMass(char aa) {
+		try {
+			if (getMass(aa) != 0.0) {
+				return true;
+			}
+		} catch (final NullPointerException e) {
+
+		}
+		return false;
 	}
 }
