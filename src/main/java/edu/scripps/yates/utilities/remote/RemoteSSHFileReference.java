@@ -211,12 +211,14 @@ public class RemoteSSHFileReference {
 			session = jsch.getSession(userName, hostName, 22);
 			session.setConfig("StrictHostKeyChecking", "no");
 			session.setPassword(pass);
+			log.debug("Login in the server " + hostName);
 			session.connect();
-
+			log.debug("Login sucessfull");
 			Channel channel = session.openChannel("sftp");
+			log.debug("Opening sftp channel...");
 			channel.connect();
 			ChannelSftp sftpChannel = (ChannelSftp) channel;
-
+			log.debug("Channel opened");
 			final StringTokenizer stringTokenizer = new StringTokenizer(remotePath, "/");
 			boolean first = true;
 			while (stringTokenizer.hasMoreTokens()) {
