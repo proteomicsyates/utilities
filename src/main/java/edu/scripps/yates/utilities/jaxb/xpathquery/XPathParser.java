@@ -4,61 +4,55 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class XPathParser implements Iterator<String>, Cloneable {
-	private final List<String> elements = new ArrayList<String>();
-	private String attribute;
-	private String filterValue;
-	private String currentElement;
-	private Iterator<String> iterator;
+public class XPathParser implements Iterator<XPathElement>, Cloneable {
+	private final List<XPathElement> elements = new ArrayList<XPathElement>();
+
+	private XPathElement currentElement;
 	private final String xpath;
+
+	private Iterator<XPathElement> iterator;
 
 	public XPathParser(String xpath) {
 		this.xpath = xpath;
-		if (xpath.contains("=")) {
-			String[] split = xpath.split("=");
-			parse(split[0]);
-			this.filterValue = split[1];
-		} else {
-			parse(xpath);
-		}
+		parse(xpath);
 	}
 
 	private void parse(String xpath) {
 
-		List<String> elements2 = new ArrayList<String>();
+		final List<String> elements2 = new ArrayList<String>();
 		if (xpath.contains("/")) {
-			String[] split = xpath.split("/");
-			for (String element : split) {
+			final String[] split = xpath.split("/");
+			for (final String element : split) {
 				elements2.add(element.trim());
 			}
 		} else {
 			elements2.add(xpath.trim());
 		}
 
-		for (String element : elements2) {
+		for (final String element : elements2) {
 			if (element.contains("$")) {
-				String[] split = element.split("\\$");
-				if (!"".equals(split[0].trim())) {
-					this.elements.add(split[0].trim());
+				final String[] split = element.split("\\$");
+				elements.add(new XPathElement(split[0].trim(), null));
+
+				final String attribute = split[1].trim();
+				if (attribute != null) {
+					if (attribute.contains("=")) {
+						final String[] split2 = attribute.split("=");
+						elements.add(new XPathElement(split2[0].trim(), split2[1].trim()));
+
+					}
 				}
-				if (!"".equals(split[1].trim())) {
-					this.attribute = split[1].trim();
-				}
+
 			} else {
-				if (!"".equals(element.trim())) {
-					this.elements.add(element.trim());
-				}
+				elements.add(new XPathElement(element.trim(), null));
+
 			}
 		}
-		this.iterator = elements.iterator();
+		iterator = elements.iterator();
 	}
 
-	public List<String> getElements() {
+	public List<XPathElement> getElements() {
 		return elements;
-	}
-
-	public String getAttribute() {
-		return attribute;
 	}
 
 	@Override
@@ -67,23 +61,23 @@ public class XPathParser implements Iterator<String>, Cloneable {
 	}
 
 	@Override
-	public String next() {
-		String next = iterator.next();
-		this.currentElement = next;
+	public XPathElement next() {
+		final XPathElement next = iterator.next();
+		currentElement = next;
 		return next;
 	}
 
-	public String getCurrentElement() {
+	public XPathElement getCurrentElement() {
 		return currentElement;
 	}
 
 	public String getFilterValue() {
-		return filterValue;
+		return currentElement.getFilterValue();
 	}
 
 	@Override
 	protected Object clone() throws CloneNotSupportedException {
-		XPathParser ret = new XPathParser(xpath);
+		final XPathParser ret = new XPathParser(xpath);
 		return ret;
 	}
 }
