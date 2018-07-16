@@ -1,8 +1,9 @@
 package edu.scripps.yates.utilities.proteomicsmodel;
 
-public interface Peptide extends HasRatios, HasScores, HasAmounts, HasConditions, HasPsms, HasMSRun, HasProteins {
-	public int getDBId();
+import edu.scripps.yates.utilities.grouping.GroupablePeptide;
 
-	public String getSequence();
+public interface Peptide extends HasRatios, HasScores, HasAmounts, HasConditions, HasPsms, HasMSRun, HasProteins,
+		HasPTMs, GroupablePeptide {
+	public int getDBId();
 
 }

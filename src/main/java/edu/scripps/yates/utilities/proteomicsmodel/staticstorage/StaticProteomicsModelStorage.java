@@ -88,7 +88,7 @@ public class StaticProteomicsModelStorage {
 		if (conditionID == null) {
 			// log.info("condition is null for psm");
 		}
-		psmStorage.add(psm, runID, conditionID, excelRowIndex, psm.getPSMIdentifier());
+		psmStorage.add(psm, runID, conditionID, excelRowIndex, psm.getIdentifier());
 	}
 
 	public static boolean containsProtein(String msRunID, String conditionID, String accession) {

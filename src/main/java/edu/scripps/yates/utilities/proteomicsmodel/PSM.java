@@ -1,10 +1,9 @@
 package edu.scripps.yates.utilities.proteomicsmodel;
 
-import java.util.List;
+import edu.scripps.yates.utilities.grouping.GroupablePeptide;
 
-import edu.scripps.yates.utilities.grouping.GroupablePSM;
-
-public interface PSM extends HasScores, HasRatios, HasAmounts, HasConditions, HasMSRun, GroupablePSM, HasProteins {
+public interface PSM
+		extends HasScores, HasRatios, HasAmounts, HasConditions, HasMSRun, GroupablePeptide, HasProteins, HasPTMs {
 
 	public Double getExperimentalMH();
 
@@ -27,8 +26,6 @@ public interface PSM extends HasScores, HasRatios, HasAmounts, HasConditions, Ha
 	 * @return
 	 */
 	public String getFullSequence();
-
-	public List<PTM> getPTMs();
 
 	public Peptide getPeptide();
 

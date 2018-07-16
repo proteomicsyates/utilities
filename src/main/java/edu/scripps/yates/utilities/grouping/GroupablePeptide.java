@@ -2,11 +2,11 @@ package edu.scripps.yates.utilities.grouping;
 
 import java.util.List;
 
-public interface GroupablePSM {
+public interface GroupablePeptide {
 
 	String getSequence();
 
-	String getPSMIdentifier();
+	String getIdentifier();
 
 	void setRelation(PeptideRelation relation);
 

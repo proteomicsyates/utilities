@@ -59,7 +59,7 @@ public class PSMEx implements PSM, Serializable {
 	}
 
 	@Override
-	public String getPSMIdentifier() {
+	public String getIdentifier() {
 		return psmID;
 	}
 

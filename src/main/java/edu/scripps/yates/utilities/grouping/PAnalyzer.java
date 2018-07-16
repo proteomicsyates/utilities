@@ -140,9 +140,9 @@ public class PAnalyzer {
 					iProt.addProtein(prot);
 				}
 
-				List<GroupablePSM> peptides = prot.getGroupablePSMs();
+				List<GroupablePeptide> peptides = prot.getGroupablePeptides();
 				if (peptides != null && !peptides.isEmpty()) {
-					for (GroupablePSM pept : peptides) {
+					for (GroupablePeptide pept : peptides) {
 						iPept = mPepts.get(pept.getSequence());
 						if (iPept == null) {
 							iPept = new InferencePeptide(pept);

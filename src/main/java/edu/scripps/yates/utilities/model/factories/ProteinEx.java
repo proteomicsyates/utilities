@@ -7,7 +7,7 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import edu.scripps.yates.utilities.grouping.GroupablePSM;
+import edu.scripps.yates.utilities.grouping.GroupablePeptide;
 import edu.scripps.yates.utilities.grouping.GroupableProtein;
 import edu.scripps.yates.utilities.grouping.ProteinEvidence;
 import edu.scripps.yates.utilities.grouping.ProteinGroup;
@@ -365,11 +365,11 @@ public class ProteinEx implements Protein, Serializable, GroupableProtein {
 	}
 
 	@Override
-	public List<GroupablePSM> getGroupablePSMs() {
-		List<GroupablePSM> list = new ArrayList<GroupablePSM>();
+	public List<GroupablePeptide> getGroupablePeptides() {
+		List<GroupablePeptide> list = new ArrayList<GroupablePeptide>();
 		final Set<PSM> psMs2 = getPSMs();
 		for (PSM psm : psMs2) {
-			if (psm instanceof GroupablePSM)
+			if (psm instanceof GroupablePeptide)
 				list.add(psm);
 		}
 		return list;

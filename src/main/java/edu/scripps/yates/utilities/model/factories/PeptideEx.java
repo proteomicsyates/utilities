@@ -1,13 +1,19 @@
 package edu.scripps.yates.utilities.model.factories;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
 
+import edu.scripps.yates.utilities.grouping.GroupableProtein;
+import edu.scripps.yates.utilities.grouping.PeptideRelation;
 import edu.scripps.yates.utilities.proteomicsmodel.Amount;
 import edu.scripps.yates.utilities.proteomicsmodel.Condition;
 import edu.scripps.yates.utilities.proteomicsmodel.MSRun;
 import edu.scripps.yates.utilities.proteomicsmodel.PSM;
+import edu.scripps.yates.utilities.proteomicsmodel.PTM;
+import edu.scripps.yates.utilities.proteomicsmodel.PTMSite;
 import edu.scripps.yates.utilities.proteomicsmodel.Peptide;
 import edu.scripps.yates.utilities.proteomicsmodel.Protein;
 import edu.scripps.yates.utilities.proteomicsmodel.Ratio;
@@ -17,6 +23,7 @@ import gnu.trove.set.hash.THashSet;
 public class PeptideEx implements Peptide {
 
 	private final Set<PSM> psms = new THashSet<PSM>();
+	private final List<PTM> ptms = new ArrayList<PTM>();
 	private final Set<Ratio> ratios = new THashSet<Ratio>();
 	private final Set<Amount> amounts = new THashSet<Amount>();
 	private Set<Score> scores;
@@ -24,6 +31,7 @@ public class PeptideEx implements Peptide {
 	private final Set<Protein> proteins = new THashSet<Protein>();
 	private final Set<Condition> conditions = new THashSet<Condition>();
 	private MSRun msRun;
+	private PeptideRelation relation;
 	private static Logger log = Logger.getLogger(PeptideEx.class);
 
 	public PeptideEx(String sequence, MSRun msrun) {
@@ -39,9 +47,9 @@ public class PeptideEx implements Peptide {
 	@Override
 	public void addPSM(PSM psm) {
 		if (psm != null) {
-			String runId = psm.getMSRun().getRunId();
+			final String runId = psm.getMSRun().getRunId();
 
-			for (PSM psm2 : psms) {
+			for (final PSM psm2 : psms) {
 				if (!psm2.getMSRun().getRunId().equals(runId)) {
 					throw new IllegalArgumentException("A peptide should belong to PSMs from the same RUN id\n"
 							+ "Should be the same run id: '" + psm2.getMSRun().getRunId() + "'\t'" + runId + "'");
@@ -50,6 +58,12 @@ public class PeptideEx implements Peptide {
 			if (!psms.contains(psm)) {
 				psms.add(psm);
 				psm.setPeptide(this);
+				// add ptms
+				if (psm.getPTMs() != null) {
+					for (final PTM ptm : psm.getPTMs()) {
+						addPTM(ptm);
+					}
+				}
 			}
 		}
 	}
@@ -116,7 +130,7 @@ public class PeptideEx implements Peptide {
 		if (protein != null && !proteins.contains(protein)) {
 			proteins.add(protein);
 			protein.addPeptide(this);
-			for (PSM psm : getPSMs()) {
+			for (final PSM psm : getPSMs()) {
 				protein.addPSM(psm);
 				psm.addProtein(protein);
 			}
@@ -132,7 +146,7 @@ public class PeptideEx implements Peptide {
 	public void addCondition(Condition newCondition) {
 		if (newCondition != null) {
 			boolean found = false;
-			for (Condition condition : conditions) {
+			for (final Condition condition : conditions) {
 				if (condition.getName().equals(newCondition.getName())) {
 					if (condition.getProject().getName().equals(newCondition.getProject().getName()))
 						found = true;
@@ -142,7 +156,7 @@ public class PeptideEx implements Peptide {
 			if (!found) {
 				conditions.add(newCondition);
 				// set condition to amounts
-				for (Amount amount : getAmounts()) {
+				for (final Amount amount : getAmounts()) {
 					if (amount.getCondition() == null && amount instanceof AmountEx) {
 						((AmountEx) amount).setCondition(newCondition);
 					}
@@ -169,7 +183,75 @@ public class PeptideEx implements Peptide {
 	@Override
 	public void setMSRun(MSRun msRun) {
 		this.msRun = msRun;
+	}
 
+	private void addPTM(PTM ptm) {
+		if (ptm != null) {// check if we already have that PTM
+			boolean found = false;
+			for (final PTM ptm2 : ptms) {
+				if (areSameSites(ptm2.getPTMSites(), ptm.getPTMSites())) {
+					// same sites
+					if (ptm2.getMassShift() != null && ptm.getMassShift() != null) {
+						if (ptm2.getMassShift().equals(ptm.getMassShift())) {
+							// same sites and same mass shifts
+							found = true;
+							break;
+						}
+					} else if (ptm2.getName().equalsIgnoreCase(ptm.getName())) {
+						// same sites and same names
+						found = true;
+						break;
+					}
+				}
+			}
+			if (!found) {
+				ptms.add(ptm);
+			}
+		}
+	}
+
+	private boolean areSameSites(List<PTMSite> ptmSites, List<PTMSite> ptmSites2) {
+		for (final PTMSite ptmSite : ptmSites) {
+			final int position = ptmSite.getPosition();
+			boolean found = false;
+			for (final PTMSite ptmSite2 : ptmSites) {
+				if (ptmSite2.getPosition() == position) {
+					found = true;
+					break;
+				}
+			}
+			if (!found) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	@Override
+	public List<PTM> getPTMs() {
+		return ptms;
+	}
+
+	@Override
+	public String getIdentifier() {
+		return String.valueOf(hashCode());
+	}
+
+	@Override
+	public void setRelation(PeptideRelation relation) {
+		this.relation = relation;
+	}
+
+	@Override
+	public PeptideRelation getRelation() {
+		return relation;
+	}
+
+	@Override
+	public List<GroupableProtein> getGroupableProteins() {
+		final List<GroupableProtein> ret = new ArrayList<GroupableProtein>();
+		ret.addAll(getProteins());
+		return ret;
 	}
 
 }

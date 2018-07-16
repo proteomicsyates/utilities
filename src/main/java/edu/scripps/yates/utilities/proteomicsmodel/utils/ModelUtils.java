@@ -20,12 +20,16 @@ import edu.scripps.yates.utilities.proteomicsmodel.HasRatios;
 import edu.scripps.yates.utilities.proteomicsmodel.HasScores;
 import edu.scripps.yates.utilities.proteomicsmodel.Organism;
 import edu.scripps.yates.utilities.proteomicsmodel.PSM;
+import edu.scripps.yates.utilities.proteomicsmodel.PTM;
+import edu.scripps.yates.utilities.proteomicsmodel.PTMSite;
 import edu.scripps.yates.utilities.proteomicsmodel.Peptide;
 import edu.scripps.yates.utilities.proteomicsmodel.Protein;
 import edu.scripps.yates.utilities.proteomicsmodel.ProteinAnnotation;
 import edu.scripps.yates.utilities.proteomicsmodel.Ratio;
 import edu.scripps.yates.utilities.proteomicsmodel.Score;
+import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.THashMap;
+import gnu.trove.map.hash.TIntObjectHashMap;
 import gnu.trove.set.hash.THashSet;
 
 public class ModelUtils {
@@ -41,9 +45,9 @@ public class ModelUtils {
 
 	public static Set<Ratio> getProteinRatiosBetweenTwoConditions(Protein protein, String condition1Name,
 			String condition2Name) {
-		Set<Ratio> ret = new THashSet<Ratio>();
+		final Set<Ratio> ret = new THashSet<Ratio>();
 		if (protein.getRatios() != null) {
-			for (Ratio ratio : protein.getRatios()) {
+			for (final Ratio ratio : protein.getRatios()) {
 
 				if (ratio.getCondition1().getName().equals(condition1Name)) {
 					if (ratio.getCondition2().getName().equals(condition2Name)) {
@@ -74,16 +78,16 @@ public class ModelUtils {
 			return list2;
 		if (list2.isEmpty() && !list1.isEmpty())
 			return list1;
-		Set<String> proteinPrimaryAccs = new THashSet<String>();
-		List<Protein> ret = new ArrayList<Protein>();
+		final Set<String> proteinPrimaryAccs = new THashSet<String>();
+		final List<Protein> ret = new ArrayList<Protein>();
 
-		for (Protein protein : list1) {
+		for (final Protein protein : list1) {
 			if (!proteinPrimaryAccs.contains(protein.getPrimaryAccession().getAccession())) {
 				proteinPrimaryAccs.add(protein.getPrimaryAccession().getAccession());
 				ret.add(protein);
 			}
 		}
-		for (Protein protein : list2) {
+		for (final Protein protein : list2) {
 			if (!proteinPrimaryAccs.contains(protein.getPrimaryAccession().getAccession())) {
 				proteinPrimaryAccs.add(protein.getPrimaryAccession().getAccession());
 				ret.add(protein);
@@ -93,18 +97,18 @@ public class ModelUtils {
 	}
 
 	public static Collection<PSM> psmUnion(Collection<PSM> list1, Collection<PSM> list2) {
-		Set<String> ids = new THashSet<String>();
-		List<PSM> ret = new ArrayList<PSM>();
+		final Set<String> ids = new THashSet<String>();
+		final List<PSM> ret = new ArrayList<PSM>();
 
-		for (PSM psm : list1) {
-			if (!ids.contains(psm.getPSMIdentifier())) {
-				ids.add(psm.getPSMIdentifier());
+		for (final PSM psm : list1) {
+			if (!ids.contains(psm.getIdentifier())) {
+				ids.add(psm.getIdentifier());
 				ret.add(psm);
 			}
 		}
-		for (PSM psm : list2) {
-			if (!ids.contains(psm.getPSMIdentifier())) {
-				ids.add(psm.getPSMIdentifier());
+		for (final PSM psm : list2) {
+			if (!ids.contains(psm.getIdentifier())) {
+				ids.add(psm.getIdentifier());
 				ret.add(psm);
 			}
 		}
@@ -112,8 +116,8 @@ public class ModelUtils {
 	}
 
 	public static Set<PSM> getPSMIntersection(Collection<PSM> set1, Collection<PSM> set2) {
-		Set<PSM> ret = new THashSet<PSM>();
-		for (PSM t1 : set1) {
+		final Set<PSM> ret = new THashSet<PSM>();
+		for (final PSM t1 : set1) {
 			if (set2.contains(t1)) {
 				ret.add(t1);
 			}
@@ -122,8 +126,8 @@ public class ModelUtils {
 	}
 
 	public static Set<Peptide> getPeptideIntersection(Collection<Peptide> set1, Collection<Peptide> set2) {
-		Set<Peptide> ret = new THashSet<Peptide>();
-		for (Peptide t1 : set1) {
+		final Set<Peptide> ret = new THashSet<Peptide>();
+		for (final Peptide t1 : set1) {
 			if (set2.contains(t1)) {
 				ret.add(t1);
 			}
@@ -132,9 +136,9 @@ public class ModelUtils {
 	}
 
 	public static Set<Protein> getProteinIntersection(Collection<Protein> set1, Collection<Protein> set2) {
-		Set<Protein> ret = new THashSet<Protein>();
-		for (Protein p1 : set1) {
-			for (Protein p2 : set2) {
+		final Set<Protein> ret = new THashSet<Protein>();
+		for (final Protein p1 : set1) {
+			for (final Protein p2 : set2) {
 				if (p1.getPrimaryAccession().getAccession().equals(p2.getPrimaryAccession().getAccession())) {
 					ret.add(p1);
 					ret.add(p2);
@@ -165,10 +169,10 @@ public class ModelUtils {
 	 * @return
 	 */
 	public static List<Accession> getAccessions(Protein prot, String accType) {
-		List<Accession> ret = new ArrayList<Accession>();
+		final List<Accession> ret = new ArrayList<Accession>();
 		final List<Accession> proteinAccessions = prot.getSecondaryAccessions();
 		if (proteinAccessions != null) {
-			for (Accession proteinAccession : proteinAccessions) {
+			for (final Accession proteinAccession : proteinAccessions) {
 				if (proteinAccession.getAccessionType().name().equalsIgnoreCase(accType))
 					ret.add(proteinAccession);
 			}
@@ -179,11 +183,11 @@ public class ModelUtils {
 	}
 
 	public static List<Protein> getProteinsFromPsms(Collection<PSM> psms) {
-		List<Protein> ret = new ArrayList<Protein>();
-		Set<String> ids = new THashSet<String>();
-		for (PSM psm : psms) {
+		final List<Protein> ret = new ArrayList<Protein>();
+		final Set<String> ids = new THashSet<String>();
+		for (final PSM psm : psms) {
 			final Set<Protein> proteins = psm.getProteins();
-			for (Protein protein : proteins) {
+			for (final Protein protein : proteins) {
 				if (!ids.contains(protein.getPrimaryAccession().getAccession())) {
 					ret.add(protein);
 					ids.add(protein.getPrimaryAccession().getAccession());
@@ -195,8 +199,8 @@ public class ModelUtils {
 
 	public static List<ProteinAnnotation> getProteinAnnotations(Set<ProteinAnnotation> proteinAnnotations,
 			AnnotationType annotationType) {
-		List<ProteinAnnotation> ret = new ArrayList<ProteinAnnotation>();
-		for (ProteinAnnotation proteinAnnotation : proteinAnnotations) {
+		final List<ProteinAnnotation> ret = new ArrayList<ProteinAnnotation>();
+		for (final ProteinAnnotation proteinAnnotation : proteinAnnotations) {
 			if (proteinAnnotation.getAnnotationType().getKey().equals(annotationType.getKey()))
 				ret.add(proteinAnnotation);
 		}
@@ -204,9 +208,9 @@ public class ModelUtils {
 	}
 
 	public static Collection<String> getPrimaryAccessions(Collection<Protein> proteinList) {
-		Set<String> ret = new THashSet<String>();
+		final Set<String> ret = new THashSet<String>();
 
-		for (Protein protein : proteinList) {
+		for (final Protein protein : proteinList) {
 			ret.add(protein.getPrimaryAccession().getAccession());
 		}
 
@@ -214,9 +218,9 @@ public class ModelUtils {
 	}
 
 	public static Collection<String> getPrimaryAccessions(Collection<Protein> proteinList, String accType) {
-		Set<String> ret = new THashSet<String>();
+		final Set<String> ret = new THashSet<String>();
 
-		for (Protein protein : proteinList) {
+		for (final Protein protein : proteinList) {
 			final Accession primaryAccession = protein.getPrimaryAccession();
 			if (primaryAccession.getAccessionType().name().equals(accType))
 				ret.add(primaryAccession.getAccession());
@@ -226,9 +230,9 @@ public class ModelUtils {
 	}
 
 	public static Collection<String> getPrimaryAccessions(Collection<Protein> proteinList, AccessionType accType) {
-		Set<String> ret = new THashSet<String>();
+		final Set<String> ret = new THashSet<String>();
 
-		for (Protein protein : proteinList) {
+		for (final Protein protein : proteinList) {
 			final Accession primaryAccession = protein.getPrimaryAccession();
 			if (primaryAccession.getAccessionType().name().equals(accType.name()))
 				ret.add(primaryAccession.getAccession());
@@ -240,7 +244,7 @@ public class ModelUtils {
 	public static Score getScore(HasScores obj, String scoreName) {
 
 		final Set<Score> scores = obj.getScores();
-		for (Score score : scores) {
+		for (final Score score : scores) {
 			if (score.getScoreName().equalsIgnoreCase(scoreName))
 				return score;
 		}
@@ -249,10 +253,10 @@ public class ModelUtils {
 	}
 
 	public static List<Amount> getAmounts(HasAmounts obj, String conditionName) {
-		List<Amount> ret = new ArrayList<Amount>();
+		final List<Amount> ret = new ArrayList<Amount>();
 
 		final Set<Amount> amounts = obj.getAmounts();
-		for (Amount amount : amounts) {
+		for (final Amount amount : amounts) {
 			if (amount.getCondition().getName().equalsIgnoreCase(conditionName))
 				ret.add(amount);
 		}
@@ -261,9 +265,9 @@ public class ModelUtils {
 	}
 
 	public static List<Amount> getAmounts(HasAmounts obj, String conditionName, AmountType amountType) {
-		List<Amount> ret = new ArrayList<Amount>();
+		final List<Amount> ret = new ArrayList<Amount>();
 		final List<Amount> amounts = getAmounts(obj, conditionName);
-		for (Amount amount : amounts) {
+		for (final Amount amount : amounts) {
 			if (amount.getAmountType() == amountType)
 				ret.add(amount);
 		}
@@ -272,10 +276,10 @@ public class ModelUtils {
 	}
 
 	public static List<Ratio> getRatios(HasRatios obj, String condition1, String condition2) {
-		List<Ratio> ret = new ArrayList<Ratio>();
+		final List<Ratio> ret = new ArrayList<Ratio>();
 
 		final Set<Ratio> ratios = obj.getRatios();
-		for (Ratio ratio : ratios) {
+		for (final Ratio ratio : ratios) {
 			if (ratio.getCondition1().getName().equalsIgnoreCase(condition1)) {
 				if (ratio.getCondition2().getName().equalsIgnoreCase(condition2)) {
 					ret.add(ratio);
@@ -293,13 +297,13 @@ public class ModelUtils {
 	}
 
 	public static Map<String, List<Protein>> mergeProteins(List<Protein> proteins) {
-		Map<String, List<Protein>> map = new THashMap<String, List<Protein>>();
-		for (Protein protein : proteins) {
+		final Map<String, List<Protein>> map = new THashMap<String, List<Protein>>();
+		for (final Protein protein : proteins) {
 			final String accession = protein.getPrimaryAccession().getAccession();
 			if (map.containsKey(accession)) {
 				map.get(accession).add(protein);
 			} else {
-				List<Protein> list = new ArrayList<Protein>();
+				final List<Protein> list = new ArrayList<Protein>();
 				list.add(protein);
 				map.put(accession, list);
 			}
@@ -312,16 +316,16 @@ public class ModelUtils {
 		if (map.containsKey(primaryAcc)) {
 			map.get(primaryAcc).add(protein);
 		} else {
-			Set<Protein> set = new THashSet<Protein>();
+			final Set<Protein> set = new THashSet<Protein>();
 			set.add(protein);
 			map.put(primaryAcc, set);
 		}
 		if (protein.getSecondaryAccessions() != null) {
-			for (Accession acc : protein.getSecondaryAccessions()) {
+			for (final Accession acc : protein.getSecondaryAccessions()) {
 				if (map.containsKey(acc.getAccession())) {
 					map.get(acc.getAccession()).add(protein);
 				} else {
-					Set<Protein> set = new THashSet<Protein>();
+					final Set<Protein> set = new THashSet<Protein>();
 					set.add(protein);
 					map.put(acc.getAccession(), set);
 				}
@@ -330,19 +334,19 @@ public class ModelUtils {
 	}
 
 	public static void addToMap(Map<String, Set<Protein>> map, Collection<Protein> proteins) {
-		for (Protein protein : proteins) {
+		for (final Protein protein : proteins) {
 			addToMap(map, protein);
 		}
 
 	}
 
 	public static void addToMap(Map<String, Set<Protein>> receiverMap, Map<String, Set<Protein>> donorMap) {
-		for (String key : donorMap.keySet()) {
+		for (final String key : donorMap.keySet()) {
 			final Set<Protein> set = donorMap.get(key);
 			if (receiverMap.containsKey(key)) {
 				receiverMap.get(key).addAll(set);
 			} else {
-				Set<Protein> set2 = new THashSet<Protein>();
+				final Set<Protein> set2 = new THashSet<Protein>();
 				set2.addAll(set);
 				receiverMap.put(key, set2);
 			}
@@ -350,9 +354,9 @@ public class ModelUtils {
 	}
 
 	public static List<Protein> getAllProteinsFromMap(Map<String, Set<Protein>> map) {
-		List<Protein> list = new ArrayList<Protein>();
-		for (Set<Protein> proteinSet : map.values()) {
-			for (Protein protein : proteinSet) {
+		final List<Protein> list = new ArrayList<Protein>();
+		for (final Set<Protein> proteinSet : map.values()) {
+			for (final Protein protein : proteinSet) {
 				list.add(protein);
 			}
 		}
@@ -360,16 +364,16 @@ public class ModelUtils {
 	}
 
 	public static Map<String, Set<PSM>> getPSMMapBySequence(Collection<PSM> psms) {
-		Map<String, Set<PSM>> ret = new THashMap<String, Set<PSM>>();
+		final Map<String, Set<PSM>> ret = new THashMap<String, Set<PSM>>();
 		if (psms != null) {
-			for (PSM psm : psms) {
+			for (final PSM psm : psms) {
 				if (psm == null)
 					continue;
 				final String cleanSequence = FastaParser.cleanSequence(psm.getSequence());
 				if (ret.containsKey(cleanSequence)) {
 					ret.get(cleanSequence).add(psm);
 				} else {
-					Set<PSM> set = new THashSet<PSM>();
+					final Set<PSM> set = new THashSet<PSM>();
 					set.add(psm);
 					ret.put(cleanSequence, set);
 				}
@@ -435,5 +439,57 @@ public class ModelUtils {
 	// }
 	//
 	// }
+	/**
+	 * GEts a fullSequence from a cleanSequnce + PTMs<br>
+	 * i.e. Having SEQUENCE and PTM at position 4 of 80Daltons:<br>
+	 * the result would be SEQU(80)ENCE
+	 * 
+	 * @param cleanSequence
+	 * @param ptms
+	 * @return
+	 */
+	public static String getFullSequence(String cleanSequence, Collection<PTM> ptms) {
+		if (ptms == null || ptms.isEmpty()) {
+			return cleanSequence;
+		}
+		// sort ptms
+		final TIntObjectHashMap<PTM> map = new TIntObjectHashMap<PTM>();
+		for (final PTM ptm : ptms) {
+			final List<PTMSite> ptmSites = ptm.getPTMSites();
+			for (final PTMSite ptmSite : ptmSites) {
+				map.put(ptmSite.getPosition(), ptm);
+			}
+		}
+		final TIntArrayList positions = new TIntArrayList();
+		positions.addAll(map.keys());
+		positions.sort();
+		final StringBuilder sb = new StringBuilder();
+		// n-terminal modification is at position 0
+		if (map.contains(0)) {
+			final PTM ptm = map.get(0);
+			final Double massShift = ptm.getMassShift();
+			if (massShift != null) {
+				sb.append("(");
+				sb.append(massShift);
+				sb.append(")");
+			}
+		}
+		for (int pos = 1; pos <= cleanSequence.length(); pos++) {
+			if (map.contains(pos)) {
+				sb.append(cleanSequence.charAt(pos));
+				final PTM ptm = map.get(pos);
 
+				final Double massShift = ptm.getMassShift();
+				if (massShift != null) {
+					sb.append("(");
+					sb.append(massShift);
+					sb.append(")");
+				}
+
+			} else {
+				sb.append(cleanSequence.charAt(pos));
+			}
+		}
+		return sb.toString();
+	}
 }

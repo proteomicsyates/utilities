@@ -4,7 +4,7 @@ import java.util.List;
 
 public interface GroupableProtein {
 
-	public List<GroupablePSM> getGroupablePSMs();
+	public List<GroupablePeptide> getGroupablePeptides();
 
 	public ProteinGroup getProteinGroup();
 

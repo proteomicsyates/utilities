@@ -5,28 +5,28 @@ import java.util.List;
 
 public class InferencePeptide {
 	private final List<InferenceProtein> inferenceProteins = new ArrayList<InferenceProtein>();
-	private List<GroupablePSM> mergedPeptides = new ArrayList<GroupablePSM>();
+	private List<GroupablePeptide> mergedPeptides = new ArrayList<GroupablePeptide>();
 	private PeptideRelation relation;
 	private final String id;
 	private final String sequence;
 
-	public InferencePeptide(GroupablePSM pept) {
+	public InferencePeptide(GroupablePeptide pept) {
 		this(pept, PeptideRelation.NONDISCRIMINATING);
 	}
 
-	public InferencePeptide(GroupablePSM pept, PeptideRelation r) {
+	public InferencePeptide(GroupablePeptide pept, PeptideRelation r) {
 
 		relation = r;
 		mergedPeptides.add(pept);
-		id = pept.getPSMIdentifier();
+		id = pept.getIdentifier();
 		sequence = pept.getSequence();
 	}
 
-	public void addPeptide(GroupablePSM p) {
+	public void addPeptide(GroupablePeptide p) {
 		mergedPeptides.add(p);
 	}
 
-	public List<GroupablePSM> getPeptidesMerged() {
+	public List<GroupablePeptide> getPeptidesMerged() {
 		return mergedPeptides;
 	}
 
@@ -49,11 +49,11 @@ public class InferencePeptide {
 		return inferenceProteins;
 	}
 
-	public List<GroupablePSM> getMergedPeptides() {
+	public List<GroupablePeptide> getMergedPeptides() {
 		return mergedPeptides;
 	}
 
-	public void setMergedPeptides(List<GroupablePSM> mergedPeptides) {
+	public void setMergedPeptides(List<GroupablePeptide> mergedPeptides) {
 		this.mergedPeptides = mergedPeptides;
 	}
 
@@ -62,7 +62,7 @@ public class InferencePeptide {
 	}
 
 	public void setRelation(PeptideRelation relation) {
-		for (GroupablePSM p : mergedPeptides) {
+		for (GroupablePeptide p : mergedPeptides) {
 			p.setRelation(relation);
 		}
 		this.relation = relation;
