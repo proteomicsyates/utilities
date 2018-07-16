@@ -665,7 +665,9 @@ public class FastaParser {
 			if (!outside.isEmpty()) {
 				final String tmp = appendList(outside);
 				final String removeBeforeAfterAAs = removeBeforeAfterAAs(tmp);
-				return cleanSequence(removeBeforeAfterAAs);
+				if (!removeBeforeAfterAAs.equals(seq)) {
+					return cleanSequence(removeBeforeAfterAAs);
+				}
 			}
 
 		}
