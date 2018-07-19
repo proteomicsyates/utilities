@@ -8,6 +8,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
+
 import gnu.trove.set.hash.THashSet;
 
 /**
@@ -20,6 +22,8 @@ import gnu.trove.set.hash.THashSet;
  *
  */
 public class JAXBXPathQuery {
+	private final static Logger log = Logger.getLogger(JAXBXPathQuery.class);
+
 	/**
 	 * Example, using the Entry object from uniprot xml schema: String xpath =
 	 * "$id"; String filterXPath = "dbReference$type=GO";
@@ -46,12 +50,14 @@ public class JAXBXPathQuery {
 			final List<Object> explore = explore(xpathParserFilter, xpathParser, set, set);
 			final List<String> ret = new ArrayList<String>();
 			for (final Object object : explore) {
-				ret.add(object.toString());
+				if (!ret.contains(object.toString())) {
+					ret.add(object.toString());
+				}
 			}
 			return ret;
 		} catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
 				| InvocationTargetException | CloneNotSupportedException e) {
-			e.printStackTrace();
+			log.error(e);
 		}
 		return Collections.emptyList();
 	}
