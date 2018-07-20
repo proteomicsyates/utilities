@@ -2,6 +2,7 @@ package edu.scripps.yates.utilities.fasta;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -17,6 +18,7 @@ import edu.scripps.yates.utilities.taxonomy.UniprotSpeciesCodeMap;
 import edu.scripps.yates.utilities.util.Pair;
 import edu.scripps.yates.utilities.util.StringPosition;
 import gnu.trove.list.array.TIntArrayList;
+import gnu.trove.map.hash.THashMap;
 import gnu.trove.map.hash.TIntDoubleHashMap;
 import gnu.trove.set.hash.THashSet;
 
@@ -67,6 +69,7 @@ public class FastaParser {
 	public static final String CONTAMINANT_PREFIX = "contaminant";
 
 	private static Logger log = Logger.getLogger(FastaParser.class);
+	private static final Map<String, String> uniprotAccCache = new THashMap<String, String>();
 	private static final Pattern UNIPROT_SP_ACC_TMP = Pattern.compile(".*s?\\|(\\S+)\\|\\S*\\s.*");
 	private static final Pattern UNIPROT_TR_ACC_TMP = Pattern.compile(".*tr\\|(\\S+)\\|\\S*\\s.*");
 	private static final Pattern UNIPROT_SP_ACC_TMP2 = Pattern.compile(".*sp\\|\\S+\\|\\S*\\s(.*)");
@@ -121,37 +124,45 @@ public class FastaParser {
 	 * @return nulls if that is not a uniprot entry
 	 */
 	public static String getUniProtACC(String id) {
+		if (uniprotAccCache.containsKey(id)) {
+			return uniprotAccCache.get(id);
+		}
 
 		if (id != null && !"".equals(id)) {
 			if (id.length() > 600) {
+				uniprotAccCache.put(id, null);
 				return null;
 			}
 
 			final Matcher matcherSP = UNIPROT_SP_ACC_TMP.matcher(id);
 			final Matcher matcherTR = UNIPROT_TR_ACC_TMP.matcher(id);
-			if (matcherSP.find()) {
-				final String group = matcherSP.group(1);
-				if (!"".equals(group))
-					id = group.trim();
-			} else if (matcherTR.find()) {
-				final String group = matcherTR.group(1);
-				if (!"".equals(group))
-					id = group.trim();
+			if (id.contains("|")) {
+				if (matcherSP.find()) {
+					final String group = matcherSP.group(1);
+					if (!"".equals(group))
+						id = group.trim();
+				} else if (matcherTR.find()) {
+					final String group = matcherTR.group(1);
+					if (!"".equals(group))
+						id = group.trim();
+				}
 			}
-			final Matcher matcher5 = null;
 			String trim = null;
 			final Matcher matcher2 = UNIPROT_ACC_TYPE1.matcher(id);
 			if (matcher2.find()) {
 				trim = matcher2.group(1).trim();
+			} else {
+				final Matcher matcher3 = UNIPROT_ACC_TYPE2.matcher(id);
+				if (matcher3.find()) {
+					trim = matcher3.group(1).trim();
+				} else {
+					final Matcher matcher4 = UNIPROT_ACC_TYPE3.matcher(id);
+					if (matcher4.find()) {
+						trim = matcher4.group(1).trim();
+					}
+				}
 			}
-			final Matcher matcher3 = UNIPROT_ACC_TYPE2.matcher(id);
-			if (matcher3.find()) {
-				trim = matcher3.group(1).trim();
-			}
-			final Matcher matcher4 = UNIPROT_ACC_TYPE3.matcher(id);
-			if (matcher4.find()) {
-				trim = matcher4.group(1).trim();
-			}
+
 			if (trim != null) {
 
 				// get the string after the trim in the id
@@ -159,7 +170,9 @@ public class FastaParser {
 				if (tmp.length() > 0) {
 					final Matcher matcher6 = dashAndNumber.matcher(tmp);
 					if (matcher6.find()) {
-						return trim + matcher6.group(1);
+						final String string = trim + matcher6.group(1);
+						uniprotAccCache.put(id, string);
+						return string;
 					}
 					// check that there is no more words before the id
 					// ??
@@ -172,12 +185,15 @@ public class FastaParser {
 				if (tmp.length() > 0) {
 
 					if (endingByWord.matcher(tmp).find()) {
+						uniprotAccCache.put(id, null);
 						return null;
 					}
 				}
+				uniprotAccCache.put(id, trim);
 				return trim;
 			}
 		}
+		uniprotAccCache.put(id, null);
 		return null;
 	}
 
