@@ -14,7 +14,7 @@ public class MyEnzyme extends Enzyme {
 	private boolean cacheEnabled = false;
 
 	public MyEnzyme(String aTitle, String aCleavage, String aRestrict, String aPosition, int aMiscleavages) {
-		this(aTitle, aCleavage, aRestrict, aPosition, false);
+		this(aTitle, aCleavage, aRestrict, aPosition, aMiscleavages, false);
 	}
 
 	public MyEnzyme(String aTitle, String aCleavage, String aRestrict, String aPosition, int aMiscleavages,
