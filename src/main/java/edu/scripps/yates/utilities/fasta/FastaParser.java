@@ -785,6 +785,10 @@ public class FastaParser {
 		return false;
 	}
 
+	public static TIntDoubleHashMap getPTMsFromSequence(String rawSeq) {
+		return getPTMsFromSequence(rawSeq, null);
+	}
+
 	/**
 	 * // LLLQQVSL(+80)PELPGEYSMK --> Map<8,+80>
 	 *
@@ -792,7 +796,7 @@ public class FastaParser {
 	 * @return a map with the positions and modifications.<br>
 	 *         Note that positions start by 1 in the sequence.
 	 */
-	public static TIntDoubleHashMap getPTMsFromSequence(String rawSeq) {
+	public static TIntDoubleHashMap getPTMsFromSequence(String rawSeq, Boolean isDeltaMass) {
 		// get the peptide inside '.'
 		final String seq = removeBeforeAfterAAs(rawSeq);
 
@@ -812,7 +816,9 @@ public class FastaParser {
 					// if the ptm is like [+18.00] is a difference
 					// if the ptm is like [180.00] is the modified aminoacid
 					boolean modifiedAAMass = false;
-					if (!ptmString.contains("-") && !ptmString.contains("+")) {
+					if (isDeltaMass != null) {
+						modifiedAAMass = !isDeltaMass;
+					} else if (!ptmString.contains("-") && !ptmString.contains("+")) {
 						modifiedAAMass = true;
 					}
 					Double ptm = Double.valueOf(ptmString.replace("+", "").replace("-", ""));
