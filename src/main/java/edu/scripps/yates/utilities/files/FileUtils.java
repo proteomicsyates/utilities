@@ -37,9 +37,9 @@ public class FileUtils {
 	private static DecimalFormat df;
 
 	public static void mergeFiles(Collection<File> files, File mergedFile, boolean skipHeaderOfNotFirstFiles) {
-		File[] fileArray = new File[files.size()];
+		final File[] fileArray = new File[files.size()];
 		int i = 0;
-		for (File file : files) {
+		for (final File file : files) {
 			fileArray[i] = file;
 			i++;
 		}
@@ -64,12 +64,12 @@ public class FileUtils {
 			try {
 				fstream = new FileWriter(mergedFile, true);
 				out = new BufferedWriter(fstream);
-			} catch (IOException e1) {
+			} catch (final IOException e1) {
 				e1.printStackTrace();
 			}
 
 			boolean firstFile = true;
-			for (File f : files) {
+			for (final File f : files) {
 				log.debug("merging: " + f.getName());
 				FileInputStream fis;
 				BufferedReader in = null;
@@ -91,13 +91,13 @@ public class FileUtils {
 					}
 					firstLine = false;
 
-				} catch (IOException e) {
+				} catch (final IOException e) {
 					e.printStackTrace();
 				} finally {
 					if (in != null) {
 						try {
 							in.close();
-						} catch (IOException e) {
+						} catch (final IOException e) {
 							e.printStackTrace();
 							log.error(e);
 						}
@@ -112,7 +112,7 @@ public class FileUtils {
 					out.close();
 					log.debug("File merged at: " + mergedFile.getAbsolutePath());
 				}
-			} catch (IOException e) {
+			} catch (final IOException e) {
 				e.printStackTrace();
 				log.error(e);
 			}
@@ -154,7 +154,7 @@ public class FileUtils {
 			throw new FileNotFoundException(path.getAbsolutePath());
 		boolean ret = true;
 		if (path.isDirectory()) {
-			for (File f : path.listFiles()) {
+			for (final File f : path.listFiles()) {
 				ret = ret && FileUtils.deleteFolderRecursive(f);
 			}
 		}
@@ -166,23 +166,23 @@ public class FileUtils {
 		if (sizeInBytes < 1024) {
 			return getDecimalFormat().format(sizeInBytes) + " bytes";
 		}
-		double sizeInKBytes = sizeInBytes / 1024;
+		final double sizeInKBytes = sizeInBytes / 1024;
 		if (sizeInKBytes < 1024) {
 			return getDecimalFormat().format(sizeInKBytes) + " Kb";
 		}
-		double sizeInMBytes = sizeInKBytes / 1024;
+		final double sizeInMBytes = sizeInKBytes / 1024;
 		if (sizeInMBytes < 1024) {
 			return getDecimalFormat().format(sizeInMBytes) + " Mb";
 		}
-		double sizeInGBytes = sizeInMBytes / 1024;
+		final double sizeInGBytes = sizeInMBytes / 1024;
 		if (sizeInGBytes < 1024) {
 			return getDecimalFormat().format(sizeInGBytes) + " Gb";
 		}
-		double sizeInTBytes = sizeInGBytes / 1024;
+		final double sizeInTBytes = sizeInGBytes / 1024;
 		if (sizeInTBytes < 1024) {
 			return getDecimalFormat().format(sizeInTBytes) + " Tb";
 		}
-		double sizeInPBytes = sizeInTBytes / 1024;
+		final double sizeInPBytes = sizeInTBytes / 1024;
 		// if (sizeInPBytes < 1024) {
 		return getDecimalFormat().format(sizeInPBytes) + " Pb";
 		// }
@@ -202,8 +202,8 @@ public class FileUtils {
 			final String absolutePath = file.getAbsolutePath();
 			final String baseName = FilenameUtils.getBaseName(absolutePath);
 			final String extension = FilenameUtils.getExtension(absolutePath);
-			String prefix2 = prefix != null ? prefix : "";
-			String suffix2 = suffix != null ? suffix : "";
+			final String prefix2 = prefix != null ? prefix : "";
+			final String suffix2 = suffix != null ? suffix : "";
 			return new File(file.getParentFile().getAbsolutePath() + File.separator + prefix2 + baseName + suffix2 + "."
 					+ extension);
 		}
@@ -214,11 +214,11 @@ public class FileUtils {
 			String startAfterLineBegginingBy) throws IOException {
 		int index = 0;
 
-		Iterator<String> iterator = Files.lines(Paths.get(inputFile.getAbsolutePath()), Charset.defaultCharset())
+		final Iterator<String> iterator = Files.lines(Paths.get(inputFile.getAbsolutePath()), Charset.defaultCharset())
 				.iterator();
 		while (iterator.hasNext()) {
 			index++;
-			String line = iterator.next();
+			final String line = iterator.next();
 			if (line.startsWith(startAfterLineBegginingBy)) {
 				break;
 			}
@@ -229,38 +229,48 @@ public class FileUtils {
 
 	public static List<String> readColumnFromTextFile(File inputFile, final String separator, int columnIndex,
 			int skipFirstLines) throws IOException {
+		Stream<String> lines = null;
 		try {
-			Stream<String> lines = Files.lines(Paths.get(inputFile.getAbsolutePath()), Charset.defaultCharset());
+			lines = Files.lines(Paths.get(inputFile.getAbsolutePath()), Charset.defaultCharset());
 
 			lines = lines.skip(skipFirstLines);
 
 			final List<String> collect = lines.map(line -> line.split(separator)[columnIndex])
 					.collect(Collectors.toList());
 			return collect;
-		} catch (IndexOutOfBoundsException e) {
+		} catch (final IndexOutOfBoundsException e) {
 			log.error(e);
 			return null;
+		} finally {
+			if (lines != null) {
+				lines.close();
+			}
 		}
 	}
 
 	public static List<String> readColumnFromTextFile(File inputFile, final String separator, int columnIndex,
 			boolean skipHeader) throws IOException {
+		Stream<String> lines = null;
 		try {
-			Stream<String> lines = Files.lines(Paths.get(inputFile.getAbsolutePath()), Charset.defaultCharset());
+			lines = Files.lines(Paths.get(inputFile.getAbsolutePath()), Charset.defaultCharset());
 			if (skipHeader) {
 				lines = lines.skip(1);
 			}
 			final List<String> collect = lines.map(line -> line.split(separator)[columnIndex])
 					.collect(Collectors.toList());
 			return collect;
-		} catch (IndexOutOfBoundsException e) {
+		} catch (final IndexOutOfBoundsException e) {
 			log.error(e);
 			return null;
+		} finally {
+			if (lines != null) {
+				lines.close();
+			}
 		}
 	}
 
 	public static File getFileFromInputStream(InputStream is) throws IOException {
-		File tempFile = File.createTempFile("temp", "tmp");
+		final File tempFile = File.createTempFile("temp", "tmp");
 		return getFileFromInputStream(is, tempFile);
 	}
 
@@ -273,12 +283,12 @@ public class FileUtils {
 	}
 
 	public static List<String> readFirstLines(InputStream inputStream, long maxLines) {
-		long t1 = System.currentTimeMillis();
+		final long t1 = System.currentTimeMillis();
 		BufferedReader reader = null;
 		try {
 			reader = new BufferedReader(new InputStreamReader(inputStream));
 			String line = null;
-			List<String> ret = new ArrayList<String>();
+			final List<String> ret = new ArrayList<String>();
 			while ((line = reader.readLine()) != null) {
 				ret.add(line);
 				if (ret.size() == maxLines) {
@@ -286,14 +296,14 @@ public class FileUtils {
 				}
 			}
 			return ret;
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			e.printStackTrace();
 			return Collections.emptyList();
 		} finally {
 			if (reader != null) {
 				try {
 					reader.close();
-				} catch (IOException e) {
+				} catch (final IOException e) {
 					e.printStackTrace();
 				}
 			}
@@ -317,7 +327,7 @@ public class FileUtils {
 			if (inputStream != null) {
 				return readFirstLines(inputStream, maxLines);
 			}
-		} catch (FileNotFoundException e) {
+		} catch (final FileNotFoundException e) {
 
 		}
 
@@ -335,18 +345,18 @@ public class FileUtils {
 	public static InputStream getInputStream(File file) throws FileNotFoundException {
 		try {
 			return new GZIPInputStream(new FileInputStream(file));
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			ZipFile zip = null;
 			try {
 				zip = new ZipFile(file);
-				Enumeration<? extends ZipEntry> entries = zip.entries();
+				final Enumeration<? extends ZipEntry> entries = zip.entries();
 				while (entries.hasMoreElements()) {
-					ZipEntry zipEntry = entries.nextElement();
+					final ZipEntry zipEntry = entries.nextElement();
 					if (!zipEntry.isDirectory()) {
 						return zip.getInputStream(zipEntry);
 					}
 				}
-			} catch (IOException e2) {
+			} catch (final IOException e2) {
 			} finally {
 				// do not close zip, because that would close the stream
 			}
