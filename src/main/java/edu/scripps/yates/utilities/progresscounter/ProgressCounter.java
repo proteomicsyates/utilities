@@ -14,9 +14,10 @@ public class ProgressCounter {
 	private String previousPercentage = "";
 	private final ProgressPrintingType progressPrintingType;
 	private final DecimalFormat df;
-	private final boolean showRemainingTime;
+	private boolean showRemainingTime;
 	private long t1 = -1;
 	private ProgressNumberFormatter formatter;
+	private String suffix;
 
 	public ProgressCounter(long total, ProgressPrintingType progressPrintingType, int numDecimals) {
 		this(total, progressPrintingType, numDecimals, false);
@@ -36,6 +37,14 @@ public class ProgressCounter {
 		}
 		df = new DecimalFormat(sb.toString());
 		showRemainingTime = showTimeRemaining;
+	}
+
+	public boolean isShowRemainingTime() {
+		return showRemainingTime;
+	}
+
+	public void setShowRemainingTime(boolean showRemainingTime) {
+		this.showRemainingTime = showRemainingTime;
 	}
 
 	public void increment(long increment) {
@@ -85,6 +94,9 @@ public class ProgressCounter {
 			if (showRemainingTime) {
 				sb.append(" (" + getRemainingTime() + " remaining...)");
 			}
+			if (suffix != null) {
+				sb.append(" ").append(suffix);
+			}
 			return sb.toString();
 		} else if (progressPrintingType == ProgressPrintingType.PERCENTAGE_STEPS) {
 			final String percentage = df.format(getPercentage());
@@ -95,6 +107,9 @@ public class ProgressCounter {
 					sb.append(" (" + getRemainingTime() + " remaining...)");
 				}
 				previousPercentage = percentage;
+				if (suffix != null) {
+					sb.append(" ").append(suffix);
+				}
 				return sb.toString();
 			}
 		}
@@ -142,5 +157,13 @@ public class ProgressCounter {
 			};
 		}
 		return formatter;
+	}
+
+	public String getSuffix() {
+		return suffix;
+	}
+
+	public void setSuffix(String suffix) {
+		this.suffix = suffix;
 	}
 }
