@@ -70,8 +70,8 @@ public class FastaParser {
 
 	private static Logger log = Logger.getLogger(FastaParser.class);
 	private static final Map<String, String> uniprotAccCache = new THashMap<String, String>();
-	private static final Pattern UNIPROT_SP_ACC_TMP = Pattern.compile(".*s?\\|(\\S+)\\|\\S*\\s.*");
-	private static final Pattern UNIPROT_TR_ACC_TMP = Pattern.compile(".*tr\\|(\\S+)\\|\\S*\\s.*");
+	private static final Pattern UNIPROT_SP_ACC_TMP = Pattern.compile(".*s.\\|(\\S+)\\|\\S*\\s*.*");
+	private static final Pattern UNIPROT_TR_ACC_TMP = Pattern.compile(".*tr\\|(\\S+)\\|\\S*\\s*.*");
 	private static final Pattern UNIPROT_SP_ACC_TMP2 = Pattern.compile(".*sp\\|\\S+\\|\\S*\\s(.*)");
 	private static final Pattern UNIPROT_TR_ACC_TMP2 = Pattern.compile(".*tr\\|\\S+\\|\\S*\\s(.*)");
 	private static final Pattern dashAndNumber = Pattern.compile("^(-[0-9]).*");
@@ -148,7 +148,7 @@ public class FastaParser {
 				}
 			}
 			String trim = null;
-			final Matcher matcher2 = UNIPROT_ACC_TYPE1.matcher(id);
+			final Matcher matcher2 = UNIPROT_ACC_TYPE3.matcher(id);
 			if (matcher2.find()) {
 				trim = matcher2.group(1).trim();
 			} else {
@@ -156,7 +156,7 @@ public class FastaParser {
 				if (matcher3.find()) {
 					trim = matcher3.group(1).trim();
 				} else {
-					final Matcher matcher4 = UNIPROT_ACC_TYPE3.matcher(id);
+					final Matcher matcher4 = UNIPROT_ACC_TYPE1.matcher(id);
 					if (matcher4.find()) {
 						trim = matcher4.group(1).trim();
 					}
