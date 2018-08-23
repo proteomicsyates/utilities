@@ -14,8 +14,8 @@ import java.util.List;
  */
 public class PositionInPeptide extends PositionInProtein {
 
-	public PositionInPeptide(int position, String peptideSequence) {
-		super(position, peptideSequence);
+	public PositionInPeptide(int position, char aa, String peptideSequence) {
+		super(position, aa, peptideSequence);
 		if (position <= 0 || position > peptideSequence.length()) {
 			throw new IllegalArgumentException(
 					"Position " + position + " cannot belong to peptide sequence " + peptideSequence);
@@ -23,23 +23,24 @@ public class PositionInPeptide extends PositionInProtein {
 	}
 
 	public static List<PositionInPeptide> parseStringToPositionInPeptide(String string, String separator) {
-		List<PositionInPeptide> ret = new ArrayList<PositionInPeptide>();
-		List<String> subStrings = new ArrayList<String>();
+		final List<PositionInPeptide> ret = new ArrayList<PositionInPeptide>();
+		final List<String> subStrings = new ArrayList<String>();
 		if (string.contains(separator)) {
-			String[] split = string.split(separator);
-			for (String string2 : split) {
+			final String[] split = string.split(separator);
+			for (final String string2 : split) {
 				subStrings.add(string2);
 			}
 		} else {
 			subStrings.add(string);
 		}
-		for (String string2 : subStrings) {
+		for (final String string2 : subStrings) {
 			if (string2.contains(SEPARATOR)) {
 				try {
-					String[] split = string2.split(SEPARATOR);
-					PositionInPeptide positionInProtein = new PositionInPeptide(Integer.valueOf(split[1]), split[2]);
+					final String[] split = string2.split(SEPARATOR);
+					final PositionInPeptide positionInProtein = new PositionInPeptide(Integer.valueOf(split[1]),
+							split[2].charAt(0), split[2].substring(1));
 					ret.add(positionInProtein);
-				} catch (NumberFormatException e) {
+				} catch (final NumberFormatException e) {
 
 				}
 			}

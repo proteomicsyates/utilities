@@ -23,8 +23,9 @@ public class ProteinSequenceUtils {
 			String proteinSequence, String proteinACC) {
 		final List<PositionInProtein> ret = new ArrayList<PositionInProtein>();
 
-		final TIntArrayList allPositionsOf = StringUtils.allPositionsOf(peptideSequence, proteinSequence);
-		allPositionsOf.forEach(position -> ret.add(new PositionInProtein(position, proteinACC)));
+		final TIntArrayList allPositionsOf = StringUtils.allPositionsOf(proteinSequence, peptideSequence);
+		allPositionsOf.forEach(
+				position -> ret.add(new PositionInProtein(position, proteinSequence.charAt(position - 1), proteinACC)));
 
 		return ret;
 	}
@@ -49,7 +50,8 @@ public class ProteinSequenceUtils {
 				final TIntArrayList positionsInProtein = StringUtils.allPositionsOf(proteinSequence, peptideSequence);
 				for (final int positionInProtein : positionsInProtein.toArray()) {
 					final int positionOfSiteInProtein = positionInProtein + positionInPeptide - 1;
-					ret.add(new PositionInProtein(positionOfSiteInProtein, proteinACC));
+					ret.add(new PositionInProtein(positionOfSiteInProtein,
+							proteinSequence.charAt(positionOfSiteInProtein - 1), proteinACC));
 				}
 			}
 		}

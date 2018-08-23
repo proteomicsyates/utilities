@@ -13,24 +13,26 @@ import java.util.List;
 public class PositionInProtein {
 	private final int position;
 	private final String proteinACC;
-	protected final static String SEPARATOR = "#";
+	private final char aa;
+	public final static String SEPARATOR = "#";
 
-	public PositionInProtein(int position, String proteinACC) {
+	public PositionInProtein(int position, char aa, String proteinACC) {
 		this.position = position;
 		this.proteinACC = proteinACC;
+		this.aa = aa;
 	}
 
 	public int getPosition() {
 		return position;
 	}
 
-	public String getKey() {
+	public String getProteinACC() {
 		return proteinACC;
 	}
 
 	@Override
 	public String toString() {
-		return proteinACC + SEPARATOR + position;
+		return proteinACC + SEPARATOR + aa + position;
 	}
 
 	@Override
@@ -69,7 +71,7 @@ public class PositionInProtein {
 				try {
 					final String[] split = string2.split(SEPARATOR);
 					final PositionInProtein positionInProtein = new PositionInProtein(Integer.valueOf(split[1]),
-							split[2]);
+							split[2].charAt(0), split[2].substring(1));
 					ret.add(positionInProtein);
 				} catch (final NumberFormatException e) {
 
@@ -77,5 +79,9 @@ public class PositionInProtein {
 			}
 		}
 		return ret;
+	}
+
+	public char getAa() {
+		return aa;
 	}
 }
