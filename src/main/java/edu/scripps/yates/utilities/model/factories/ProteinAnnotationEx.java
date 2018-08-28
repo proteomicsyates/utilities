@@ -2,6 +2,8 @@ package edu.scripps.yates.utilities.model.factories;
 
 import java.io.Serializable;
 
+import org.apache.commons.lang.builder.HashCodeBuilder;
+
 import edu.scripps.yates.utilities.proteomicsmodel.AnnotationType;
 import edu.scripps.yates.utilities.proteomicsmodel.ProteinAnnotation;
 
@@ -56,6 +58,28 @@ public class ProteinAnnotationEx implements ProteinAnnotation, Serializable {
 		this(annotationType, name, null);
 	}
 
+	@Override
+	public int hashCode() {
+		return HashCodeBuilder.reflectionHashCode(this, false);
+	}
+
+	public static void main(String[] args) {
+		final ProteinAnnotationEx an1 = new ProteinAnnotationEx(AnnotationType.alternative_products, "name");
+		an1.setSource("asdf");
+		System.out.println(an1.hashCode());
+		final ProteinAnnotationEx an2 = new ProteinAnnotationEx(AnnotationType.alternative_products, "name");
+		an2.setSource("asdf");
+		System.out.println(an2.hashCode());
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj.hashCode() == hashCode()) {
+			return true;
+		}
+		return false;
+	}
+
 	/**
 	 * @return the annotationType
 	 */
@@ -90,6 +114,7 @@ public class ProteinAnnotationEx implements ProteinAnnotation, Serializable {
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
