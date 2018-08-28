@@ -85,12 +85,13 @@ public class AnnotationType {
 		final String fileName = edu.scripps.yates.utilities.properties.PropertiesUtil
 				.getPropertyValue("uniprot.annotation.types.file");
 		log.debug("Loading annotations from internal file:" + fileName);
-		Map<String, AnnotationType> ret = new THashMap<String, AnnotationType>();
+		final Map<String, AnnotationType> ret = new THashMap<String, AnnotationType>();
 		try {
-			ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+			final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 
 			// File file = new ClassPathResource(fileName).getFile();
-			BufferedReader br = new BufferedReader(new InputStreamReader(classLoader.getResourceAsStream(fileName)));
+			final BufferedReader br = new BufferedReader(
+					new InputStreamReader(classLoader.getResourceAsStream(fileName)));
 			String line;
 			while ((line = br.readLine()) != null) {
 				if (line.startsWith("#") || "".equals(line))
@@ -99,7 +100,7 @@ public class AnnotationType {
 				final String[] split = line.split("\t");
 				if (split.length > 1) {
 					keyword = split[0].trim();
-					List<UniprotLineHeader> uhls = new ArrayList<UniprotLineHeader>();
+					final List<UniprotLineHeader> uhls = new ArrayList<UniprotLineHeader>();
 					for (int i = 1; i < split.length; i++) {
 						final UniprotLineHeader translateStringToUniprotLineHeader = UniprotLineHeader
 								.translateStringToUniprotLineHeader(split[i]);
@@ -108,7 +109,7 @@ public class AnnotationType {
 					}
 
 					if (!ret.containsKey(keyword.toLowerCase())) {
-						AnnotationType annotationType = new AnnotationType(keyword, uhls);
+						final AnnotationType annotationType = new AnnotationType(keyword, uhls);
 						ret.put(keyword.toLowerCase(), annotationType);
 					} else {
 						ret.get(keyword.toLowerCase()).getUniprotLineHeaders().addAll(uhls);
@@ -116,35 +117,35 @@ public class AnnotationType {
 				}
 			}
 			br.close();
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			e.printStackTrace();
 			log.warn("Error while loading annotations from file:" + e.getMessage());
 		}
 		log.debug("returning " + ret.size() + " annotations");
-		AnnotationType[] array = new AnnotationType[ret.size()];
+		final AnnotationType[] array = new AnnotationType[ret.size()];
 		int i = 0;
-		for (AnnotationType annotationType : ret.values()) {
+		for (final AnnotationType annotationType : ret.values()) {
 			array[i++] = annotationType;
 		}
 		return array;
 	}
 
 	public static Map<AnnotationType, List<String>> parseAnnotations(String text) {
-		Map<AnnotationType, List<String>> ret = new THashMap<AnnotationType, List<String>>();
+		final Map<AnnotationType, List<String>> ret = new THashMap<AnnotationType, List<String>>();
 		if (text.contains(UNIPROT_ANNOTATIONS_SEPARATOR)) {
 			final String[] split = text.split(UNIPROT_ANNOTATIONS_SEPARATOR);
 			for (String annotation : split) {
 				final int indexOf = annotation.indexOf(":");
 				if (indexOf > -1) {
-					String key = annotation.substring(0, indexOf).trim();
-					AnnotationType annotationType = translateStringToAnnotationType(key);
+					final String key = annotation.substring(0, indexOf).trim();
+					final AnnotationType annotationType = translateStringToAnnotationType(key);
 					if (annotationType == null)
 						continue;
 					annotation = annotation.substring(indexOf + 1).trim();
 					if (ret.containsKey(annotationType)) {
 						ret.get(annotationType).add(annotation);
 					} else {
-						List<String> list = new ArrayList<String>();
+						final List<String> list = new ArrayList<String>();
 						list.add(annotation);
 						ret.put(annotationType, list);
 					}
@@ -156,7 +157,7 @@ public class AnnotationType {
 
 	public static AnnotationType translateStringToAnnotationType(String key) {
 		final AnnotationType[] values = AnnotationType.values();
-		for (AnnotationType annotationType : values) {
+		for (final AnnotationType annotationType : values) {
 
 			if (annotationType.keyword.equalsIgnoreCase(key))
 				return annotationType;
@@ -174,7 +175,7 @@ public class AnnotationType {
 
 	public static AnnotationType translateStringToAnnotationType(String key, AnnotationType defaultAnnotationType) {
 		final AnnotationType[] values = AnnotationType.values();
-		for (AnnotationType annotationType : values) {
+		for (final AnnotationType annotationType : values) {
 			if (annotationType.keyword.equalsIgnoreCase(key))
 				return annotationType;
 		}
@@ -186,10 +187,10 @@ public class AnnotationType {
 	}
 
 	public static Set<AnnotationType> getAnnotationTypesByUniprotLineHeader(UniprotLineHeader ulh) {
-		Set<AnnotationType> ret = new THashSet<AnnotationType>();
+		final Set<AnnotationType> ret = new THashSet<AnnotationType>();
 		final AnnotationType[] values = AnnotationType.values();
-		for (AnnotationType annotationType : values) {
-			for (UniprotLineHeader ulh2 : annotationType.ulhs) {
+		for (final AnnotationType annotationType : values) {
+			for (final UniprotLineHeader ulh2 : annotationType.ulhs) {
 				// System.out.println(ulh2.name());
 				if (ulh2.name().equalsIgnoreCase(ulh.name())) {
 					ret.add(annotationType);
@@ -204,14 +205,14 @@ public class AnnotationType {
 	public static void main(String[] args) {
 		final AnnotationType[] values2 = AnnotationType.values();
 		System.out.println(values2.length);
-		List<String> keys = new ArrayList<String>();
+		final List<String> keys = new ArrayList<String>();
 		System.out.print("[");
-		for (AnnotationType annotationType : values2) {
+		for (final AnnotationType annotationType : values2) {
 			if (!keys.contains(annotationType.getKey()))
 				keys.add(annotationType.getKey().toLowerCase());
 		}
 		Collections.sort(keys);
-		for (String key : keys) {
+		for (final String key : keys) {
 
 			System.out.print(key + ", ");
 		}
