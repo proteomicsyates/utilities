@@ -13,7 +13,8 @@ import java.util.List;
 public class PositionInProtein {
 	private final int position;
 	private final String proteinACC;
-	private final char aa;
+	public final static char NULL_CHAR = '0';
+	private char aa = NULL_CHAR;
 	public final static String SEPARATOR = "#";
 
 	public PositionInProtein(int position, char aa, String proteinACC) {
