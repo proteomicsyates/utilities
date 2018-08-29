@@ -2,6 +2,7 @@ package edu.scripps.yates.utilities.ftp;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +21,9 @@ import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpATTRS;
 import com.jcraft.jsch.SftpException;
+import com.jcraft.jsch.SftpProgressMonitor;
+
+import edu.scripps.yates.utilities.files.FileUtils;
 
 public class FTPUtils {
 	private final static Logger log = Logger.getLogger(FTPUtils.class);
@@ -243,5 +247,33 @@ public class FTPUtils {
 			}
 		}
 		return -1;
+	}
+
+	public static long download(Session remoteServerSession, String fullPathToIP2, OutputStream outputStream,
+			SftpProgressMonitor progressMonitor) throws JSchException, SftpException, IOException {
+		long totalSize = 0;
+		ChannelSftp sftpChannel = null;
+		try {
+
+			totalSize = FTPUtils.getSize(remoteServerSession, fullPathToIP2);
+
+			if (totalSize > 0) {
+				log.info("Downloading file '" + FilenameUtils.getName(fullPathToIP2) + " with size:"
+						+ FileUtils.getDescriptiveSizeFromBytes(totalSize));
+			}
+
+			sftpChannel = FTPUtils.openSFTPChannel(remoteServerSession);
+
+			sftpChannel.get(fullPathToIP2, outputStream, progressMonitor);
+
+			outputStream.close();
+			log.info("Transfer done.");
+			return totalSize;
+
+		} finally {
+			sftpChannel.exit();
+			sftpChannel.disconnect();
+		}
+
 	}
 }
