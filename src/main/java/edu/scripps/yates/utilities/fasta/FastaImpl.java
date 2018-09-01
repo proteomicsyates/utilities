@@ -16,9 +16,11 @@ public class FastaImpl implements Fasta {
 	private String sequestLikeAccession = null;
 	private double mPlusH = 0;
 	private static final Pattern pattern = Pattern.compile("(.*)\\d");
+	private final boolean proteoform;
 
-	public FastaImpl(String defline, String sequence) {
+	public FastaImpl(String defline, String sequence, boolean isProteoform) {
 		FastaImpl.defline = defline;
+		proteoform = isProteoform;
 		// System.out.println("defline: " + this.defline);
 		sequence = sequence.toUpperCase();
 		// seq = sequence;
@@ -128,6 +130,11 @@ public class FastaImpl implements Fasta {
 	@Override
 	public boolean isReversed() {
 		return getAccession().startsWith("Re");
+	}
+
+	@Override
+	public boolean isProteoform() {
+		return proteoform;
 	}
 
 }
