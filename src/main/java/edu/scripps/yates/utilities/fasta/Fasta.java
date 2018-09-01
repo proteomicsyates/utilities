@@ -27,9 +27,11 @@ public interface Fasta extends Comparable<Fasta> {
 
 	public boolean isReversed();
 
+	public boolean isProteoform();
+
 	public static String getSequestLikeAccession(String acc) {
-		String[] arr = acc.split("\t");
-		String[] arr1 = arr[0].split(" ");
+		final String[] arr = acc.split("\t");
+		final String[] arr1 = arr[0].split(" ");
 		String newacc = arr1[0];
 		if (newacc != null && newacc.length() > 40) {
 			newacc = newacc.substring(0, 40);
@@ -39,7 +41,7 @@ public interface Fasta extends Comparable<Fasta> {
 	}
 
 	public static String getAccessionWithNoVersion(String ac) {
-		int index = ac.indexOf(".");
+		final int index = ac.indexOf(".");
 		if (index == -1) {
 			return ac;
 		} else {
@@ -78,8 +80,8 @@ public interface Fasta extends Comparable<Fasta> {
 
 			} else if (accession.startsWith("IPI")) // IPI
 			{
-				String arr[] = accession.split("\\|");
-				String subArr[] = arr[0].split(":");
+				final String arr[] = accession.split("\\|");
+				final String subArr[] = arr[0].split(":");
 
 				if (subArr.length > 1)
 					accession = subArr[1];
@@ -96,13 +98,13 @@ public interface Fasta extends Comparable<Fasta> {
 				if (tab < 0)
 					tab = 40;
 
-				int index = (tab > space) ? space : tab;
+				final int index = (tab > space) ? space : tab;
 
 				int end;
 
 				if (index <= 0 || index >= 40) // no space
 				{
-					int length = accession.length();
+					final int length = accession.length();
 					end = (length > 40) ? 40 : length;
 				} else
 					// cut by the first space
@@ -112,7 +114,7 @@ public interface Fasta extends Comparable<Fasta> {
 			} else // UNIT_PROT, NCI or SGD
 
 			{
-				int spaceIndex = accession.indexOf(" ");
+				final int spaceIndex = accession.indexOf(" ");
 				int tabIndex;
 
 				if (spaceIndex > 0) {
@@ -124,12 +126,12 @@ public interface Fasta extends Comparable<Fasta> {
 						accession = accession.substring(0, spaceIndex);
 				}
 			}
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			// System.out.println("No Correct Accession found, but this will be
 			// handled by MSP system."
 			// + accession + " " + e);
 
-			int i = accession.indexOf(" ");
+			final int i = accession.indexOf(" ");
 			if (i < 0)
 				return accession;
 			else
