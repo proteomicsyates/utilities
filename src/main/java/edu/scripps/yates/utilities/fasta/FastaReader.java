@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -47,6 +48,9 @@ public class FastaReader {
 	 * @throws IOException
 	 */
 	public int getNumberFastas() throws IOException {
+		if (fastaFileName == null) {
+			return 0;
+		}
 		if (numberFastas == null) {
 			final FileInputStream fis = new FileInputStream(fastaFileName);
 			final BufferedReader br = new BufferedReader(new InputStreamReader(fis));
@@ -65,77 +69,83 @@ public class FastaReader {
 	}
 
 	public Iterator<Fasta> getFastas() throws IOException {
-		final FileInputStream is = new FileInputStream(fastaFileName);
-		return new Iterator<Fasta>() {
-			private String lastLine = ""; // remember the last line read
-			private BufferedReader br;
+		if (fastaFileName != null) {
+			final FileInputStream is = new FileInputStream(fastaFileName);
+			return new Iterator<Fasta>() {
+				private String lastLine = ""; // remember the last line read
+				private BufferedReader br;
 
-			{
-				br = new BufferedReader(new InputStreamReader(is));
-				// remove the potential empty lines and get the first defline
-				while ((lastLine = br.readLine()) != null && lastLine.equals(""))
-					;
+				{
+					br = new BufferedReader(new InputStreamReader(is));
+					// remove the potential empty lines and get the first
+					// defline
+					while ((lastLine = br.readLine()) != null && lastLine.equals(""))
+						;
 
-				if (lastLine.charAt(0) != FIRSTCHAROFDEFLINE) {
-					throw new IOException();
-				}
-			}
-
-			@Override
-			public boolean hasNext() {
-				return lastLine != null;
-			}
-
-			@Override
-			public Fasta next() {
-
-				Fasta fasta = null;
-				try {
-					fasta = getFasta();
-				} catch (final IOException e) {
-					e.printStackTrace();
-				}
-
-				return fasta;
-			}
-
-			@Override
-			public void remove() {
-				throw new UnsupportedOperationException("Not supported");
-			}
-
-			private Fasta getFasta() throws IOException {
-
-				final StringBuilder sb = new StringBuilder(DEFAULTSEQENCELENGTH);
-				final String defline = lastLine;
-
-				// if the line read is a empty string, ignore it
-				while ((lastLine = br.readLine()) != null
-						&& (lastLine.equals("") || lastLine.charAt(0) != FIRSTCHAROFDEFLINE)) {
-					// System.out.println(lastLine);
-					if (!lastLine.equals("")) {
-						final String line = lastLine.trim();
-						sb.append(line);
+					if (lastLine.charAt(0) != FIRSTCHAROFDEFLINE) {
+						throw new IOException();
 					}
 				}
 
-				// the lastLine should be the defline
-				// and sb.toString should be the sequence
-				return new FastaImpl(defline, sb.toString());
-			}
-
-			@Override
-			protected void finalize() throws IOException {
-				try {
-					super.finalize();
-				} catch (final Throwable ex) {
-					Logger.getLogger(FastaReader.class.getName()).log(Level.SEVERE, null, ex);
+				@Override
+				public boolean hasNext() {
+					return lastLine != null;
 				}
 
-				br.close();
-				// System.out.println("Finalized");
-			}
-		};
+				@Override
+				public Fasta next() {
+
+					Fasta fasta = null;
+					try {
+						fasta = getFasta();
+					} catch (final IOException e) {
+						e.printStackTrace();
+					}
+
+					return fasta;
+				}
+
+				@Override
+				public void remove() {
+					throw new UnsupportedOperationException("Not supported");
+				}
+
+				private Fasta getFasta() throws IOException {
+
+					final StringBuilder sb = new StringBuilder(DEFAULTSEQENCELENGTH);
+					final String defline = lastLine;
+
+					// if the line read is a empty string, ignore it
+					while ((lastLine = br.readLine()) != null
+							&& (lastLine.equals("") || lastLine.charAt(0) != FIRSTCHAROFDEFLINE)) {
+						// System.out.println(lastLine);
+						if (!lastLine.equals("")) {
+							final String line = lastLine.trim();
+							sb.append(line);
+						}
+					}
+
+					// the lastLine should be the defline
+					// and sb.toString should be the sequence
+					return new FastaImpl(defline, sb.toString(), false);
+				}
+
+				@Override
+				protected void finalize() throws IOException {
+					try {
+						super.finalize();
+					} catch (final Throwable ex) {
+						Logger.getLogger(FastaReader.class.getName()).log(Level.SEVERE, null, ex);
+					}
+
+					br.close();
+					// System.out.println("Finalized");
+				}
+			};
+		} else {
+			final List<Fasta> emptyList = new ArrayList<Fasta>();
+			return emptyList.iterator();
+		}
 	}
 
 	public static void main(String args[]) throws IOException {
@@ -194,7 +204,7 @@ public class FastaReader {
 		if (uniprotACCs == null || uniprotACCs.isEmpty()) {
 			uniprotACCs = new THashSet<String>();
 			final DBLoader loader = new FASTADBLoader();
-			if (loader.canReadFile(new File(fastaFileName))) {
+			if (fastaFileName != null && loader.canReadFile(new File(fastaFileName))) {
 
 				Protein protein = null;
 				loader.load(fastaFileName);
