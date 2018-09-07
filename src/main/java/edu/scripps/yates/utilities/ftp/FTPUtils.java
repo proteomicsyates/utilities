@@ -46,15 +46,15 @@ public class FTPUtils {
 		}
 		int replyCode = ftpClient.getReplyCode();
 		if (!FTPReply.isPositiveCompletion(replyCode)) {
-			throw new IllegalArgumentException("Error while trying to connect to SFTP in IP2. Reply code: " + replyCode
-					+ " message:" + ftpClient.getReplyString());
+			throw new IllegalArgumentException("Error while trying to connect to SFTP server at " + hostName
+					+ ". Reply code: " + replyCode + " message:" + ftpClient.getReplyString());
 		}
 		showServerReply(ftpClient);
 		// login
 		boolean success = ftpClient.login(userName, password);
 		showServerReply(ftpClient);
 		if (!success) {
-			throw new IllegalArgumentException("Could not login to the IP2 server");
+			throw new IllegalArgumentException("Could not login to server " + hostName + " server");
 		} else {
 			log.debug("login succesful");
 		}
