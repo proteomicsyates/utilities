@@ -5,6 +5,8 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,6 +31,9 @@ import java.util.zip.ZipFile;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import edu.scripps.yates.utilities.dates.DatesUtil;
 
@@ -362,6 +367,63 @@ public class FileUtils {
 			}
 			return new FileInputStream(file);
 
+		}
+	}
+
+	/**
+	 * Convert a TSV or CSV to Excel XLSX format
+	 * 
+	 * @param csvFilePath
+	 * @param outputXlsFilePath
+	 * @param separator
+	 * @throws IOException
+	 */
+	public static void separatedValuesToXLSX(String csvFilePath, String outputXlsFilePath, String separator)
+			throws IOException {
+		log.info("Converting file '" + csvFilePath + "' to Excel file at '" + outputXlsFilePath + "'");
+		if (new File(outputXlsFilePath).exists()) {
+			log.warn("File " + outputXlsFilePath + " already exists");
+			return;
+		}
+		BufferedReader br = null;
+		FileOutputStream fileOutputStream = null;
+		try {
+			final XSSFWorkbook workBook = new XSSFWorkbook();
+			final XSSFSheet sheet = workBook.createSheet("sheet1");
+			String currentLine = null;
+			int RowNum = -1;
+			br = new BufferedReader(new FileReader(csvFilePath));
+			while ((currentLine = br.readLine()) != null) {
+				final String str[] = currentLine.split(separator);
+				RowNum++;
+				final XSSFRow currentRow = sheet.createRow(RowNum);
+				for (int i = 0; i < str.length; i++) {
+					currentRow.createCell(i).setCellValue(str[i]);
+				}
+			}
+
+			fileOutputStream = new FileOutputStream(outputXlsFilePath);
+			workBook.write(fileOutputStream);
+			fileOutputStream.close();
+			log.info("Excel file created successfully at: " + outputXlsFilePath);
+		} catch (final IOException ex) {
+			log.error(ex);
+			throw ex;
+		} finally {
+			if (br != null) {
+				try {
+					br.close();
+				} catch (final IOException e) {
+					e.printStackTrace();
+				}
+			}
+			if (fileOutputStream != null) {
+				try {
+					fileOutputStream.close();
+				} catch (final IOException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 	}
 }
