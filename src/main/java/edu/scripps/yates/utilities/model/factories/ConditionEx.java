@@ -3,6 +3,7 @@ package edu.scripps.yates.utilities.model.factories;
 import java.io.Serializable;
 import java.util.Set;
 
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.log4j.Logger;
 
 import edu.scripps.yates.utilities.proteomicsmodel.Condition;
@@ -156,6 +157,19 @@ public class ConditionEx implements Condition, Serializable {
 			}
 		}
 		return super.equals(obj);
+	}
+
+	@Override
+	public int hashCode() {
+		final HashCodeBuilder hashCodeBuilder = new HashCodeBuilder();
+		if (getName() != null) {
+			hashCodeBuilder.append(getName());
+		}
+		if (getProject() != null) {
+			hashCodeBuilder.append(getProject().getName());
+		}
+
+		return hashCodeBuilder.toHashCode();
 	}
 
 	@Override

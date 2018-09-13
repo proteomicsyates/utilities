@@ -2,6 +2,8 @@ package edu.scripps.yates.utilities.model.factories;
 
 import java.io.Serializable;
 
+import org.apache.commons.lang.builder.HashCodeBuilder;
+
 import edu.scripps.yates.utilities.model.enums.AggregationLevel;
 import edu.scripps.yates.utilities.model.enums.CombinationType;
 import edu.scripps.yates.utilities.proteomicsmodel.Condition;
@@ -105,12 +107,13 @@ public class RatioEx implements Ratio, Serializable {
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
 	public boolean equals(Object arg0) {
 		if (arg0 instanceof Ratio) {
-			Ratio ratio = (Ratio) arg0;
+			final Ratio ratio = (Ratio) arg0;
 			if (ratio.getValue() != getValue())
 				return false;
 			if (!ratio.getCondition1().equals(getCondition1()))
@@ -124,6 +127,23 @@ public class RatioEx implements Ratio, Serializable {
 		}
 
 		return super.equals(arg0);
+
+	}
+
+	@Override
+	public int hashCode() {
+		final HashCodeBuilder hashCodeBuilder = new HashCodeBuilder();
+
+		hashCodeBuilder.append(getValue());
+		if (getCondition1() != null)
+			hashCodeBuilder.append(getCondition1().hashCode());
+		if (getCondition2() != null)
+			hashCodeBuilder.append(getCondition2().hashCode());
+		if (getDescription() != null) {
+			hashCodeBuilder.append(getDescription());
+		}
+
+		return hashCodeBuilder.toHashCode();
 
 	}
 

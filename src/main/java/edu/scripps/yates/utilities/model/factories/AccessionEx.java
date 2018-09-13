@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.builder.HashCodeBuilder;
+
 import edu.scripps.yates.utilities.model.enums.AccessionType;
 import edu.scripps.yates.utilities.proteomicsmodel.Accession;
 
@@ -101,6 +103,6 @@ public class AccessionEx implements Accession, Serializable {
 
 	@Override
 	public int hashCode() {
-		return -1;
+		return new HashCodeBuilder().append(getAccessionType()).append(getAccession()).toHashCode();
 	}
 }
