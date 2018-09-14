@@ -2,6 +2,7 @@
 active site	FT
 agricola	RX
 allergen	CC
+activity regulation	CC
 allergome	DR
 alternative products	CC
 arachnoserver	DR
