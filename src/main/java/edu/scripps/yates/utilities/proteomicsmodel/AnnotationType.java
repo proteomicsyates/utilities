@@ -162,6 +162,9 @@ public class AnnotationType {
 			if (annotationType.keyword.equalsIgnoreCase(key))
 				return annotationType;
 		}
+		log.error("Annotation type '" + key + "' is not recognized in the list of type in the file "
+				+ edu.scripps.yates.utilities.properties.PropertiesUtil
+						.getPropertyValue("uniprot.annotation.types.file"));
 		return null;
 	}
 
