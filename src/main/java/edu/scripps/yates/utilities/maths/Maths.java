@@ -493,4 +493,8 @@ public class Maths {
 			return n * factorial(n - 1);
 		}
 	}
+
+	public static double log(double x, int base) {
+		return Math.log(x) / Math.log(base);
+	}
 }
