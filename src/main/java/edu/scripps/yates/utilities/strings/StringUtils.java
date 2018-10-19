@@ -5,6 +5,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -131,6 +135,31 @@ public class StringUtils {
 		}
 
 		return content.toString();
+	}
+
+	public static String getSortedSeparatedValueStringFromChars(Collection<String> collection, String separator) {
+		final StringBuilder sb = new StringBuilder();
+		final List<String> list = new ArrayList<String>();
+		list.addAll(collection);
+		Collections.sort(list);
+		for (final String c : list) {
+			if (!"".equals(sb.toString())) {
+				sb.append(separator);
+			}
+			sb.append(c);
+		}
+		return sb.toString();
+	}
+
+	public static String getSeparatedValueStringFromChars(Collection<String> collection, String separator) {
+		final StringBuilder sb = new StringBuilder();
+		for (final String c : collection) {
+			if (!"".equals(sb.toString())) {
+				sb.append(separator);
+			}
+			sb.append(c);
+		}
+		return sb.toString();
 	}
 
 	public static String getSeparatedValueStringFromChars(char[] chars, String separator) {
