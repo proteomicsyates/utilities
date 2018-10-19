@@ -28,9 +28,9 @@ public class ProteinGroup extends ArrayList<GroupableProtein> {
 		if (iProteinGroup == null)
 			throw new IllegalArgumentException("group is null");
 
-		for (InferenceProtein inferenceProtein : iProteinGroup) {
-			List<GroupableProtein> proteinsMerged = inferenceProtein.getProteinsMerged();
-			for (GroupableProtein protein : proteinsMerged) {
+		for (final InferenceProtein inferenceProtein : iProteinGroup) {
+			final List<GroupableProtein> proteinsMerged = inferenceProtein.getProteinsMerged();
+			for (final GroupableProtein protein : proteinsMerged) {
 				protein.setProteinGroup(this);
 				protein.setEvidence(inferenceProtein.getEvidence());
 			}
@@ -45,9 +45,9 @@ public class ProteinGroup extends ArrayList<GroupableProtein> {
 			return key;
 		String ret = "";
 
-		List<String> accessions2 = getAccessions();
+		final List<String> accessions2 = getAccessions();
 
-		for (String accession : accessions2) {
+		for (final String accession : accessions2) {
 			if (!"".equals(ret)) {
 				ret = ret + ",";
 			}
@@ -64,24 +64,25 @@ public class ProteinGroup extends ArrayList<GroupableProtein> {
 
 	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 		String shareOrContain = "sharing";
 		if (size() == 1)
 			shareOrContain = "containing";
-		Set<String> seqs = new THashSet<String>();
+		final Set<String> seqs = new THashSet<String>();
 		final List<GroupablePeptide> psMs = getPSMs();
-		for (GroupablePeptide groupablePSM : psMs) {
+		for (final GroupablePeptide groupablePSM : psMs) {
 			seqs.add(groupablePSM.getSequence());
 		}
 		sb.append("Group: " + getEvidence().name() + " - " + shareOrContain + " " + psMs.size() + " PSMs ("
 				+ seqs.size() + " different sequences)\n");
 		int memberGroup = 1;
-		for (GroupableProtein protein : this) {
-			StringBuilder sb2 = new StringBuilder();
-			for (GroupablePeptide groupablePSM : protein.getGroupablePeptides()) {
+		for (final GroupableProtein protein : this) {
+			final StringBuilder sb2 = new StringBuilder();
+			for (final GroupablePeptide groupablePSM : protein.getGroupablePeptides()) {
 				sb2.append(groupablePSM.getSequence() + " ");
 			}
-			sb.append("PRT\t\t" + memberGroup++ + " " + protein.getAccession() + "\t" + sb2.toString() + "\n");
+			sb.append("PRT\t\t" + memberGroup++ + " " + protein.getAccession() + "\t" + sb2.toString() + "\t"
+					+ protein.getEvidence() + "\n");
 		}
 		return sb.toString();
 	}
@@ -97,11 +98,11 @@ public class ProteinGroup extends ArrayList<GroupableProtein> {
 		if (object instanceof ProteinGroup) {
 			if (shareOneProtein(object)) {
 
-				List<GroupableProtein> proteins = new ArrayList<GroupableProtein>();
+				final List<GroupableProtein> proteins = new ArrayList<GroupableProtein>();
 				proteins.addAll(this);
 				proteins.addAll((ProteinGroup) object);
-				PAnalyzer pa = new PAnalyzer(false);
-				List<ProteinGroup> groups = pa.run(proteins);
+				final PAnalyzer pa = new PAnalyzer(false);
+				final List<ProteinGroup> groups = pa.run(proteins);
 				if (groups.size() == 1)
 					return true;
 			}
@@ -112,7 +113,7 @@ public class ProteinGroup extends ArrayList<GroupableProtein> {
 
 	public boolean shareAllProteins(Object object) {
 		if (object instanceof ProteinGroup) {
-			ProteinGroup pg2 = (ProteinGroup) object;
+			final ProteinGroup pg2 = (ProteinGroup) object;
 
 			if (getKey().equals(pg2.getKey())) {
 				// if (this.evidence == pg2.evidence)
@@ -136,10 +137,10 @@ public class ProteinGroup extends ArrayList<GroupableProtein> {
 	 */
 	public boolean shareOneProtein(Object object) {
 		if (object instanceof ProteinGroup) {
-			ProteinGroup pg2 = (ProteinGroup) object;
+			final ProteinGroup pg2 = (ProteinGroup) object;
 
 			// At least share one protein
-			for (String acc : getAccessions()) {
+			for (final String acc : getAccessions()) {
 				if (pg2.getAccessions().contains(acc))
 					return true;
 			}
@@ -169,7 +170,7 @@ public class ProteinGroup extends ArrayList<GroupableProtein> {
 		if (accessions != null)
 			return accessions;
 		accessions = new ArrayList<String>();
-		for (GroupableProtein protein : this) {
+		for (final GroupableProtein protein : this) {
 			if (!accessions.contains(protein.getAccession()))
 				accessions.add(protein.getAccession());
 		}
@@ -201,12 +202,12 @@ public class ProteinGroup extends ArrayList<GroupableProtein> {
 	 */
 	public List<GroupablePeptide> getPSMs() {
 		// if (this.peptides == null || this.peptides.isEmpty()) {
-		List<GroupablePeptide> ret = new ArrayList<GroupablePeptide>();
-		Set<String> peptideIds = new THashSet<String>();
-		for (GroupableProtein protein : this) {
+		final List<GroupablePeptide> ret = new ArrayList<GroupablePeptide>();
+		final Set<String> peptideIds = new THashSet<String>();
+		for (final GroupableProtein protein : this) {
 			final List<GroupablePeptide> psms = protein.getGroupablePeptides();
 			if (psms != null)
-				for (GroupablePeptide psm : psms) {
+				for (final GroupablePeptide psm : psms) {
 					if (!peptideIds.contains(psm.getIdentifier())) {
 						peptideIds.add(psm.getIdentifier());
 						ret.add(psm);
