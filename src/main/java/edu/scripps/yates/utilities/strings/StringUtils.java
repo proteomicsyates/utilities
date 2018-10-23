@@ -151,13 +151,13 @@ public class StringUtils {
 		return sb.toString();
 	}
 
-	public static String getSeparatedValueStringFromChars(Collection<String> collection, String separator) {
+	public static String getSeparatedValueStringFromChars(Collection<Object> collection, String separator) {
 		final StringBuilder sb = new StringBuilder();
-		for (final String c : collection) {
+		for (final Object c : collection) {
 			if (!"".equals(sb.toString())) {
 				sb.append(separator);
 			}
-			sb.append(c);
+			sb.append(c.toString());
 		}
 		return sb.toString();
 	}
