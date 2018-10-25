@@ -2,9 +2,10 @@ package edu.scripps.yates.utilities.maths;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
-public class BHCorrectionResult {
+import gnu.trove.map.hash.TObjectDoubleHashMap;
+
+public class PValueCorrectionResult {
 	private PValuesCollection originalPValues;
 	private PValuesCollection correctedPValues;
 
@@ -27,7 +28,7 @@ public class BHCorrectionResult {
 	 * @param originalPValues
 	 *            the originalPValues to set
 	 */
-	public void setOriginalPValues(Map<String, Double> originalPValues) {
+	public void setOriginalPValues(TObjectDoubleHashMap<String> originalPValues) {
 		setOriginalPValues(new PValuesCollection(originalPValues));
 	}
 
@@ -50,7 +51,7 @@ public class BHCorrectionResult {
 	 * @param correctedPValues
 	 *            the correctedPValues to set
 	 */
-	public void setCorrectedPValues(Map<String, Double> pValues) {
+	public void setCorrectedPValues(TObjectDoubleHashMap<String> pValues) {
 		setCorrectedPValues(new PValuesCollection(pValues));
 	}
 
@@ -63,7 +64,7 @@ public class BHCorrectionResult {
 	}
 
 	public List<String> getSortedKeysByKeys() {
-		List<String> keys = getSortedKeysByCorrectedPValue();
+		final List<String> keys = getSortedKeysByCorrectedPValue();
 		Collections.sort(keys);
 		return keys;
 	}
