@@ -140,6 +140,13 @@
 		<artifactId>poi-ooxml</artifactId>
 		<version>3.9</version>
 	</dependency>
+	<!-- From Statistical Machine Intelligence & Learning Engine -->
+		<!-- https://github.com/haifengl/smile  -->
+		<dependency>
+	      <groupId>com.github.haifengl</groupId>
+	      <artifactId>smile-core</artifactId>
+	      <version>1.5.2</version>
+	    </dependency>
    </dependencies>
    <build>
       <resources>
