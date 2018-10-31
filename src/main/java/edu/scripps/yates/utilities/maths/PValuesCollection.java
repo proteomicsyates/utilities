@@ -44,7 +44,11 @@ public class PValuesCollection {
 	}
 
 	public Double getPValue(String key) {
-		return pValues.get(key);
+		if (pValues.containsKey(key)) {
+			return pValues.get(key);
+		} else {
+			return null;
+		}
 	}
 
 	public TObjectDoubleHashMap<String> getPValues() {
