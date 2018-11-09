@@ -376,20 +376,41 @@ public class FileUtils {
 	 * @param csvFilePath
 	 * @param outputXlsFilePath
 	 * @param separator
+	 * @param sheetName
+	 *            if null, a new sheet will be created with standard name
+	 *            "sheet1", "sheet2"...
 	 * @throws IOException
 	 */
-	public static void separatedValuesToXLSX(String csvFilePath, String outputXlsFilePath, String separator)
-			throws IOException {
+	public static void separatedValuesToXLSX(String csvFilePath, String outputXlsFilePath, String separator,
+			String sheetName) throws IOException {
 		log.info("Converting file '" + csvFilePath + "' to Excel file at '" + outputXlsFilePath + "'");
-		if (new File(outputXlsFilePath).exists()) {
-			log.warn("File " + outputXlsFilePath + " already exists");
-			return;
+		final boolean createNewExcelFile = !(new File(outputXlsFilePath).exists());
+		if (createNewExcelFile) {
+			log.info("File " + outputXlsFilePath + " already exists. The new sheet will be added");
 		}
 		BufferedReader br = null;
 		FileOutputStream fileOutputStream = null;
 		try {
-			final XSSFWorkbook workBook = new XSSFWorkbook();
-			final XSSFSheet sheet = workBook.createSheet("sheet1");
+			XSSFWorkbook workBook = null;
+			// if the excel file already exist, then create the XSSFWorkbook
+			// with the constructor using the path,
+			if (!createNewExcelFile) {
+				workBook = new XSSFWorkbook(new FileInputStream(outputXlsFilePath));
+			} else {
+				workBook = new XSSFWorkbook();
+			}
+			XSSFSheet sheet = null;
+			if (sheetName == null) {
+				// figure out what is the next sheet name available
+				for (int i = 0; i < workBook.getNumberOfSheets(); i++) {
+					sheetName = "sheet" + (i + 1);
+					if (workBook.getSheet(sheetName) == null) {
+						break;
+					}
+				}
+			}
+			sheet = workBook.createSheet(sheetName);
+
 			String currentLine = null;
 			int RowNum = -1;
 			br = new BufferedReader(new FileReader(csvFilePath));
@@ -405,7 +426,8 @@ public class FileUtils {
 			fileOutputStream = new FileOutputStream(outputXlsFilePath);
 			workBook.write(fileOutputStream);
 			fileOutputStream.close();
-			log.info("Excel file created successfully at: " + outputXlsFilePath);
+			log.info("Excel file written successfully at: " + outputXlsFilePath);
+
 		} catch (final IOException ex) {
 			log.error(ex);
 			throw ex;
@@ -425,5 +447,10 @@ public class FileUtils {
 				}
 			}
 		}
+	}
+
+	public static void separatedValuesToXLSX(String csvFilePath, String outputXlsFilePath, String separator)
+			throws IOException {
+		separatedValuesToXLSX(csvFilePath, outputXlsFilePath, separator, "sheet1");
 	}
 }
