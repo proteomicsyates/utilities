@@ -381,24 +381,26 @@ public class FileUtils {
 	 *            "sheet1", "sheet2"...
 	 * @throws IOException
 	 */
-	public static void separatedValuesToXLSX(String csvFilePath, String outputXlsFilePath, String separator,
+	public static XSSFWorkbook separatedValuesToXLSX(String csvFilePath, String outputXlsFilePath, String separator,
 			String sheetName) throws IOException {
 		log.info("Converting file '" + csvFilePath + "' to Excel file at '" + outputXlsFilePath + "'");
 		final boolean createNewExcelFile = !(new File(outputXlsFilePath).exists());
 		if (createNewExcelFile) {
 			log.info("File " + outputXlsFilePath + " already exists. The new sheet will be added");
 		}
+		XSSFWorkbook workBook = null;
+
+		// if the excel file already exist, then create the XSSFWorkbook
+		// with the constructor using the path,
+		if (!createNewExcelFile) {
+			workBook = new XSSFWorkbook(new FileInputStream(outputXlsFilePath));
+		} else {
+			workBook = new XSSFWorkbook();
+		}
+
 		BufferedReader br = null;
 		FileOutputStream fileOutputStream = null;
 		try {
-			XSSFWorkbook workBook = null;
-			// if the excel file already exist, then create the XSSFWorkbook
-			// with the constructor using the path,
-			if (!createNewExcelFile) {
-				workBook = new XSSFWorkbook(new FileInputStream(outputXlsFilePath));
-			} else {
-				workBook = new XSSFWorkbook();
-			}
 			XSSFSheet sheet = null;
 			if (sheetName == null) {
 				// figure out what is the next sheet name available
@@ -439,14 +441,9 @@ public class FileUtils {
 					e.printStackTrace();
 				}
 			}
-			if (fileOutputStream != null) {
-				try {
-					fileOutputStream.close();
-				} catch (final IOException e) {
-					e.printStackTrace();
-				}
-			}
+
 		}
+		return workBook;
 	}
 
 	public static void separatedValuesToXLSX(String csvFilePath, String outputXlsFilePath, String separator)
