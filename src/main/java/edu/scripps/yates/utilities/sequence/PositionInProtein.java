@@ -71,8 +71,9 @@ public class PositionInProtein {
 			if (string2.contains(SEPARATOR)) {
 				try {
 					final String[] split = string2.split(SEPARATOR);
-					final PositionInProtein positionInProtein = new PositionInProtein(
-							Integer.valueOf(String.valueOf(split[1].charAt(1))), split[1].charAt(0), split[0]);
+					final String positionInteger = String.valueOf(split[1].substring(1));
+					final PositionInProtein positionInProtein = new PositionInProtein(Integer.valueOf(positionInteger),
+							split[1].charAt(0), split[0]);
 					ret.add(positionInProtein);
 				} catch (final NumberFormatException e) {
 
