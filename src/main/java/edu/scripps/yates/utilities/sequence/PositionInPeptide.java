@@ -38,7 +38,7 @@ public class PositionInPeptide extends PositionInProtein {
 				try {
 					final String[] split = string2.split(SEPARATOR);
 					final PositionInPeptide positionInProtein = new PositionInPeptide(
-							Integer.valueOf(String.valueOf(split[1].charAt(1))), split[1].charAt(0), split[0]);
+							Integer.valueOf(String.valueOf(split[1].substring(1))), split[1].charAt(0), split[0]);
 					ret.add(positionInProtein);
 				} catch (final NumberFormatException e) {
 
