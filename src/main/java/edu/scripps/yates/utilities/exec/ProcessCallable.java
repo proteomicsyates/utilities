@@ -24,10 +24,10 @@ public class ProcessCallable implements Callable<Long> {
 
 	@Override
 	public Long call() throws Exception {
-		Executor executor = new DefaultExecutor();
+		final Executor executor = new DefaultExecutor();
 		executor.setWorkingDirectory(null);
 		executor.setProcessDestroyer(new ShutdownHookProcessDestroyer());
-		ExecuteWatchdog watchDog = new ExecuteWatchdog(watchdogTimeout);
+		final ExecuteWatchdog watchDog = new ExecuteWatchdog(watchdogTimeout);
 		executor.setWatchdog(watchDog);
 		executor.setStreamHandler(
 				new PumpStreamHandler(new MyLogOutputStream(handler, true), new MyLogOutputStream(handler, false)));
@@ -35,7 +35,7 @@ public class ProcessCallable implements Callable<Long> {
 		try {
 			exitValue = new Long(executor.execute(commandline));
 
-		} catch (ExecuteException e) {
+		} catch (final ExecuteException e) {
 			exitValue = new Long(e.getExitValue());
 		}
 		if (watchDog.killedProcess()) {
