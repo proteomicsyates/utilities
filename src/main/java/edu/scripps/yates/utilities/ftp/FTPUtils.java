@@ -36,7 +36,7 @@ public class FTPUtils {
 	public static FTPClient loginFTPClient(String hostName, String userName, String password, int port)
 			throws IOException {
 
-		FTPClient ftpClient = new FTPClient();
+		final FTPClient ftpClient = new FTPClient();
 		ftpClient.setDefaultTimeout(timeoutInMillis);
 		// connect
 		if (port > 0) {
@@ -44,14 +44,14 @@ public class FTPUtils {
 		} else {
 			ftpClient.connect(hostName);
 		}
-		int replyCode = ftpClient.getReplyCode();
+		final int replyCode = ftpClient.getReplyCode();
 		if (!FTPReply.isPositiveCompletion(replyCode)) {
 			throw new IllegalArgumentException("Error while trying to connect to SFTP server at " + hostName
 					+ ". Reply code: " + replyCode + " message:" + ftpClient.getReplyString());
 		}
 		showServerReply(ftpClient);
 		// login
-		boolean success = ftpClient.login(userName, password);
+		final boolean success = ftpClient.login(userName, password);
 		showServerReply(ftpClient);
 		if (!success) {
 			throw new IllegalArgumentException("Could not login to server " + hostName + " server");
@@ -67,8 +67,8 @@ public class FTPUtils {
 
 	public static Session loginSSHClient(String hostName, String userName, String password, int port)
 			throws JSchException {
-		JSch jsch = new JSch();
-		Session session = jsch.getSession(userName, hostName);
+		final JSch jsch = new JSch();
+		final Session session = jsch.getSession(userName, hostName);
 		session.setConfig("StrictHostKeyChecking", "no");
 		// non-interactive version. Relies in host key being in known-hosts file
 		session.setPassword(password);
@@ -80,9 +80,9 @@ public class FTPUtils {
 	}
 
 	public static ChannelSftp openSFTPChannel(Session session) throws JSchException {
-		Channel channel = session.openChannel("sftp");
+		final Channel channel = session.openChannel("sftp");
 		channel.connect();
-		ChannelSftp sftpChannel = (ChannelSftp) channel;
+		final ChannelSftp sftpChannel = (ChannelSftp) channel;
 		return sftpChannel;
 	}
 
@@ -91,9 +91,9 @@ public class FTPUtils {
 	}
 
 	public static void showServerReply(FTPClient ftpClient, PrintStream out) {
-		String[] replies = ftpClient.getReplyStrings();
+		final String[] replies = ftpClient.getReplyStrings();
 		if (replies != null && replies.length > 0) {
-			for (String aReply : replies) {
+			for (final String aReply : replies) {
 				if (out != null) {
 					out.println("SERVER: " + aReply);
 				}
@@ -114,13 +114,13 @@ public class FTPUtils {
 	 *             if any error occurred during client-server communication
 	 */
 	public static boolean makeDirectories(FTPClient ftpClient, String dirPath, PrintStream log) throws IOException {
-		String[] pathElements = dirPath.split("/");
+		final String[] pathElements = dirPath.split("/");
 		if (pathElements != null && pathElements.length > 0) {
-			for (String singleDir : pathElements) {
+			for (final String singleDir : pathElements) {
 				if (!"".equals(singleDir)) {
-					boolean existed = ftpClient.changeWorkingDirectory(singleDir);
+					final boolean existed = ftpClient.changeWorkingDirectory(singleDir);
 					if (!existed) {
-						boolean created = ftpClient.makeDirectory(singleDir);
+						final boolean created = ftpClient.makeDirectory(singleDir);
 						if (created) {
 							log.println("CREATED directory: " + singleDir);
 							ftpClient.changeWorkingDirectory(singleDir);
@@ -137,7 +137,7 @@ public class FTPUtils {
 	}
 
 	public static long getSize(FTPClient ftpClient, String filePath) throws IOException {
-		FTPFile[] file = ftpClient.listFiles(filePath);
+		final FTPFile[] file = ftpClient.listFiles(filePath);
 		if (file.length > 0) {
 			return file[0].getSize();
 		}
@@ -154,7 +154,7 @@ public class FTPUtils {
 	 */
 	public static boolean checkDirectoryExists(FTPClient ftpClient, String dirPath) throws IOException {
 		ftpClient.changeWorkingDirectory(dirPath);
-		int returnCode = ftpClient.getReplyCode();
+		final int returnCode = ftpClient.getReplyCode();
 		if (returnCode == 550) {
 			return false;
 		}
@@ -170,8 +170,8 @@ public class FTPUtils {
 	 *             thrown if any I/O error occurred.
 	 */
 	public static boolean checkFileExists(FTPClient ftpClient, String filePath) throws IOException {
-		InputStream inputStream = ftpClient.retrieveFileStream(filePath);
-		int returnCode = ftpClient.getReplyCode();
+		final InputStream inputStream = ftpClient.retrieveFileStream(filePath);
+		final int returnCode = ftpClient.getReplyCode();
 		if (inputStream == null || returnCode == 550) {
 			return false;
 		}
@@ -191,9 +191,9 @@ public class FTPUtils {
 			throws IOException {
 		log.info("Getting files recursively from remote host located under folder: " + folderPath + " with extension "
 				+ extension);
-		List<FTPFile> ret = new ArrayList<FTPFile>();
-		FTPFile[] listFiles = ftpClient.listFiles(folderPath);
-		for (FTPFile ftpFile : listFiles) {
+		final List<FTPFile> ret = new ArrayList<FTPFile>();
+		final FTPFile[] listFiles = ftpClient.listFiles(folderPath);
+		for (final FTPFile ftpFile : listFiles) {
 			if (FilenameUtils.getExtension(ftpFile.getName()).equalsIgnoreCase(extension)) {
 				ret.add(ftpFile);
 			}
@@ -205,9 +205,9 @@ public class FTPUtils {
 
 	public static List<String> getFileNamesInFolderByExtension(FTPClient ftpClient, String folderPath, String extension)
 			throws IOException {
-		List<FTPFile> ftpFiles = getFilesInFolderByExtension(ftpClient, folderPath, extension);
-		List<String> ret = new ArrayList<String>();
-		for (FTPFile ftpFile : ftpFiles) {
+		final List<FTPFile> ftpFiles = getFilesInFolderByExtension(ftpClient, folderPath, extension);
+		final List<String> ret = new ArrayList<String>();
+		for (final FTPFile ftpFile : ftpFiles) {
 			ret.add(ftpFile.getName());
 		}
 		return ret;
@@ -218,9 +218,9 @@ public class FTPUtils {
 		ChannelSftp sftpClient = null;
 		try {
 			sftpClient = openSFTPChannel(sshClient);
-			List<LsEntry> sftpFiles = sftpClient.ls(folderPath);
-			List<LsEntry> ret = new ArrayList<LsEntry>();
-			for (LsEntry sftpFile : sftpFiles) {
+			final List<LsEntry> sftpFiles = sftpClient.ls(folderPath);
+			final List<LsEntry> ret = new ArrayList<LsEntry>();
+			for (final LsEntry sftpFile : sftpFiles) {
 				if (FilenameUtils.getExtension(sftpFile.getFilename()).equalsIgnoreCase(extension)) {
 					ret.add(sftpFile);
 				}
@@ -233,11 +233,31 @@ public class FTPUtils {
 		}
 	}
 
+	public static boolean exist(Session sshClient, String fileFullPath) throws JSchException, SftpException {
+		ChannelSftp sftpClient = null;
+		try {
+			sftpClient = openSFTPChannel(sshClient);
+			final List<LsEntry> sftpFiles = sftpClient.ls(fileFullPath);
+
+			for (final LsEntry sftpFile : sftpFiles) {
+				if (FilenameUtils.getName(sftpFile.getFilename())
+						.equalsIgnoreCase(FilenameUtils.getName(fileFullPath))) {
+					return true;
+				}
+			}
+			return false;
+		} finally {
+			if (sftpClient != null) {
+				sftpClient.quit();
+			}
+		}
+	}
+
 	public static long getSize(Session sshClient, String filePath) throws JSchException, SftpException {
 		ChannelSftp sftpClient = null;
 		try {
 			sftpClient = openSFTPChannel(sshClient);
-			SftpATTRS stat = sftpClient.stat(filePath);
+			final SftpATTRS stat = sftpClient.stat(filePath);
 			if (stat != null) {
 				return stat.getSize();
 			}
@@ -275,5 +295,24 @@ public class FTPUtils {
 			sftpChannel.disconnect();
 		}
 
+	}
+
+	public static LsEntry getFileEntry(Session sshClient, String pathToFile) throws JSchException, SftpException {
+		ChannelSftp sftpClient = null;
+		try {
+			sftpClient = openSFTPChannel(sshClient);
+			final List<LsEntry> sftpFiles = sftpClient.ls(pathToFile);
+
+			for (final LsEntry sftpFile : sftpFiles) {
+				if (FilenameUtils.getName(sftpFile.getFilename()).equalsIgnoreCase(FilenameUtils.getName(pathToFile))) {
+					return sftpFile;
+				}
+			}
+		} finally {
+			if (sftpClient != null) {
+				sftpClient.quit();
+			}
+		}
+		return null;
 	}
 }
