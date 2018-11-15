@@ -197,14 +197,14 @@
          </plugin>
       </plugins>
    </build>
-   <repositories>
-      <!-- UGent Genesis Maven 2 repository -->
-      <repository>
-         <id>genesis-maven2-repository</id>
-         <name>Genesis maven2 repository</name>
-         <url>http://genesis.UGent.be/maven2</url>
-         <layout>default</layout>
-      </repository>
-   </repositories>
+<!--    <repositories> -->
+<!--       UGent Genesis Maven 2 repository -->
+<!--       <repository> -->
+<!--          <id>genesis-maven2-repository</id> -->
+<!--          <name>Genesis maven2 repository</name> -->
+<!--          <url>http://genesis.UGent.be/maven2</url> -->
+<!--          <layout>default</layout> -->
+<!--       </repository> -->
+<!--    </repositories> -->
    <groupId>edu.scripps.yates</groupId>
 </project>
