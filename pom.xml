@@ -58,7 +58,11 @@
             </exclusion>
          </exclusions>
       </dependency>
-     
+      <dependency>
+         <groupId>com.compomics</groupId>
+         <artifactId>utilities</artifactId>
+         <version>4.12.12</version>
+      </dependency>
       <dependency>
          <groupId>com.jcraft</groupId>
          <artifactId>jsch</artifactId>
@@ -191,20 +195,20 @@
                   <phase>verify</phase>
                   <goals>
                      <goal>jar-no-fork</goal>
-                  </goals>
+                  </goals> 
                </execution>
             </executions>
          </plugin>
       </plugins>
    </build>
-<!--    <repositories> -->
+   <repositories>
 <!--       UGent Genesis Maven 2 repository -->
-<!--       <repository> -->
-<!--          <id>genesis-maven2-repository</id> -->
-<!--          <name>Genesis maven2 repository</name> -->
-<!--          <url>http://genesis.UGent.be/maven2</url> -->
-<!--          <layout>default</layout> -->
-<!--       </repository> -->
-<!--    </repositories> -->
+      <repository>
+         <id>genesis-maven2-repository</id>
+         <name>Genesis maven2 repository</name>
+         <url>http://genesis.UGent.be/maven2</url>
+         <layout>default</layout>
+      </repository>
+   </repositories>
    <groupId>edu.scripps.yates</groupId>
 </project>
