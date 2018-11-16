@@ -911,7 +911,7 @@ public class FastaParser {
 	}
 
 	/**
-	 * // R.LLLQQVSL(+80)PELPGEYSMK.V --> LLLQQVSL(+80)PELPGEYSMK
+	 * // R.LLLQQVSL(+80.123)PELPGEYSMK.V --> LLLQQVSL(+80.32)PELPGEYSMK
 	 *
 	 * @param seq
 	 * @return
@@ -923,8 +923,39 @@ public class FastaParser {
 			final int lastPoint = seq.lastIndexOf(point);
 
 			if (firstPoint != lastPoint) {
-				final String substring = seq.substring(firstPoint + 1, lastPoint);
-				return substring;
+				boolean cutSequence = true;
+				// only if the previous and following character of the point are
+				// not numbers, otherwise, the point is from a PTM mass
+				int previous = firstPoint - 1;
+				int following = firstPoint + 1;
+				if (previous >= 0) {
+					if (NumberUtils.isDigits(String.valueOf(seq.charAt(previous)))) {
+						cutSequence = false;
+					}
+				}
+				if (following < seq.length()) {
+					if (NumberUtils.isDigits(String.valueOf(seq.charAt(following)))) {
+						cutSequence = false;
+					}
+				}
+				previous = lastPoint - 1;
+				following = lastPoint + 1;
+				if (previous >= 0) {
+					if (NumberUtils.isDigits(String.valueOf(seq.charAt(previous)))) {
+						cutSequence = false;
+					}
+				}
+				if (following < seq.length()) {
+					if (NumberUtils.isDigits(String.valueOf(seq.charAt(following)))) {
+						cutSequence = false;
+					}
+				}
+				if (cutSequence) {
+					final String substring = seq.substring(firstPoint + 1, lastPoint);
+					return substring;
+				} else {
+					return seq;
+				}
 			}
 		}
 		return seq;
