@@ -15,6 +15,8 @@ public interface Ratio {
 
 	public Score getAssociatedConfidenceScore();
 
+	public double getStandardDeviationOfLog2Ratios();
+
 	public CombinationType getCombinationType();
 
 	public AggregationLevel getAggregationLevel();

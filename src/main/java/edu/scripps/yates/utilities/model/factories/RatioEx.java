@@ -31,6 +31,7 @@ public class RatioEx implements Ratio, Serializable {
 	private Score score;
 	private CombinationType combinationType;
 	private final AggregationLevel aggregationLevel;
+	private double stdev;
 
 	public RatioEx(double value, Condition condition1, Condition condition2, String ratioDescription,
 			AggregationLevel aggregationLevel) {
@@ -98,6 +99,14 @@ public class RatioEx implements Ratio, Serializable {
 
 	public void setAssociatedConfidenceScore(Score score) {
 		this.score = score;
+	}
+
+	public void setStandardDeviationOfLog2Ratios(double stdev) {
+		this.stdev = stdev;
+	}
+
+	public void setStdev(double stdev) {
+		this.stdev = stdev;
 	}
 
 	@Override
@@ -189,6 +198,11 @@ public class RatioEx implements Ratio, Serializable {
 	 */
 	public void setCondition2(Condition condition2) {
 		this.condition2 = condition2;
+	}
+
+	@Override
+	public double getStandardDeviationOfLog2Ratios() {
+		return stdev;
 	}
 
 }
