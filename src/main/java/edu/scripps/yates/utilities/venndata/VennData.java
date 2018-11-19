@@ -81,7 +81,8 @@ public class VennData {
 	private void processCollections(Collection<Object> referenceCollection, Set<String> keys1,
 			Map<String, Object> hash1) {
 
-		int uniques = 0; // number of unique objects in reference collection
+		final int uniques = 0; // number of unique objects in reference
+								// collection
 
 		// Se trata de ir comparando dos a dos los grupos. Cuando tengan un
 		// objecto en comun, se les asigna a los dos una clave de tipo cadena de
@@ -90,9 +91,9 @@ public class VennData {
 
 		// 1 VS (2 and 3)
 		if (referenceCollection != null)
-			for (Object obj1 : referenceCollection) {
+			for (final Object obj1 : referenceCollection) {
 
-				String seq = getObjectKey(obj1);
+				final String seq = getObjectKey(obj1);
 				String objKey = getUniqueKey();
 				if (hash.containsKey(seq)) {
 					objKey = hash.get(seq);
@@ -123,26 +124,26 @@ public class VennData {
 	}
 
 	public Collection<Object> getIntersection123() {
-		Set<String> intersectionKeys = getIntersection(keys1, keys2, keys3);
-		List<Object> ret = getObjectsByKeys(intersectionKeys);
+		final Set<String> intersectionKeys = getIntersection(keys1, keys2, keys3);
+		final List<Object> ret = getObjectsByKeys(intersectionKeys);
 		return ret;
 	}
 
 	public Collection<Object> getIntersection12() {
-		Set<String> intersectionKeys = getIntersection(keys1, keys2);
-		List<Object> ret = getObjectsByKeys(intersectionKeys);
+		final Set<String> intersectionKeys = getIntersection(keys1, keys2);
+		final List<Object> ret = getObjectsByKeys(intersectionKeys);
 		return ret;
 	}
 
 	public Collection<Object> getIntersection23() {
-		Set<String> intersectionKeys = getIntersection(keys2, keys3);
-		List<Object> ret = getObjectsByKeys(intersectionKeys);
+		final Set<String> intersectionKeys = getIntersection(keys2, keys3);
+		final List<Object> ret = getObjectsByKeys(intersectionKeys);
 		return ret;
 	}
 
 	public Collection<Object> getIntersection13() {
-		Set<String> intersectionKeys = getIntersection(keys1, keys3);
-		List<Object> ret = getObjectsByKeys(intersectionKeys);
+		final Set<String> intersectionKeys = getIntersection(keys1, keys3);
+		final List<Object> ret = getObjectsByKeys(intersectionKeys);
 		return ret;
 	}
 
@@ -155,28 +156,28 @@ public class VennData {
 	}
 
 	public Collection<Object> getUniqueTo1() {
-		Set<String> uniqueTo1 = getUniqueToFirstSet(keys1, keys2, keys3);
+		final Set<String> uniqueTo1 = getUniqueToFirstSet(keys1, keys2, keys3);
 		return getObjectsByKeys(uniqueTo1);
 	}
 
 	public Collection<Object> getUniqueTo2() {
-		Set<String> uniqueTo2 = getUniqueToFirstSet(keys2, keys1, keys3);
+		final Set<String> uniqueTo2 = getUniqueToFirstSet(keys2, keys1, keys3);
 		return getObjectsByKeys(uniqueTo2);
 	}
 
 	public Collection<Object> getUniqueTo3() {
-		Set<String> uniqueTo3 = getUniqueToFirstSet(keys3, keys1, keys2);
+		final Set<String> uniqueTo3 = getUniqueToFirstSet(keys3, keys1, keys2);
 		return getObjectsByKeys(uniqueTo3);
 	}
 
 	private Set<String> getUniqueToFirstSet(Set<String> hashToIsolate, Set<String> hash2, Set<String> hash3) {
-		Set<String> toIsolateSet2 = new THashSet<String>();
+		final Set<String> toIsolateSet2 = new THashSet<String>();
 		if (hashToIsolate != null) {
 			toIsolateSet2.addAll(hashToIsolate);
 			Iterator<String> toIsolateIterator = toIsolateSet2.iterator();
 			if (hash2 != null) {
 				while (toIsolateIterator.hasNext()) {
-					String item = toIsolateIterator.next();
+					final String item = toIsolateIterator.next();
 					if (hash2.contains(item))
 						toIsolateIterator.remove();
 				}
@@ -184,7 +185,7 @@ public class VennData {
 			toIsolateIterator = toIsolateSet2.iterator();
 			if (hash3 != null) {
 				while (toIsolateIterator.hasNext()) {
-					String item = toIsolateIterator.next();
+					final String item = toIsolateIterator.next();
 					if (hash3.contains(item))
 						toIsolateIterator.remove();
 				}
@@ -195,33 +196,33 @@ public class VennData {
 	}
 
 	public Collection<Object> getUnion123() {
-		Set<String> unionKeys = getUnion(keys1, keys2, keys3);
-		List<Object> ret = getObjectsByKeys(unionKeys);
+		final Set<String> unionKeys = getUnion(keys1, keys2, keys3);
+		final List<Object> ret = getObjectsByKeys(unionKeys);
 		return ret;
 	}
 
 	public Collection<Object> getUnion12() {
-		Set<String> unionKeys = getUnion(keys1, keys2, null);
-		List<Object> ret = getObjectsByKeys(unionKeys);
+		final Set<String> unionKeys = getUnion(keys1, keys2, null);
+		final List<Object> ret = getObjectsByKeys(unionKeys);
 		return ret;
 	}
 
 	public Collection<Object> getUnion13() {
-		Set<String> unionKeys = getUnion(keys1, null, keys3);
-		List<Object> ret = getObjectsByKeys(unionKeys);
+		final Set<String> unionKeys = getUnion(keys1, null, keys3);
+		final List<Object> ret = getObjectsByKeys(unionKeys);
 		return ret;
 	}
 
 	public Collection<Object> getUnion23() {
-		Set<String> unionKeys = getUnion(null, keys2, keys3);
-		List<Object> ret = getObjectsByKeys(unionKeys);
+		final Set<String> unionKeys = getUnion(null, keys2, keys3);
+		final List<Object> ret = getObjectsByKeys(unionKeys);
 		return ret;
 	}
 
 	private List<Object> getObjectsByKeys(Set<String> keys) {
-		List<Object> ret = new ArrayList<Object>();
+		final List<Object> ret = new ArrayList<Object>();
 
-		for (String stringKey : keys) {
+		for (final String stringKey : keys) {
 			if (hash1.containsKey(stringKey)) {
 				ret.add(hash1.get(stringKey));
 				continue;
@@ -253,8 +254,8 @@ public class VennData {
 
 			return Collections.EMPTY_SET;
 		}
-		Set<String> ret = new THashSet<String>();
-		for (String key : list1) {
+		final Set<String> ret = new THashSet<String>();
+		for (final String key : list1) {
 			int numFound = 0;
 
 			if (list2 != null)
@@ -277,8 +278,8 @@ public class VennData {
 
 			return Collections.EMPTY_SET;
 		}
-		Set<String> ret = new THashSet<String>();
-		for (String key : list1) {
+		final Set<String> ret = new THashSet<String>();
+		for (final String key : list1) {
 			int numFound = 0;
 
 			if (list2 != null)
@@ -303,7 +304,7 @@ public class VennData {
 	private Set<String> getUnion(Set<String> list1, Set<String> list2, Set<String> list3) {
 		// Since the HashSet doesn't allow to add repeated elements, add all to
 		// the set
-		Set<String> ret = new THashSet<String>();
+		final Set<String> ret = new THashSet<String>();
 		if (list1 != null)
 			ret.addAll(list1);
 		if (list2 != null)
@@ -344,7 +345,7 @@ public class VennData {
 	 * @return
 	 */
 	public Collection<Object> getMaxCollection() {
-		Set<Object> ret = new THashSet<Object>();
+		final Set<Object> ret = new THashSet<Object>();
 		ret.addAll(hash1.values());
 		if (hash2.size() > hash1.size()) {
 			ret.clear();
@@ -358,14 +359,14 @@ public class VennData {
 	}
 
 	private String getDataString() {
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 		// The first three values specify the sizes of three circles: A, B, and
 		// C. For a chart with
 		// only two circles, specify zero for the third value.
 
-		int size1 = getSize1();
-		int size2 = getSize2();
-		int size3 = getSize3();
+		final int size1 = getSize1();
+		final int size2 = getSize2();
+		final int size3 = getSize3();
 		sb.append(size1 + "," + size2 + "," + size3);
 		// The fourth value specifies the size of the intersection of A and B.
 		intersection12 = getIntersection12().size();
@@ -393,12 +394,12 @@ public class VennData {
 	}
 
 	public String getIntersectionsText(String title) {
-		StringBuilder sb = new StringBuilder();
-		DecimalFormat df = new DecimalFormat("#.#");
+		final StringBuilder sb = new StringBuilder();
+		final DecimalFormat df = new DecimalFormat("#.#");
 
 		if (title != null)
 			sb.append(title + "\n");
-		int union = getUnion123().size();
+		final int union = getUnion123().size();
 
 		if (label1 != null)
 			sb.append("\n 1 -> " + label1 + " = " + getSize1() + " ("
@@ -454,24 +455,27 @@ public class VennData {
 		if (label1 != null) {
 			if (!"".equals(sb.toString()))
 				sb.append("\n");
-			Double just1 = getUniqueTo1().size() * 100.0 / union;
-			int overlappedTo1 = getIntersection12().size() + getIntersection13().size() - getIntersection123().size();
+			final Double just1 = getUniqueTo1().size() * 100.0 / union;
+			final int overlappedTo1 = getIntersection12().size() + getIntersection13().size()
+					- getIntersection123().size();
 			sb.append("Just in 1 = " + getUniqueTo1().size() + " (" + df.format(just1) + "% of union) ("
 					+ df.format((overlappedTo1) * 100.0 / getSize1()) + "% overlapped)");
 		}
 		if (label2 != null) {
 			if (!"".equals(sb.toString()))
 				sb.append("\n");
-			Double just2 = getUniqueTo2().size() * 100.0 / union;
-			int overlappedTo2 = getIntersection12().size() + getIntersection23().size() - getIntersection123().size();
+			final Double just2 = getUniqueTo2().size() * 100.0 / union;
+			final int overlappedTo2 = getIntersection12().size() + getIntersection23().size()
+					- getIntersection123().size();
 			sb.append("Just in 2 = " + getUniqueTo2().size() + " (" + df.format(just2) + "% of union) ("
 					+ df.format((overlappedTo2) * 100.0 / getSize2()) + "% overlapped)");
 		}
 		if (label3 != null) {
 			if (!"".equals(sb.toString()))
 				sb.append("\n");
-			Double just3 = getUniqueTo3().size() * 100.0 / union;
-			int overlappedTo3 = getIntersection13().size() + getIntersection23().size() - getIntersection123().size();
+			final Double just3 = getUniqueTo3().size() * 100.0 / union;
+			final int overlappedTo3 = getIntersection13().size() + getIntersection23().size()
+					- getIntersection123().size();
 			sb.append("Just in 3 = " + getUniqueTo3().size() + " (" + df.format(just3) + "% of union) ("
 					+ df.format((overlappedTo3) * 100.0 / getSize3()) + "% overlapped)");
 		}
@@ -482,7 +486,7 @@ public class VennData {
 
 	private URL createChartURL(String title, String label1, String label2, String label3) throws MalformedURLException {
 		if (url == null) {
-			StringBuilder sb = new StringBuilder();
+			final StringBuilder sb = new StringBuilder();
 			sb.append("http://chart.apis.google.com/chart?chs=" + DEFAULT_CHART_WIDTH + "x" + DEFAULT_CHART_HEIGHT);
 			sb.append("&chd=t:" + getDataString());
 			sb.append("&cht=v");
@@ -530,7 +534,7 @@ public class VennData {
 		Image image;
 		try {
 			image = Toolkit.getDefaultToolkit().createImage(url);
-		} catch (SecurityException e) {
+		} catch (final SecurityException e) {
 			throw new IllegalArgumentException(e.getMessage());
 		}
 		if (image == null)
@@ -540,26 +544,26 @@ public class VennData {
 	}
 
 	private void saveToFile(Image image, File outputFile) throws IOException {
-		String filename = outputFile.getName();
+		final String filename = outputFile.getName();
 
-		int extPoint = filename.lastIndexOf('.');
+		final int extPoint = filename.lastIndexOf('.');
 
 		if (extPoint < 0) {
 			throw new IOException("Illegal filename, no extension used.");
 		}
 
 		// Determine the extension of the filename.
-		String ext = filename.substring(extPoint + 1);
+		final String ext = filename.substring(extPoint + 1);
 
 		// Handle jpg without transparency.
 		if (ext.toLowerCase().equals("jpg") || ext.toLowerCase().equals("jpeg")) {
-			BufferedImage chart = ImageUtils.toBufferedImage(image);
+			final BufferedImage chart = ImageUtils.toBufferedImage(image);
 			// BufferedImage chart = (BufferedImage) getChartImage(false);
 
 			// Save our graphic.
 			saveGraphicJpeg(chart, outputFile, 1.0f);
 		} else {
-			BufferedImage chart = ImageUtils.toBufferedImage(image);
+			final BufferedImage chart = ImageUtils.toBufferedImage(image);
 			// BufferedImage chart = (BufferedImage) getChartImage(true);
 
 			ImageIO.write(chart, ext, outputFile);
@@ -568,28 +572,72 @@ public class VennData {
 
 	private void saveGraphicJpeg(BufferedImage chart, File outputFile, float quality) throws IOException {
 		// Setup correct compression for jpeg.
-		Iterator<ImageWriter> iter = ImageIO.getImageWritersByFormatName("jpeg");
-		ImageWriter writer = iter.next();
-		ImageWriteParam iwp = writer.getDefaultWriteParam();
+		final Iterator<ImageWriter> iter = ImageIO.getImageWritersByFormatName("jpeg");
+		final ImageWriter writer = iter.next();
+		final ImageWriteParam iwp = writer.getDefaultWriteParam();
 		iwp.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
 		iwp.setCompressionQuality(quality);
 
 		// Output the image.
-		FileImageOutputStream output = new FileImageOutputStream(outputFile);
+		final FileImageOutputStream output = new FileImageOutputStream(outputFile);
 		writer.setOutput(output);
-		IIOImage image = new IIOImage(chart, null, null);
+		final IIOImage image = new IIOImage(chart, null, null);
 		writer.write(null, image, iwp);
 		writer.dispose();
 
 	}
 
 	public void saveVennDiagramToFile(File outputFile) throws IOException {
-		URL url = createChartURL(title, label1, label2, label3);
+		final URL url = createChartURL(title, label1, label2, label3);
 		final Image image = getImageFromURL(url);
 		saveToFile(image, outputFile);
 	}
 
 	public URL getImageURL() throws MalformedURLException {
 		return createChartURL(title, label1, label2, label3);
+	}
+
+	@Override
+	public String toString() {
+		final StringBuilder sb = new StringBuilder();
+
+		sb.append("Venn Diagram '" + title + "'\n");
+		sb.append("A vs B");
+		if (label3 != null) {
+			sb.append(" vs C");
+		}
+		sb.append(", where:\n");
+		sb.append("A: " + label1 + "\n");
+		sb.append("B: " + label2 + "\n");
+		if (label3 != null) {
+			sb.append("C: " + label3 + "\n");
+		}
+		sb.append("Size of groups:\n");
+		sb.append("A: " + getSize1() + "\tB: " + getSize2());
+		if (label3 != null) {
+			sb.append("\tC: " + getSize3());
+		}
+		sb.append("\n");
+		sb.append("Unique to groups:\n");
+		sb.append("A: " + getUniqueTo1().size() + "\tB: " + getUniqueTo2().size());
+		if (label3 != null) {
+			sb.append("\tC: " + getUniqueTo3().size());
+		}
+		sb.append("\n");
+		sb.append("Pairwise intersections:\n");
+		sb.append("A&B: " + getIntersection12().size());
+		if (label3 != null) {
+			sb.append("\tA&C: " + getIntersection13().size());
+			sb.append("\tB&C: " + getIntersection23().size());
+			sb.append("\n3 groups intersection:\n");
+			sb.append("\tA&B&C: " + getIntersection123().size());
+		}
+		sb.append("\n");
+		try {
+			sb.append("Venn diagram representation:\n" + getImageURL());
+		} catch (final MalformedURLException e) {
+			e.printStackTrace();
+		}
+		return sb.toString();
 	}
 }
