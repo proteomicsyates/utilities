@@ -7,23 +7,23 @@ import java.util.List;
 
 import gnu.trove.map.hash.TObjectDoubleHashMap;
 
-public class PValuesCollection {
-	private final TObjectDoubleHashMap<String> pValues = new TObjectDoubleHashMap<String>();
-	private List<String> sortedKeysByPValue;
+public class PValuesCollection<T> {
+	private final TObjectDoubleHashMap<T> pValues = new TObjectDoubleHashMap<T>();
+	private List<T> sortedKeysByPValue;
 
-	public PValuesCollection(TObjectDoubleHashMap<String> pValues) {
+	public PValuesCollection(TObjectDoubleHashMap<T> pValues) {
 		this.pValues.putAll(pValues);
 		process();
 	}
 
 	private void process() {
-		sortedKeysByPValue = new ArrayList<String>();
+		sortedKeysByPValue = new ArrayList<T>();
 		sortedKeysByPValue.addAll(pValues.keySet());
 		// sort pvalues
-		Collections.sort(sortedKeysByPValue, new Comparator<String>() {
+		Collections.sort(sortedKeysByPValue, new Comparator<T>() {
 
 			@Override
-			public int compare(String o1, String o2) {
+			public int compare(T o1, T o2) {
 
 				final Double d1 = pValues.get(o1);
 				final Double d2 = pValues.get(o2);
@@ -35,7 +35,7 @@ public class PValuesCollection {
 
 	}
 
-	public List<String> getSortedKeysByPValue() {
+	public List<T> getSortedKeysByPValue() {
 		return sortedKeysByPValue;
 	}
 
@@ -43,7 +43,7 @@ public class PValuesCollection {
 		return pValues.size();
 	}
 
-	public Double getPValue(String key) {
+	public Double getPValue(T key) {
 		if (pValues.containsKey(key)) {
 			return pValues.get(key);
 		} else {
@@ -51,7 +51,7 @@ public class PValuesCollection {
 		}
 	}
 
-	public TObjectDoubleHashMap<String> getPValues() {
+	public TObjectDoubleHashMap<T> getPValues() {
 		return pValues;
 	}
 
