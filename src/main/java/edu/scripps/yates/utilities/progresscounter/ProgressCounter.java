@@ -18,11 +18,27 @@ public class ProgressCounter {
 	private long t1 = -1;
 	private ProgressNumberFormatter formatter;
 	private String suffix;
+	private String percentageToAssign;
 
+	/**
+	 * Progress counter showing time remaining by default
+	 * 
+	 * @param total
+	 * @param progressPrintingType
+	 * @param numDecimals
+	 */
 	public ProgressCounter(long total, ProgressPrintingType progressPrintingType, int numDecimals) {
-		this(total, progressPrintingType, numDecimals, false);
+		this(total, progressPrintingType, numDecimals, true);
 	}
 
+	/**
+	 * Progress counter with all parameters to set.
+	 * 
+	 * @param total
+	 * @param progressPrintingType
+	 * @param numDecimals
+	 * @param showTimeRemaining
+	 */
 	public ProgressCounter(long total, ProgressPrintingType progressPrintingType, int numDecimals,
 			boolean showTimeRemaining) {
 		this.total = total;
@@ -47,7 +63,13 @@ public class ProgressCounter {
 		this.showRemainingTime = showRemainingTime;
 	}
 
+	/**
+	 * Increments the counter by increment
+	 * 
+	 * @param increment
+	 */
 	public void increment(long increment) {
+		previousPercentage = percentageToAssign;
 		count.add(increment);
 		startTimeWithFirstIncrement();
 
@@ -59,7 +81,11 @@ public class ProgressCounter {
 
 	}
 
+	/**
+	 * increments the counter by 1
+	 */
 	public void increment() {
+		previousPercentage = percentageToAssign;
 		count.add(1);
 		startTimeWithFirstIncrement();
 
@@ -84,6 +110,15 @@ public class ProgressCounter {
 		return "";
 	}
 
+	/**
+	 * Returns the progress string or empty string according to the
+	 * ProgressPrintingType. If the {@link ProgressPrintingType} is
+	 * PERCENTAGE_STEPS, then this function will only return the progress string
+	 * every time the percentage changes. The percentage changes according to
+	 * the number of decimals stated in the constructor.
+	 * 
+	 * @return
+	 */
 	public String printIfNecessary() {
 
 		final StringBuilder sb = new StringBuilder();
@@ -106,7 +141,7 @@ public class ProgressCounter {
 				if (showRemainingTime) {
 					sb.append(" (" + getRemainingTime() + " remaining...)");
 				}
-				previousPercentage = percentage;
+				percentageToAssign = percentage;
 				if (suffix != null) {
 					sb.append(" ").append(suffix);
 				}
