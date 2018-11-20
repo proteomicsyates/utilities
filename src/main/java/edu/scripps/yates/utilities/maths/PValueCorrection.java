@@ -114,20 +114,20 @@ public class PValueCorrection {
 		return Arrays.stream(array).min().orElse(Double.NaN);
 	}
 
-	public static PValueCorrectionResult pAdjust(PValuesCollection pvalues, PValueCorrectionType method) {
+	public static <T> PValueCorrectionResult<T> pAdjust(PValuesCollection<T> pvalues, PValueCorrectionType method) {
 		final TDoubleArrayList nums = new TDoubleArrayList();
-		final List<String> keys = new ArrayList<String>();
-		for (final String key : pvalues.getSortedKeysByPValue()) {
+		final List<T> keys = new ArrayList<T>();
+		for (final T key : pvalues.getSortedKeysByPValue()) {
 			keys.add(key);
 			nums.add(pvalues.getPValue(key));
 		}
 		final double[] ret = pAdjust(nums.toArray(), method);
-		final PValueCorrectionResult result = new PValueCorrectionResult();
+		final PValueCorrectionResult<T> result = new PValueCorrectionResult<T>();
 		result.setOriginalPValues(pvalues.getPValues());
 
-		final TObjectDoubleHashMap<String> correctedPValuesMap = new TObjectDoubleHashMap<String>();
+		final TObjectDoubleHashMap<T> correctedPValuesMap = new TObjectDoubleHashMap<T>();
 		int index = 0;
-		for (final String key : pvalues.getSortedKeysByPValue()) {
+		for (final T key : pvalues.getSortedKeysByPValue()) {
 			correctedPValuesMap.put(key, ret[index++]);
 		}
 		result.setCorrectedPValues(correctedPValuesMap);
