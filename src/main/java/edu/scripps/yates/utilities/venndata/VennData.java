@@ -613,24 +613,30 @@ public class VennData {
 			sb.append("C: " + label3 + "\n");
 		}
 		sb.append("Size of groups:\n");
-		sb.append("A: " + getSize1() + "\tB: " + getSize2());
+		sb.append("A: " + getSize1() + " (" + getPercentageOverUnion(getSize1()) + ")\tB: " + getSize2() + " ("
+				+ getPercentageOverUnion(getSize2()) + ")");
 		if (label3 != null) {
-			sb.append("\tC: " + getSize3());
+			sb.append("\tC: " + getSize3() + " (" + getPercentageOverUnion(getSize3()) + ")");
 		}
 		sb.append("\n");
 		sb.append("Unique to groups:\n");
-		sb.append("A: " + getUniqueTo1().size() + "\tB: " + getUniqueTo2().size());
+		sb.append("A: " + getUniqueTo1().size() + " (" + getPercentageOverUnion(getUniqueTo1().size()) + ")\tB: "
+				+ getUniqueTo2().size() + " (" + getPercentageOverUnion(getUniqueTo2().size()) + ")");
 		if (label3 != null) {
-			sb.append("\tC: " + getUniqueTo3().size());
+			sb.append("\tC: " + getUniqueTo3().size() + " (" + getPercentageOverUnion(getUniqueTo3().size()) + ")");
 		}
 		sb.append("\n");
 		sb.append("Pairwise intersections:\n");
-		sb.append("A&B: " + getIntersection12().size());
+		sb.append(
+				"A&B: " + getIntersection12().size() + " (" + getPercentageOverUnion(getIntersection12().size()) + ")");
 		if (label3 != null) {
-			sb.append("\tA&C: " + getIntersection13().size());
-			sb.append("\tB&C: " + getIntersection23().size());
+			sb.append("\tA&C: " + getIntersection13().size() + " (" + getPercentageOverUnion(getIntersection13().size())
+					+ ")");
+			sb.append("\tB&C: " + getIntersection23().size() + " (" + getPercentageOverUnion(getIntersection23().size())
+					+ ")");
 			sb.append("\n3 groups intersection:\n");
-			sb.append("\tA&B&C: " + getIntersection123().size());
+			sb.append("\tA&B&C: " + getIntersection123().size() + " ("
+					+ getPercentageOverUnion(getIntersection123().size()) + ")");
 		}
 		sb.append("\n");
 		try {
@@ -639,5 +645,12 @@ public class VennData {
 			e.printStackTrace();
 		}
 		return sb.toString();
+	}
+
+	private static final DecimalFormat formatter = new DecimalFormat("#.#");
+
+	private String getPercentageOverUnion(int num) {
+		final double percentage = num * 100.0 / getUnion123().size();
+		return formatter.format(percentage) + "%";
 	}
 }
