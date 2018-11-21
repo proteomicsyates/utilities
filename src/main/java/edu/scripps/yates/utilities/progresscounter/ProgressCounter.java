@@ -94,7 +94,7 @@ public class ProgressCounter {
 	private void startTimeWithFirstIncrement() {
 		// start time with the first increment
 		if (showRemainingTime && t1 == -1) {
-			log.info("taking time at the first increment");
+			log.debug("taking time at the first increment");
 			t1 = System.currentTimeMillis();
 		}
 	}
@@ -166,6 +166,7 @@ public class ProgressCounter {
 	}
 
 	public void setCount(long count2) {
+		previousPercentage = percentageToAssign;
 		count.setValue(count2);
 		if (count2 > 0) {
 			startTimeWithFirstIncrement();
@@ -173,6 +174,7 @@ public class ProgressCounter {
 	}
 
 	public void addCount(long count2) {
+		previousPercentage = percentageToAssign;
 		count.add(count2);
 		startTimeWithFirstIncrement();
 	}
