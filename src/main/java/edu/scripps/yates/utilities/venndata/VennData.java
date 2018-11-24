@@ -612,6 +612,7 @@ public class VennData {
 		if (label3 != null) {
 			sb.append("C: " + label3 + "\n");
 		}
+		sb.append("Total union: " + getUnion123().size() + "\n");
 		sb.append("Size of groups:\n");
 		sb.append("A: " + getSize1() + " (" + getPercentageOverUnion(getSize1()) + ")\tB: " + getSize2() + " ("
 				+ getPercentageOverUnion(getSize2()) + ")");
