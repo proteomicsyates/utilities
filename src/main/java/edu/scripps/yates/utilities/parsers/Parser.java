@@ -1,4 +1,4 @@
-package edu.scripps.yates.utilities.files;
+package edu.scripps.yates.utilities.parsers;
 
 import java.io.File;
 

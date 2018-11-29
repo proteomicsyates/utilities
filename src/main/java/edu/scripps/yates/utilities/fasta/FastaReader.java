@@ -17,9 +17,10 @@ import com.compomics.dbtoolkit.io.implementations.FASTADBLoader;
 import com.compomics.dbtoolkit.io.interfaces.DBLoader;
 import com.compomics.util.protein.Protein;
 
+import edu.scripps.yates.utilities.parsers.Parser;
 import gnu.trove.set.hash.THashSet;
 
-public class FastaReader {
+public class FastaReader implements Parser {
 
 	public static final char FIRSTCHAROFDEFLINE = '>';
 	public static final int DEFAULTSEQENCELENGTH = 1024;
@@ -29,6 +30,10 @@ public class FastaReader {
 
 	public FastaReader(String fastaFileName) {
 		this.fastaFileName = fastaFileName;
+	}
+
+	public FastaReader() {
+		this(null);
 	}
 
 	// Becareful, might need lots of memory
@@ -69,6 +74,14 @@ public class FastaReader {
 	}
 
 	public Iterator<Fasta> getFastas() throws IOException {
+		return getFastas(fastaFileName);
+	}
+
+	public Iterator<Fasta> getFastas(File file) throws IOException {
+		return getFastas(file.getAbsoluteFile());
+	}
+
+	public Iterator<Fasta> getFastas(String fastaFileName) throws IOException {
 		if (fastaFileName != null) {
 			final FileInputStream is = new FileInputStream(fastaFileName);
 			return new Iterator<Fasta>() {
@@ -221,5 +234,19 @@ public class FastaReader {
 			}
 		}
 		return uniprotACCs;
+	}
+
+	@Override
+	public boolean canRead(File file) {
+		try {
+			final Iterator<Fasta> fastas = getFastas(file.getAbsolutePath());
+			if (!fastas.hasNext()) {
+				return true;
+			}
+		} catch (final Exception e) {
+			e.printStackTrace();
+		}
+		return false;
+
 	}
 }

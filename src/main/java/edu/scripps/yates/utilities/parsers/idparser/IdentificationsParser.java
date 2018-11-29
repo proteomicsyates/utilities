@@ -1,4 +1,4 @@
-package edu.scripps.yates.utilities.files;
+package edu.scripps.yates.utilities.parsers.idparser;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -15,14 +15,15 @@ import java.util.regex.PatternSyntaxException;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.log4j.Logger;
 
-import edu.scripps.yates.utilities.CommandLineParameters;
 import edu.scripps.yates.utilities.annotations.UniprotProteinLocalRetrieverInterface;
 import edu.scripps.yates.utilities.annotations.uniprot.xml.Entry;
 import edu.scripps.yates.utilities.fasta.FastaParser;
 import edu.scripps.yates.utilities.fasta.dbindex.DBIndexInterface;
+import edu.scripps.yates.utilities.files.FileUtils;
 import edu.scripps.yates.utilities.ipi.IPI2UniprotACCMap;
 import edu.scripps.yates.utilities.model.enums.AccessionType;
 import edu.scripps.yates.utilities.model.factories.AccessionEx;
+import edu.scripps.yates.utilities.parsers.Parser;
 import edu.scripps.yates.utilities.progresscounter.ProgressCounter;
 import edu.scripps.yates.utilities.progresscounter.ProgressPrintingType;
 import edu.scripps.yates.utilities.proteomicsmodel.Accession;

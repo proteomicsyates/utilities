@@ -1,4 +1,4 @@
-package edu.scripps.yates.utilities;
+package edu.scripps.yates.utilities.parsers.idparser;
 
 import java.util.Map;
 
