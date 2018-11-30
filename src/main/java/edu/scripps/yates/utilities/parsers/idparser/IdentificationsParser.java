@@ -32,12 +32,13 @@ import edu.scripps.yates.utilities.util.Pair;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
 
-public abstract class IdentificationsParser<G, Q, S> implements Parser {
+public abstract class IdentificationsParser<G, Q extends IdentifiedProteinInterface, S extends IdentifiedPSMInterface>
+		implements Parser {
 	private static final Logger log = Logger.getLogger(IdentificationsParser.class);
 	protected final Map<String, Q> proteinsByAccession = new THashMap<String, Q>();
 	protected final Map<String, S> psmTableByPSMID = new THashMap<String, S>();
 	protected final Map<String, Set<S>> psmTableByFullSequence = new THashMap<String, Set<S>>();
-	protected final Set<G> dtaSelectProteinGroups = new THashSet<G>();
+	protected final Set<G> proteinGroups = new THashSet<G>();
 	protected String runPath;
 	protected DBIndexInterface dbIndex;
 	protected boolean processed = false;
@@ -108,7 +109,7 @@ public abstract class IdentificationsParser<G, Q, S> implements Parser {
 	protected abstract Q mergeProteins(Q destination, Q origin);
 
 	protected void addToPSMTable(S psm) {
-		final String psmKey = getPSMKey(psm);
+		final String psmKey = getPSMFullSequence(psm);
 		if (psmTableByFullSequence.containsKey(psmKey)) {
 			psmTableByFullSequence.get(psmKey).add(psm);
 		} else {
@@ -119,9 +120,9 @@ public abstract class IdentificationsParser<G, Q, S> implements Parser {
 
 	}
 
-	protected abstract String getPSMKey(S psm);
+	protected abstract String getPSMFullSequence(S psm);
 
-	public Map<String, Q> getDTASelectProteins() throws IOException {
+	public Map<String, Q> getProteins() throws IOException {
 		if (!processed)
 			startProcess();
 
@@ -134,16 +135,16 @@ public abstract class IdentificationsParser<G, Q, S> implements Parser {
 					"Reading proteins with a FASTA database, will not result in Protein groups");
 		if (!processed)
 			startProcess();
-		return dtaSelectProteinGroups;
+		return proteinGroups;
 	}
 
-	public Map<String, S> getDTASelectPSMsByPSMID() throws IOException {
+	public Map<String, S> getPSMsByPSMID() throws IOException {
 		if (!processed)
 			startProcess();
 		return psmTableByPSMID;
 	}
 
-	public Map<String, Set<S>> getDTASelectPSMsByFullSequence() throws IOException {
+	public Map<String, Set<S>> getPSMsByFullSequence() throws IOException {
 		if (!processed)
 			startProcess();
 		return psmTableByFullSequence;
@@ -249,7 +250,7 @@ public abstract class IdentificationsParser<G, Q, S> implements Parser {
 		return null;
 	}
 
-	public String getDTASelectVersion() throws IOException {
+	public String getSoftwareVersion() throws IOException {
 		if (!processed)
 			startProcess();
 
@@ -269,7 +270,7 @@ public abstract class IdentificationsParser<G, Q, S> implements Parser {
 			return;
 		}
 		final Set<String> accessions = new THashSet<String>();
-		final Map<String, Q> dtaSelectProteins = getDTASelectProteins();
+		final Map<String, Q> dtaSelectProteins = getProteins();
 		for (final Q protein : dtaSelectProteins.values()) {
 			final String accession = FastaParser.getACC(getProteinAcc(protein)).getFirstelement();
 			accessions.add(accession);
@@ -411,8 +412,6 @@ public abstract class IdentificationsParser<G, Q, S> implements Parser {
 
 	}
 
-	protected abstract void removeDecoyPSMs();
-
 	/**
 	 * @return the ignoreNotFoundPeptidesInDB
 	 */
@@ -445,7 +444,7 @@ public abstract class IdentificationsParser<G, Q, S> implements Parser {
 	public Set<String> getUniprotAccSet() {
 		final Set<String> ret = new THashSet<String>();
 		try {
-			final Set<String> keySet = getDTASelectProteins().keySet();
+			final Set<String> keySet = getProteins().keySet();
 			for (final String acc : keySet) {
 				final String uniProtACC = FastaParser.getUniProtACC(acc);
 				if (uniProtACC != null) {
@@ -525,5 +524,86 @@ public abstract class IdentificationsParser<G, Q, S> implements Parser {
 
 	public boolean isOnlyReadProteins() {
 		return onlyReadProteins;
+	}
+
+	/**
+	 * Parse DTASelectProtein locus for getting the primary accession, parsing
+	 * it accordingly
+	 *
+	 * @param protein
+	 * @return
+	 */
+	public Accession getProteinAccessionFromProtein(Q protein) {
+		if (protein == null)
+			return null;
+		return getProteinAccessionFromProtein(protein.getAccession(), protein.getDescription());
+	}
+
+	/**
+	 * Parse DTASelectProtein locus for getting the primary accession, parsing
+	 * it accordingly
+	 *
+	 * @param dtaSelectProtein
+	 * @return
+	 */
+	private Accession getProteinAccessionFromProtein(String locus, String description) {
+
+		if (locus == null || "".equals(locus))
+			return null;
+		AccessionEx primaryAccession = null;
+
+		final Pair<String, String> acc = FastaParser.getACC(locus);
+		AccessionType accType = AccessionType.fromValue(acc.getSecondElement());
+		if (accType == null) {
+			accType = AccessionType.IPI;
+		}
+		primaryAccession = new AccessionEx(acc.getFirstelement(), accType);
+
+		primaryAccession.setDescription(description);
+		return primaryAccession;
+	}
+
+	/**
+	 * in case of decoyPattern is enabled, we may have some PSMs assigned to
+	 * those decoy proteins that have not been saved, so we need to discard
+	 * them.<br>
+	 * We iterate over the psms, and we will remove the ones with no proteins
+	 * 
+	 */
+	protected void removeDecoyPSMs() {
+		if (decoyPattern != null) {
+			// in case of decoyPattern is enabled, we may have some PSMs
+			// assigned to
+			// those decoy proteins that have not been saved,
+			// so we need to discard them
+			// We iterate over the psms, and we will remove the ones with no
+			// proteins
+			final Set<String> psmIdsToDelete = new THashSet<String>();
+			for (final String psmID : psmTableByPSMID.keySet()) {
+				if (psmTableByPSMID.get(psmID).getProteins().isEmpty()) {
+					psmIdsToDelete.add(psmID);
+				}
+			}
+			log.info("Removing " + psmIdsToDelete.size() + " PSMs assigned to decoy discarded proteins");
+			for (final String psmID : psmIdsToDelete) {
+				final S psm = psmTableByPSMID.get(psmID);
+				if (!psm.getProteins().isEmpty()) {
+					throw new IllegalArgumentException("This should not happen");
+				}
+				final Set<S> set = psmTableByFullSequence.get(psm.getFullSequence());
+				final boolean removed = set.remove(psm);
+				if (!removed) {
+					throw new IllegalArgumentException("This should not happen");
+				}
+				if (set.isEmpty()) {
+					// remove the entry by full sequence
+					psmTableByFullSequence.remove(psm.getFullSequence());
+				}
+				// remove psmTableByPsmID
+				psmTableByPSMID.remove(psmID);
+			}
+
+			log.info(psmIdsToDelete.size() + " PSMs discarded as decoy");
+		}
 	}
 }
