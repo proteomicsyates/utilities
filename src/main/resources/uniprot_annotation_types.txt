@@ -235,3 +235,14 @@ entry modified	DT
 entry version	DT
 sequence version	DT
 sequence modified	DT
+CDD	DR
+EPD	DR
+Proteomes	DR
+ExpressionAtlas	DR
+MaxQB	DR
+iPTMnet	DR
+Genevisible	DR
+SwissLipids	DR
+PhosphoSitePlus	DR
+SwissPalm	DR
+CORUM	DR
