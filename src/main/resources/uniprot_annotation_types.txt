@@ -246,3 +246,8 @@ SwissLipids	DR
 PhosphoSitePlus	DR
 SwissPalm	DR
 CORUM	DR
+CCDS	DR
+ELM	DR
+ComplexPortal	DR
+CarbonylDB	DR
+TopDownProteomics	DR
