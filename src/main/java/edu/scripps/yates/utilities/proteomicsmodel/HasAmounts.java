@@ -5,5 +5,5 @@ import java.util.Set;
 public interface HasAmounts {
 	public Set<Amount> getAmounts();
 
-	public void addAmount(Amount amount);
+	public boolean addAmount(Amount amount);
 }

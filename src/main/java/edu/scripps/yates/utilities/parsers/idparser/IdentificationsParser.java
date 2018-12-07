@@ -20,25 +20,40 @@ import edu.scripps.yates.utilities.annotations.uniprot.xml.Entry;
 import edu.scripps.yates.utilities.fasta.FastaParser;
 import edu.scripps.yates.utilities.fasta.dbindex.DBIndexInterface;
 import edu.scripps.yates.utilities.files.FileUtils;
+import edu.scripps.yates.utilities.grouping.ProteinGroup;
 import edu.scripps.yates.utilities.ipi.IPI2UniprotACCMap;
-import edu.scripps.yates.utilities.model.enums.AccessionType;
-import edu.scripps.yates.utilities.model.factories.AccessionEx;
 import edu.scripps.yates.utilities.parsers.Parser;
 import edu.scripps.yates.utilities.progresscounter.ProgressCounter;
 import edu.scripps.yates.utilities.progresscounter.ProgressPrintingType;
 import edu.scripps.yates.utilities.proteomicsmodel.Accession;
+import edu.scripps.yates.utilities.proteomicsmodel.PSM;
+import edu.scripps.yates.utilities.proteomicsmodel.Protein;
+import edu.scripps.yates.utilities.proteomicsmodel.enums.AccessionType;
+import edu.scripps.yates.utilities.proteomicsmodel.factories.AccessionEx;
 import edu.scripps.yates.utilities.remote.RemoteSSHFileReference;
 import edu.scripps.yates.utilities.util.Pair;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
 
-public abstract class IdentificationsParser<G, Q extends IdentifiedProteinInterface, S extends IdentifiedPSMInterface>
-		implements Parser {
+/**
+ * This defines how a parser of files with protein/peptide/psm information
+ * should work.<br>
+ * They will read these items that can belong to different MS runs but that they
+ * were analyzed or pulled together.<br>
+ * Proteins with same accession and different msRun will be merged in same
+ * object
+ * 
+ * @author salvador
+ *
+ */
+public abstract class IdentificationsParser implements Parser {
 	private static final Logger log = Logger.getLogger(IdentificationsParser.class);
-	protected final Map<String, Q> proteinsByAccession = new THashMap<String, Q>();
-	protected final Map<String, S> psmTableByPSMID = new THashMap<String, S>();
-	protected final Map<String, Set<S>> psmTableByFullSequence = new THashMap<String, Set<S>>();
-	protected final Set<G> proteinGroups = new THashSet<G>();
+	protected final Map<String, Protein> proteinsByAccession = new THashMap<String, Protein>();
+	protected final Map<String, PSM> psmTableByPSMID = new THashMap<String, PSM>();
+	protected final Map<String, Set<PSM>> psmTableByFullSequence = new THashMap<String, Set<PSM>>();
+	protected final List<ProteinGroup> proteinGroups = new ArrayList<ProteinGroup>();
+	protected final List<Protein> proteinList = new ArrayList<Protein>();
+
 	protected String runPath;
 	protected DBIndexInterface dbIndex;
 	protected boolean processed = false;
@@ -94,9 +109,9 @@ public abstract class IdentificationsParser<G, Q extends IdentifiedProteinInterf
 		log.debug("end of constructor");
 	}
 
-	public IdentificationsParser(String runId, InputStream f) {
+	public IdentificationsParser(String analysisID, InputStream f) {
 		fs = new THashMap<String, InputStream>();
-		fs.put(runId, f);
+		fs.put(analysisID, f);
 
 	}
 
@@ -106,30 +121,42 @@ public abstract class IdentificationsParser<G, Q extends IdentifiedProteinInterf
 
 	protected abstract void process(boolean checkFormat) throws IOException;
 
-	protected abstract Q mergeProteins(Q destination, Q origin);
+	protected Protein mergeProteins(Protein destination, Protein origin) {
+		if (destination == null)
+			return null;
 
-	protected void addToPSMTable(S psm) {
-		final String psmKey = getPSMFullSequence(psm);
+		destination.mergeWithProtein(origin);
+
+		return destination;
+	}
+
+	protected void addToPSMTable(PSM psm) {
+		final String psmKey = psm.getFullSequence();
 		if (psmTableByFullSequence.containsKey(psmKey)) {
 			psmTableByFullSequence.get(psmKey).add(psm);
 		} else {
-			final Set<S> set = new THashSet<S>();
+			final Set<PSM> set = new THashSet<PSM>();
 			set.add(psm);
 			psmTableByFullSequence.put(psmKey, set);
 		}
 
 	}
 
-	protected abstract String getPSMFullSequence(S psm);
-
-	public Map<String, Q> getProteins() throws IOException {
+	public Map<String, Protein> getProteinMap() throws IOException {
 		if (!processed)
 			startProcess();
 
 		return proteinsByAccession;
 	}
 
-	public Set<G> getProteinGroups() throws IOException {
+	public List<Protein> getProteins() throws IOException {
+		if (!processed)
+			startProcess();
+
+		return proteinList;
+	}
+
+	public List<ProteinGroup> getProteinGroups() throws IOException {
 		if (dbIndex != null)
 			throw new IllegalArgumentException(
 					"Reading proteins with a FASTA database, will not result in Protein groups");
@@ -138,13 +165,13 @@ public abstract class IdentificationsParser<G, Q extends IdentifiedProteinInterf
 		return proteinGroups;
 	}
 
-	public Map<String, S> getPSMsByPSMID() throws IOException {
+	public Map<String, PSM> getPSMsByPSMID() throws IOException {
 		if (!processed)
 			startProcess();
 		return psmTableByPSMID;
 	}
 
-	public Map<String, Set<S>> getPSMsByFullSequence() throws IOException {
+	public Map<String, Set<PSM>> getPSMsByFullSequence() throws IOException {
 		if (!processed)
 			startProcess();
 		return psmTableByFullSequence;
@@ -263,19 +290,27 @@ public abstract class IdentificationsParser<G, Q extends IdentifiedProteinInterf
 		return spectraFileFullPaths;
 	}
 
-	protected abstract String getProteinAcc(Q protein);
+	protected boolean addProteinToMapAndList(Protein protein) {
+		proteinList.add(protein);
+		if (!proteinsByAccession.containsKey(protein.getAccession())) {
+			proteinsByAccession.put(protein.getAccession(), protein);
+			return true;
+		}
+		return false;
+	}
 
 	private void mergeProteinsWithSecondaryAccessionsInParser() throws IOException {
 		if (uplr == null) {
 			return;
 		}
 		final Set<String> accessions = new THashSet<String>();
-		final Map<String, Q> dtaSelectProteins = getProteins();
-		for (final Q protein : dtaSelectProteins.values()) {
-			final String accession = FastaParser.getACC(getProteinAcc(protein)).getFirstelement();
-			accessions.add(accession);
+		for (final Protein protein : getProteins()) {
+			final Accession accession = FastaParser.getACC(protein.getAccession());
+			accessions.add(accession.getAccession());
+			protein.getPrimaryAccession().setAccession(accession.getAccession());
+			protein.getPrimaryAccession().setAccessionType(accession.getAccessionType());
 			// just in case the accession has changed:
-			dtaSelectProteins.put(accession, protein);
+			addProteinToMapAndList(protein);
 		}
 		String latestVersion = "latestVersion";
 		if (uniprotVersion != null) {
@@ -308,27 +343,26 @@ public abstract class IdentificationsParser<G, Q extends IdentifiedProteinInterf
 				if (!"".contentEquals(progress)) {
 					log.info(progress);
 				}
-				final Q protein = dtaSelectProteins.get(accession);
+				final Protein protein = proteinsByAccession.get(accession);
 				final Entry entry = annotatedProteins.get(accession);
 				if (entry != null && entry.getAccession() != null && !entry.getAccession().isEmpty()) {
 					final String primaryAccession = entry.getAccession().get(0);
 					if (!accession.equals(primaryAccession) && !accession.contains(primaryAccession)) {
 						log.info("Replacing Uniprot accession " + accession + " by " + primaryAccession);
-						setPrimaryAccession(primaryAccession, protein);
+						protein.setPrimaryAccession(new AccessionEx(primaryAccession, AccessionType.UNIPROT));
 
-						if (dtaSelectProteins.containsKey(primaryAccession)) {
-							// there was already a protein with that
+						if (proteinsByAccession.containsKey(primaryAccession)) {
+							// if there was already a protein with that
 							// primaryAccession
-							final Q quantifiedProtein2 = dtaSelectProteins.get(primaryAccession);
-							// merge quantifiedPRotein and quantifiedPRotein2
-							mergeProteins(protein, quantifiedProtein2);
+							final Protein protein2 = proteinsByAccession.get(primaryAccession);
+							mergeProteins(protein, protein2);
 
 						} else {
 							numObsoletes++;
 						}
 						// remove old/secondary accession
-						dtaSelectProteins.remove(accession);
-						dtaSelectProteins.put(primaryAccession, protein);
+						proteinsByAccession.remove(accession);
+						proteinsByAccession.put(primaryAccession, protein);
 
 					}
 				} else {
@@ -338,7 +372,7 @@ public abstract class IdentificationsParser<G, Q extends IdentifiedProteinInterf
 				}
 			}
 		}
-		final int finalSize = dtaSelectProteins.size();
+		final int finalSize = proteinsByAccession.size();
 		if (initialSize != finalSize) {
 			log.info(finalSize - initialSize
 					+ " proteins with secondary accessions were merged with the corresponding protein with primary accession");
@@ -347,8 +381,6 @@ public abstract class IdentificationsParser<G, Q extends IdentifiedProteinInterf
 			log.info("Obsolete accessions from " + numObsoletes + " proteins were changed to primary ones");
 		}
 	}
-
-	protected abstract void setPrimaryAccession(String primaryAccession, Q protein);
 
 	/**
 	 * To be called after process().<br>
@@ -359,12 +391,12 @@ public abstract class IdentificationsParser<G, Q extends IdentifiedProteinInterf
 	private void mapIPI2Uniprot() {
 		if (!proteinsByAccession.isEmpty()) {
 			final int originalNumberOfEntries = proteinsByAccession.size();
-			final Map<String, Q> newMap = new THashMap<String, Q>();
+			final Map<String, Protein> newMap = new THashMap<String, Protein>();
 			for (final String accession : proteinsByAccession.keySet()) {
 
-				final Pair<String, String> acc = FastaParser.getACC(accession);
-				if (acc.getSecondElement().equals("IPI")) {
-					final Q protein = proteinsByAccession.get(accession);
+				final Accession acc = FastaParser.getACC(accession);
+				if (acc.getAccessionType() == AccessionType.IPI) {
+					final Protein protein = proteinsByAccession.get(accession);
 					Accession primaryAccession = new AccessionEx(accession, AccessionType.IPI);
 					final Pair<Accession, Set<Accession>> pair = IPI2UniprotACCMap.getInstance()
 							.getPrimaryAndSecondaryAccessionsFromIPI(primaryAccession);
@@ -444,7 +476,7 @@ public abstract class IdentificationsParser<G, Q extends IdentifiedProteinInterf
 	public Set<String> getUniprotAccSet() {
 		final Set<String> ret = new THashSet<String>();
 		try {
-			final Set<String> keySet = getProteins().keySet();
+			final Set<String> keySet = getProteinMap().keySet();
 			for (final String acc : keySet) {
 				final String uniProtACC = FastaParser.getUniProtACC(acc);
 				if (uniProtACC != null) {
@@ -533,10 +565,10 @@ public abstract class IdentificationsParser<G, Q extends IdentifiedProteinInterf
 	 * @param protein
 	 * @return
 	 */
-	public Accession getProteinAccessionFromProtein(Q protein) {
+	public Accession getProteinAccessionFromProtein(Protein protein) {
 		if (protein == null)
 			return null;
-		return getProteinAccessionFromProtein(protein.getAccession(), protein.getDescription());
+		return getProteinAccessionFromProtein(protein.getAccession(), protein.getPrimaryAccession().getDescription());
 	}
 
 	/**
@@ -546,18 +578,15 @@ public abstract class IdentificationsParser<G, Q extends IdentifiedProteinInterf
 	 * @param dtaSelectProtein
 	 * @return
 	 */
-	private Accession getProteinAccessionFromProtein(String locus, String description) {
+	public static Accession getProteinAccessionFromProtein(String locus, String description) {
 
 		if (locus == null || "".equals(locus))
 			return null;
-		AccessionEx primaryAccession = null;
 
-		final Pair<String, String> acc = FastaParser.getACC(locus);
-		AccessionType accType = AccessionType.fromValue(acc.getSecondElement());
-		if (accType == null) {
-			accType = AccessionType.IPI;
+		final Accession primaryAccession = FastaParser.getACC(locus);
+		if (primaryAccession.getAccessionType() == null) {
+			primaryAccession.setAccessionType(AccessionType.IPI);
 		}
-		primaryAccession = new AccessionEx(acc.getFirstelement(), accType);
 
 		primaryAccession.setDescription(description);
 		return primaryAccession;
@@ -586,11 +615,11 @@ public abstract class IdentificationsParser<G, Q extends IdentifiedProteinInterf
 			}
 			log.info("Removing " + psmIdsToDelete.size() + " PSMs assigned to decoy discarded proteins");
 			for (final String psmID : psmIdsToDelete) {
-				final S psm = psmTableByPSMID.get(psmID);
+				final PSM psm = psmTableByPSMID.get(psmID);
 				if (!psm.getProteins().isEmpty()) {
 					throw new IllegalArgumentException("This should not happen");
 				}
-				final Set<S> set = psmTableByFullSequence.get(psm.getFullSequence());
+				final Set<PSM> set = psmTableByFullSequence.get(psm.getFullSequence());
 				final boolean removed = set.remove(psm);
 				if (!removed) {
 					throw new IllegalArgumentException("This should not happen");

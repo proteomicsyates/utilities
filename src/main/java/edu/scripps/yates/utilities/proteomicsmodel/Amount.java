@@ -1,7 +1,7 @@
 package edu.scripps.yates.utilities.proteomicsmodel;
 
-import edu.scripps.yates.utilities.model.enums.AmountType;
-import edu.scripps.yates.utilities.model.enums.CombinationType;
+import edu.scripps.yates.utilities.proteomicsmodel.enums.AmountType;
+import edu.scripps.yates.utilities.proteomicsmodel.enums.CombinationType;
 
 public interface Amount {
 

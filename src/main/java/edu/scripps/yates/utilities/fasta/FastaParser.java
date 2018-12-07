@@ -12,10 +12,12 @@ import org.apache.commons.lang.math.NumberUtils;
 import org.apache.log4j.Logger;
 
 import edu.scripps.yates.utilities.masses.AssignMass;
+import edu.scripps.yates.utilities.proteomicsmodel.Accession;
+import edu.scripps.yates.utilities.proteomicsmodel.enums.AccessionType;
+import edu.scripps.yates.utilities.proteomicsmodel.factories.AccessionEx;
 import edu.scripps.yates.utilities.strings.StringUtils;
 import edu.scripps.yates.utilities.taxonomy.UniprotOrganism;
 import edu.scripps.yates.utilities.taxonomy.UniprotSpeciesCodeMap;
-import edu.scripps.yates.utilities.util.Pair;
 import edu.scripps.yates.utilities.util.StringPosition;
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.THashMap;
@@ -242,9 +244,9 @@ public class FastaParser {
 	 * @param id
 	 * @return never null.
 	 */
-	public static Pair<String, String> getACC(String id) {
+	public static Accession getACC(String id) {
 		if (id == null) {
-			return new Pair<String, String>("", UNKNOWN);
+			return new AccessionEx("", AccessionType.UNKNOWN);
 		}
 
 		// if starts by >, remove it
@@ -256,9 +258,9 @@ public class FastaParser {
 
 			final Matcher matcher = untilSpace.matcher(id);
 			if (matcher.find()) {
-				return new Pair<String, String>(matcher.group(0).trim(), UNKNOWN);
+				return new AccessionEx(matcher.group(0).trim(), AccessionType.UNKNOWN);
 			} else {
-				return new Pair<String, String>(id.trim(), UNKNOWN);
+				return new AccessionEx(id.trim(), AccessionType.UNKNOWN);
 			}
 		}
 		final String contaminant = CONTAMINANT;
@@ -267,29 +269,29 @@ public class FastaParser {
 
 			final Matcher matcher = untilSpace.matcher(id);
 			if (matcher.find()) {
-				return new Pair<String, String>(matcher.group(0).trim(), UNKNOWN);
+				return new AccessionEx(matcher.group(0).trim(), AccessionType.UNKNOWN);
 			} else {
-				return new Pair<String, String>(id.trim(), UNKNOWN);
+				return new AccessionEx(id.trim(), AccessionType.UNKNOWN);
 			}
 		}
 		final String uniProtACC = getUniProtACC(id);
 		if (uniProtACC != null) {
-			return new Pair<String, String>(uniProtACC, UNIPROT);
+			return new AccessionEx(uniProtACC, AccessionType.UNIPROT);
 		}
 		final String ncbiacc = getNCBIACC(id);
 		if (ncbiacc != null) {
-			return new Pair<String, String>(ncbiacc, NCBI);
+			return new AccessionEx(ncbiacc, AccessionType.NCBI);
 		}
 		final String ipiacc = getIPIACC(id);
 		if (ipiacc != null) {
-			return new Pair<String, String>(ipiacc, "IPI");
+			return new AccessionEx(ipiacc, AccessionType.IPI);
 		}
 
 		// if contains an space, take the string before the space
 		if (id.contains(" ")) {
-			return new Pair<String, String>(id.substring(0, id.indexOf(" ")), UNKNOWN);
+			return new AccessionEx(id.substring(0, id.indexOf(" ")), AccessionType.UNKNOWN);
 		}
-		return new Pair<String, String>(id.trim(), UNKNOWN);
+		return new AccessionEx(id.trim(), AccessionType.UNKNOWN);
 	}
 
 	/**
@@ -785,6 +787,13 @@ public class FastaParser {
 		return false;
 	}
 
+	/**
+	 * // LLLQQVSL(+80)PELPGEYSMK --> Map<8,+80>
+	 *
+	 * @param seq
+	 * @return a map with the positions and modifications.<br>
+	 *         Note that positions start by 1 in the sequence.
+	 */
 	public static TIntDoubleHashMap getPTMsFromSequence(String rawSeq) {
 		return getPTMsFromSequence(rawSeq, null);
 	}
@@ -1063,14 +1072,14 @@ public class FastaParser {
 
 	public static boolean isContaminant(String accession) {
 
-		if (getACC(accession).getFirstelement().startsWith(CONTAMINANT_PREFIX)) {
+		if (getACC(accession).getAccession().startsWith(CONTAMINANT_PREFIX)) {
 			return true;
 		}
 		return false;
 	}
 
 	public static boolean isReverse(String id) {
-		if (getACC(id).getFirstelement().contains("Reverse")) {
+		if (getACC(id).getAccession().contains("Reverse")) {
 			return true;
 		}
 		return false;

@@ -9,9 +9,6 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import edu.scripps.yates.utilities.fasta.FastaParser;
-import edu.scripps.yates.utilities.model.enums.AccessionType;
-import edu.scripps.yates.utilities.model.enums.AmountType;
-import edu.scripps.yates.utilities.model.factories.OrganismEx;
 import edu.scripps.yates.utilities.proteomicsmodel.Accession;
 import edu.scripps.yates.utilities.proteomicsmodel.Amount;
 import edu.scripps.yates.utilities.proteomicsmodel.AnnotationType;
@@ -27,6 +24,9 @@ import edu.scripps.yates.utilities.proteomicsmodel.Protein;
 import edu.scripps.yates.utilities.proteomicsmodel.ProteinAnnotation;
 import edu.scripps.yates.utilities.proteomicsmodel.Ratio;
 import edu.scripps.yates.utilities.proteomicsmodel.Score;
+import edu.scripps.yates.utilities.proteomicsmodel.enums.AccessionType;
+import edu.scripps.yates.utilities.proteomicsmodel.enums.AmountType;
+import edu.scripps.yates.utilities.proteomicsmodel.factories.OrganismEx;
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.map.hash.TIntObjectHashMap;
@@ -170,7 +170,7 @@ public class ModelUtils {
 	 */
 	public static List<Accession> getAccessions(Protein prot, String accType) {
 		final List<Accession> ret = new ArrayList<Accession>();
-		final List<Accession> proteinAccessions = prot.getSecondaryAccessions();
+		final Set<Accession> proteinAccessions = prot.getSecondaryAccessions();
 		if (proteinAccessions != null) {
 			for (final Accession proteinAccession : proteinAccessions) {
 				if (proteinAccession.getAccessionType().name().equalsIgnoreCase(accType))
@@ -450,47 +450,53 @@ public class ModelUtils {
 	 * @return
 	 */
 	public static String getFullSequence(String cleanSequence, Collection<PTM> ptms) {
-		if (ptms == null || ptms.isEmpty()) {
-			return cleanSequence;
-		}
-		// sort ptms
-		final TIntObjectHashMap<PTM> map = new TIntObjectHashMap<PTM>();
-		for (final PTM ptm : ptms) {
-			final List<PTMSite> ptmSites = ptm.getPTMSites();
-			for (final PTMSite ptmSite : ptmSites) {
-				map.put(ptmSite.getPosition(), ptm);
+		try {
+			if (ptms == null || ptms.isEmpty()) {
+				return cleanSequence;
 			}
-		}
-		final TIntArrayList positions = new TIntArrayList();
-		positions.addAll(map.keys());
-		positions.sort();
-		final StringBuilder sb = new StringBuilder();
-		// n-terminal modification is at position 0
-		if (map.contains(0)) {
-			final PTM ptm = map.get(0);
-			final Double massShift = ptm.getMassShift();
-			if (massShift != null) {
-				sb.append("(");
-				sb.append(massShift);
-				sb.append(")");
+			// sort ptms
+			final TIntObjectHashMap<PTM> map = new TIntObjectHashMap<PTM>();
+			for (final PTM ptm : ptms) {
+				final List<PTMSite> ptmSites = ptm.getPTMSites();
+				for (final PTMSite ptmSite : ptmSites) {
+					map.put(ptmSite.getPosition(), ptm);
+				}
 			}
-		}
-		for (int pos = 1; pos <= cleanSequence.length(); pos++) {
-			if (map.contains(pos)) {
-				sb.append(cleanSequence.charAt(pos));
-				final PTM ptm = map.get(pos);
-
+			final TIntArrayList positions = new TIntArrayList();
+			positions.addAll(map.keys());
+			positions.sort();
+			final StringBuilder sb = new StringBuilder();
+			// n-terminal modification is at position 0
+			if (map.contains(0)) {
+				final PTM ptm = map.get(0);
 				final Double massShift = ptm.getMassShift();
 				if (massShift != null) {
 					sb.append("(");
 					sb.append(massShift);
 					sb.append(")");
 				}
-
-			} else {
-				sb.append(cleanSequence.charAt(pos));
 			}
+			for (int pos = 1; pos <= cleanSequence.length(); pos++) {
+				if (map.contains(pos)) {
+					sb.append(cleanSequence.charAt(pos));
+					final PTM ptm = map.get(pos);
+
+					final Double massShift = ptm.getMassShift();
+					if (massShift != null) {
+						sb.append("(");
+						sb.append(massShift);
+						sb.append(")");
+					}
+
+				} else {
+					sb.append(cleanSequence.charAt(pos));
+				}
+			}
+			return sb.toString();
+		} catch (final Exception e) {
+			e.printStackTrace();
+			log.error(e.getMessage());
+			throw e;
 		}
-		return sb.toString();
 	}
 }

@@ -5,5 +5,5 @@ import java.util.Set;
 public interface HasConditions {
 	public Set<Condition> getConditions();
 
-	public void addCondition(Condition condition);
+	public boolean addCondition(Condition condition);
 }

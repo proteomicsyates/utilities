@@ -5,6 +5,6 @@ import java.util.Set;
 public interface HasScores {
 	public Set<Score> getScores();
 
-	public void addScore(Score score);
+	public boolean addScore(Score score);
 
 }

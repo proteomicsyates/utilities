@@ -15,10 +15,10 @@ import org.apache.log4j.Logger;
 import org.springframework.core.io.ClassPathResource;
 
 import edu.scripps.yates.utilities.ipi.UniprotEntry.UNIPROT_TYPE;
-import edu.scripps.yates.utilities.model.enums.AccessionType;
-import edu.scripps.yates.utilities.model.factories.AccessionEx;
 import edu.scripps.yates.utilities.proteomicsmodel.Accession;
 import edu.scripps.yates.utilities.proteomicsmodel.Protein;
+import edu.scripps.yates.utilities.proteomicsmodel.enums.AccessionType;
+import edu.scripps.yates.utilities.proteomicsmodel.factories.AccessionEx;
 import edu.scripps.yates.utilities.proteomicsmodel.utils.ModelUtils;
 import edu.scripps.yates.utilities.util.Pair;
 import gnu.trove.map.hash.THashMap;

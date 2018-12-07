@@ -1,23 +1,26 @@
 package edu.scripps.yates.utilities.proteomicsmodel;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Set;
 
 import edu.scripps.yates.utilities.grouping.GroupableProtein;
+import edu.scripps.yates.utilities.proteomicsmodel.enums.AccessionType;
 
 /**
- * This class represents a Protein, that has been detected in one {@link MSRun}
- * and be measured ({@link Amount}) in that run.<br>
- * However, {@link Protein} may belongs to a different conditions.
+ * This class represents a Protein, that has been detected in N {@link MSRun}s
+ * and be measured with an ({@link Amount}) in a Experimental condition
+ * ({@link Condition}) .<br>
+ * {@link Protein} may belongs to a different conditions ({@link Condition}).
  *
  * @author Salva
  *
  */
-public interface Protein extends HasScores, HasRatios, HasAmounts, HasConditions, HasPsms, HasMSRun, GroupableProtein {
+public interface Protein
+		extends HasScores, HasRatios, HasAmounts, HasConditions, HasPsms, HasPeptides, HasMsRuns, GroupableProtein {
 
 	public Accession getPrimaryAccession();
 
-	public List<Accession> getSecondaryAccessions();
+	public Set<Accession> getSecondaryAccessions();
 
 	/**
 	 * @return the genes
@@ -48,13 +51,9 @@ public interface Protein extends HasScores, HasRatios, HasAmounts, HasConditions
 	 */
 	public Boolean passThreshold(String thresholdName);
 
-	public Set<Peptide> getPeptides();
+	public Integer getLength();
 
-	public int getLength();
-
-	public double getPi();
-
-	public double getMW();
+	public Double getPi();
 
 	public String getSequence();
 
@@ -62,13 +61,52 @@ public interface Protein extends HasScores, HasRatios, HasAmounts, HasConditions
 
 	public void setOrganism(Organism organism);
 
-	public void setMw(double mw);
+	public void setLength(Integer length);
 
-	public void setPi(double pi);
+	public boolean addGene(Gene gene);
 
-	public void setLength(int length);
+	public void mergeWithProtein(Protein otherProtein);
 
-	public void addPeptide(Peptide peptide);
+	public Double getCoverage();
 
-	public void addGene(Gene gene);
+	public Double getEmpai();
+
+	public String getDescription();
+
+	public Double getMw();
+
+	public Double getNsaf_norm();
+
+	public Double getNsaf();
+
+	public String getSearchEngine();
+
+	public boolean addThreshold(Threshold threshold);
+
+	public void setEmpai(Double empai);
+
+	public void setNsaf(Double nsaf);
+
+	public void setNsaf_norm(Double nsaf_norm);
+
+	public void setCoverage(Double coverage);
+
+	public void setMw(Double mw);
+
+	public void setPi(Double pi);
+
+	public void setPrimaryAccession(Accession accession);
+
+	public void setSearchEngine(String searchEngine);
+
+	public void setPrimaryAccession(AccessionType accessionType, String accession);
+
+	public boolean addSecondaryAccession(AccessionType accessionType, String accession);
+
+	public boolean addSecondaryAccession(Accession accession);
+
+	public boolean addProteinAnnotation(ProteinAnnotation proteinAnnotation);
+
+	public void addProteinAnnotations(Collection<ProteinAnnotation> proteinAnnotations);
+
 }

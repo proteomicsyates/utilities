@@ -251,3 +251,10 @@ ELM	DR
 ComplexPortal	DR
 CarbonylDB	DR
 TopDownProteomics	DR
+UniLectin	DR
+MoonDB	DR
+MoonProt	DR
+SFLD	DR
+ESTHER	DR
+GeneDB	DR
+GlyConnect	DR

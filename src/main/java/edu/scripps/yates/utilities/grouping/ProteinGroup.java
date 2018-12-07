@@ -14,10 +14,14 @@ public class ProteinGroup extends ArrayList<GroupableProtein> {
 	 *
 	 */
 	private static final long serialVersionUID = 1516424786690373161L;
-	private static final Logger log = Logger.getLogger("log4j.logger.org.proteored");
+	private static final Logger log = Logger.getLogger(ProteinGroup.class);
 	private ProteinEvidence evidence;
 	private List<String> accessions;
 	private String key;
+
+	public ProteinGroup() {
+		super();
+	}
 
 	public ProteinGroup(ProteinEvidence e) {
 		super();

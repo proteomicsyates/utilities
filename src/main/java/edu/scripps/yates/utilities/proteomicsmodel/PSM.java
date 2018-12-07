@@ -2,8 +2,8 @@ package edu.scripps.yates.utilities.proteomicsmodel;
 
 import edu.scripps.yates.utilities.grouping.GroupablePeptide;
 
-public interface PSM
-		extends HasScores, HasRatios, HasAmounts, HasConditions, HasMSRun, GroupablePeptide, HasProteins, HasPTMs {
+public interface PSM extends HasScores, HasRatios, HasAmounts, HasConditions, HasMSRun, GroupablePeptide, HasProteins,
+		HasPTMs, HasPeptide {
 
 	public Double getExperimentalMH();
 
@@ -13,11 +13,11 @@ public interface PSM
 
 	public Double getTotalIntensity();
 
-	public Integer getSPR();
+	public Integer getSpr();
 
 	public Double getIonProportion();
 
-	public Double getPI();
+	public Double getPi();
 
 	/**
 	 * Gets the peptide sequence including PTMs Nterm and Cterm aminoacids, as
@@ -27,20 +27,17 @@ public interface PSM
 	 */
 	public String getFullSequence();
 
-	public Peptide getPeptide();
-
-	public void setPeptide(Peptide peptide);
-
-	public int getDBId();
+	public int getUniqueIdentifier();
 
 	public String getAfterSeq();
 
 	public String getBeforeSeq();
 
-	public String getChargeState();
+	public Integer getChargeState();
 
 	public String getScanNumber();
 
-	@Override
-	public boolean equals(Object obj);
+	public void setSearchEngine(String searchEngine);
+
+	public String getSearchEngine();
 }

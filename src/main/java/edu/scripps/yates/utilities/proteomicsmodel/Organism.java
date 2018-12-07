@@ -6,4 +6,6 @@ public interface Organism {
 
 	public String getName();
 
+	public void setName(String organismName);
+
 }

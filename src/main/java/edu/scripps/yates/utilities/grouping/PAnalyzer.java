@@ -129,8 +129,8 @@ public class PAnalyzer {
 		TIntHashSet proteinIds = new TIntHashSet();
 		boolean someProteinwithoutPeptides = false;
 		for (GroupableProtein prot : proteins) {
-			if (!proteinIds.contains(prot.getDBId())) {
-				proteinIds.add(prot.getDBId());
+			if (!proteinIds.contains(prot.getUniqueID())) {
+				proteinIds.add(prot.getUniqueID());
 				iProt = mProts.get(prot.getAccession());
 				if (iProt == null) {
 					iProt = new InferenceProtein(prot);

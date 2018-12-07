@@ -19,7 +19,7 @@ public class IndexedProtein {
 	public IndexedProtein(String fastaDefLine, long id) {
 		// this.accession = Fasta.getAccession(fastaDefLine);
 		// accession = Fasta.getSequestLikeAccession(fastaDefLine);
-		accession = FastaParser.getACC(fastaDefLine).getFirstelement();
+		accession = FastaParser.getACC(fastaDefLine).getAccession();
 		setFastaDefLine(fastaDefLine);
 		this.id = id;
 	}

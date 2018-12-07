@@ -1,6 +1,7 @@
 package edu.scripps.yates.utilities.proteomicsmodel.staticstorage;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -13,6 +14,7 @@ import edu.scripps.yates.utilities.proteomicsmodel.PSM;
 import edu.scripps.yates.utilities.proteomicsmodel.Peptide;
 import edu.scripps.yates.utilities.proteomicsmodel.Protein;
 import edu.scripps.yates.utilities.staticstorage.ItemStorage;
+import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
 
 /**
@@ -28,6 +30,7 @@ public class StaticProteomicsModelStorage {
 	private static final ItemStorage<Protein> proteinStorage = new ItemStorage<Protein>();
 	private static final ItemStorage<Peptide> peptideStorage = new ItemStorage<Peptide>();
 	private static final ItemStorage<PSM> psmStorage = new ItemStorage<PSM>();
+	private static final Map<String, MSRun> msRunsByID = new THashMap<String, MSRun>();
 
 	public static void clearData() {
 		if (!proteinStorage.isEmpty()) {
@@ -42,6 +45,19 @@ public class StaticProteomicsModelStorage {
 			log.info("Clearing static psm storage with " + psmStorage.sizeByKeys());
 		}
 		psmStorage.clearData();
+		msRunsByID.clear();
+	}
+
+	public static void addMSRun(MSRun msRun) {
+		msRunsByID.put(msRun.getRunId(), msRun);
+	}
+
+	public static boolean containsMSRun(String msRunID) {
+		return msRunsByID.containsKey(msRunID);
+	}
+
+	public static MSRun getMSRun(String msRunID) {
+		return msRunsByID.get(msRunID);
 	}
 
 	public static void addProtein(Protein protein, String msRunID, String conditionID) {
@@ -49,13 +65,17 @@ public class StaticProteomicsModelStorage {
 	}
 
 	public static void addProtein(Protein protein, MSRun msRun, String conditionID) {
-		addProtein(protein, msRun.getRunId(), conditionID);
+		String msRunID = null;
+		if (msRun != null) {
+			msRunID = msRun.getRunId();
+		}
+		addProtein(protein, msRunID, conditionID);
 	}
 
 	public static void addProtein(Protein protein, String msRunID, String conditionID, int excelRowIndex) {
 		proteinStorage.add(protein, msRunID, conditionID, excelRowIndex, protein.getAccession());
 		if (protein.getSecondaryAccessions() != null) {
-			for (Accession secondaryAccession : protein.getSecondaryAccessions()) {
+			for (final Accession secondaryAccession : protein.getSecondaryAccessions()) {
 				proteinStorage.add(protein, msRunID, conditionID, excelRowIndex, secondaryAccession.getAccession());
 			}
 		}
@@ -73,7 +93,7 @@ public class StaticProteomicsModelStorage {
 		if (conditionID == null) {
 			// log.info("condition is null for peptide");
 		}
-		peptideStorage.add(peptide, msRunID, conditionID, excelRowIndex, peptide.getSequence());
+		peptideStorage.add(peptide, msRunID, conditionID, excelRowIndex, peptide.getFullSequence());
 	}
 
 	public static void addPSM(PSM psm, String runID, String conditionID) {
@@ -136,8 +156,8 @@ public class StaticProteomicsModelStorage {
 	}
 
 	public static Set<Protein> getProtein(Collection<String> msRunIDs, String conditionID, String accession) {
-		Set<Protein> set = new THashSet<Protein>();
-		for (String msRunID : msRunIDs) {
+		final Set<Protein> set = new THashSet<Protein>();
+		for (final String msRunID : msRunIDs) {
 			set.addAll(getProtein(msRunID, conditionID, -1, accession));
 		}
 		return set;
@@ -145,8 +165,8 @@ public class StaticProteomicsModelStorage {
 
 	public static Set<Protein> getProtein(Collection<String> msRunIDs, String conditionID, int excelRowIndex,
 			String accession) {
-		Set<Protein> set = new THashSet<Protein>();
-		for (String msRunID : msRunIDs) {
+		final Set<Protein> set = new THashSet<Protein>();
+		for (final String msRunID : msRunIDs) {
 			set.addAll(proteinStorage.get(msRunID, conditionID, excelRowIndex, accession));
 		}
 		return set;
@@ -218,8 +238,8 @@ public class StaticProteomicsModelStorage {
 	}
 
 	public static Set<Peptide> getPeptide(Collection<String> msRunIDs, String conditionID, String sequence) {
-		Set<Peptide> set = new THashSet<Peptide>();
-		for (String msRunID : msRunIDs) {
+		final Set<Peptide> set = new THashSet<Peptide>();
+		for (final String msRunID : msRunIDs) {
 			set.addAll(getPeptide(msRunID, conditionID, -1, sequence));
 		}
 		return set;
@@ -227,8 +247,8 @@ public class StaticProteomicsModelStorage {
 
 	public static Set<Peptide> getPeptide(Collection<String> msRunIDs, String conditionID, int excelRowIndex,
 			String sequence) {
-		Set<Peptide> set = new THashSet<Peptide>();
-		for (String msRunID : msRunIDs) {
+		final Set<Peptide> set = new THashSet<Peptide>();
+		for (final String msRunID : msRunIDs) {
 			set.addAll(peptideStorage.get(msRunID, conditionID, excelRowIndex, sequence));
 		}
 		return set;

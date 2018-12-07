@@ -1,9 +1,13 @@
 package edu.scripps.yates.utilities.proteomicsmodel;
 
-import java.util.Set;
+import java.util.List;
 
 public interface HasPsms {
-	public Set<PSM> getPSMs();
+	public List<PSM> getPSMs();
 
-	public void addPSM(PSM psm);
+	public boolean addPSM(PSM psm, boolean recursively);
+
+	public Integer getSpectrumCount();
+
+	public void setSpectrumCount(Integer spc);
 }

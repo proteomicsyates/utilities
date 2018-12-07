@@ -5,5 +5,5 @@ import java.util.Set;
 public interface HasProteins {
 	public Set<Protein> getProteins();
 
-	public void addProtein(Protein protein);
+	public boolean addProtein(Protein protein, boolean recursively);
 }

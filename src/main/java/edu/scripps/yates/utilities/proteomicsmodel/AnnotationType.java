@@ -20,6 +20,8 @@ public class AnnotationType {
 
 	private static AnnotationType[] values = loadFromFile();
 
+	private static Set<String> notFoundAnnotations = new THashSet<String>();
+
 	private final String keyword;
 	private final Set<UniprotLineHeader> ulhs = new THashSet<UniprotLineHeader>();
 	private final static String UNIPROT_ANNOTATIONS_SEPARATOR = "-!-";
@@ -162,9 +164,13 @@ public class AnnotationType {
 			if (annotationType.keyword.equalsIgnoreCase(key))
 				return annotationType;
 		}
-		log.error("Annotation type '" + key + "' is not recognized in the list of type in the file "
-				+ edu.scripps.yates.utilities.properties.PropertiesUtil
-						.getPropertyValue("uniprot.annotation.types.file"));
+		if (!notFoundAnnotations.contains(key)) {
+			notFoundAnnotations.add(key);
+
+			log.error("Annotation type '" + key + "' is not recognized in the list of type in the file "
+					+ edu.scripps.yates.utilities.properties.PropertiesUtil
+							.getPropertyValue("uniprot.annotation.types.file"));
+		}
 		return null;
 	}
 

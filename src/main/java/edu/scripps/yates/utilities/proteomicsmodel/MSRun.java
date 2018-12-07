@@ -13,4 +13,6 @@ public interface MSRun {
 
 	public Project getProject();
 
+	public void setPath(String runPath);
+
 }

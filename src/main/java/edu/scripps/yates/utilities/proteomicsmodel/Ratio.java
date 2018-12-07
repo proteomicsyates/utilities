@@ -1,7 +1,7 @@
 package edu.scripps.yates.utilities.proteomicsmodel;
 
-import edu.scripps.yates.utilities.model.enums.AggregationLevel;
-import edu.scripps.yates.utilities.model.enums.CombinationType;
+import edu.scripps.yates.utilities.proteomicsmodel.enums.AggregationLevel;
+import edu.scripps.yates.utilities.proteomicsmodel.enums.CombinationType;
 
 public interface Ratio {
 
