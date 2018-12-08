@@ -1,12 +1,15 @@
 package edu.scripps.yates.utilities.grouping;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
 
+import edu.scripps.yates.utilities.annotations.uniprot.xml.Entry;
 import gnu.trove.set.hash.THashSet;
 
 public class ProteinGroup extends ArrayList<GroupableProtein> {
@@ -183,6 +186,18 @@ public class ProteinGroup extends ArrayList<GroupableProtein> {
 
 	}
 
+	public String getAccessionString(String separator) {
+		final List<String> accs = getAccessions();
+		final StringBuilder sb = new StringBuilder();
+		for (final String acc : accs) {
+			if (!"".equals(sb.toString())) {
+				sb.append(separator);
+			}
+			sb.append(acc);
+		}
+		return sb.toString();
+	}
+
 	@Override
 	public void add(int index, GroupableProtein element) {
 		accessions = null;
@@ -230,4 +245,120 @@ public class ProteinGroup extends ArrayList<GroupableProtein> {
 		return super.add(e);
 	}
 
+	public String getAccessionStringByEvidence(Map<String, Entry> uniprotEntries, String separator) throws IOException {
+
+		final List<Boolean> validArray = filterAccessionsByEvidence(uniprotEntries);
+		int index = 0;
+		final StringBuilder sb = new StringBuilder();
+		for (final String acc : getAccessions()) {
+			if (!validArray.get(index++)) {
+				continue;
+			}
+			if (!"".equals(sb.toString())) {
+				sb.append(separator);
+			}
+			sb.append(acc);
+
+		}
+		return sb.toString();
+	}
+
+	public List<String> getAccessionsFilteredByEvidence(Map<String, Entry> uniprotEntries, String separator) {
+
+		final List<Boolean> validArray = filterAccessionsByEvidence(uniprotEntries);
+		int index = 0;
+		final List<String> ret = new ArrayList<String>();
+		for (final String acc : getAccessions()) {
+			if (!validArray.get(index++)) {
+				continue;
+			}
+			ret.add(acc);
+
+		}
+		return ret;
+	}
+
+	private List<Boolean> filterAccessionsByEvidence(Map<String, Entry> uniprotEntries) {
+
+		final List<Boolean> ret = new ArrayList<>();
+		final List<Boolean> groupEvidenceArray = new ArrayList<>();
+		final List<Boolean> uniprotEvidenceArray = new ArrayList<>();
+		// only swissprot is valid
+		boolean thereIsASwissProt = false;
+		boolean thereIsAConclusiveProt = false;
+		for (final String acc : getAccessions()) {
+			boolean valid = false;
+			try {
+
+				final ProteinEvidence evidence = getEvidence(acc);
+				if (evidence == ProteinEvidence.CONCLUSIVE) {
+					groupEvidenceArray.add(true);
+					thereIsAConclusiveProt = true;
+
+					valid = true;
+				} else if (evidence == ProteinEvidence.NONCONCLUSIVE) {
+					groupEvidenceArray.add(false);
+					valid = false;
+				} else {
+					groupEvidenceArray.add(false);
+					if (uniprotEntries.containsKey(acc)) {
+						final Entry protein2 = uniprotEntries.get(acc);
+						if (protein2 != null) {
+							final String dataset = protein2.getDataset();
+							if (dataset != null) {
+								if (dataset.toLowerCase().equals("swiss-prot")) {
+									thereIsASwissProt = true;
+									uniprotEvidenceArray.add(true);
+									valid = true;
+								} else {
+									uniprotEvidenceArray.add(false);
+								}
+							}
+						} else {
+							uniprotEvidenceArray.add(false);
+						}
+					} else {
+						uniprotEvidenceArray.add(false);
+					}
+				}
+			} finally {
+				ret.add(valid);
+			}
+		}
+		boolean allSwissprot = true;
+		for (final Boolean uniprotEvidence : uniprotEvidenceArray) {
+			if (!uniprotEvidence) {
+				allSwissprot = false;
+			}
+		}
+
+		if (!thereIsASwissProt && !thereIsAConclusiveProt) {
+			ret.set(0, true);
+		}
+		if (allSwissprot) {
+			if (thereIsAConclusiveProt) {
+				// only report the conclusive ones
+				return groupEvidenceArray;
+			} else {
+				// do not report nonconclusive
+
+				if (uniprotEvidenceArray.size() == ret.size()) {
+					return uniprotEvidenceArray;
+				}
+			}
+		}
+
+		return ret;
+	}
+
+	private ProteinEvidence getEvidence(String acc) {
+
+		for (final GroupableProtein groupableProtein : this) {
+			if (groupableProtein.getAccession().equals(acc)) {
+				return groupableProtein.getEvidence();
+			}
+		}
+
+		return null;
+	}
 }

@@ -38,6 +38,8 @@ public abstract class AbstractPSM implements PSM {
 	private String scanNumber;
 	private Double rtInMinutes;
 	private String searchEngine;
+	private Double deltaCn;
+	private Double xCorr;
 
 	@Override
 	public Set<Score> getScores() {
@@ -328,6 +330,7 @@ public abstract class AbstractPSM implements PSM {
 		this.ionProportion = ionProportion;
 	}
 
+	@Override
 	public Double getRtInMinutes() {
 		return rtInMinutes;
 	}
@@ -365,5 +368,23 @@ public abstract class AbstractPSM implements PSM {
 
 	public void setSequence(String sequence) {
 		this.sequence = sequence;
+	}
+
+	@Override
+	public Double getDeltaCn() {
+		return deltaCn;
+	}
+
+	@Override
+	public Double getXCorr() {
+		return xCorr;
+	}
+
+	public void setXCorr(double xcorr2) {
+		xCorr = xcorr2;
+	}
+
+	public void setDeltaCn(Double deltaCn) {
+		this.deltaCn = deltaCn;
 	}
 }

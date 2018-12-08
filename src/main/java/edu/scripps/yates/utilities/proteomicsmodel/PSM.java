@@ -40,4 +40,10 @@ public interface PSM extends HasScores, HasRatios, HasAmounts, HasConditions, Ha
 	public void setSearchEngine(String searchEngine);
 
 	public String getSearchEngine();
+
+	public Double getDeltaCn();
+
+	public Double getXCorr();
+
+	Double getRtInMinutes();
 }

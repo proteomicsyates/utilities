@@ -3,13 +3,15 @@ package edu.scripps.yates.utilities.parsers.idparser;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.scripps.yates.utilities.proteomicsmodel.PTM;
+import edu.scripps.yates.utilities.proteomicsmodel.factories.PTMEx;
 import edu.scripps.yates.utilities.staticstorage.StaticStrings;
 
 public class PeptideSequence {
 	private final String sequence;
 	private char beforeSeq;
 	private char afterSeq;
-	private final List<PTMModification> modifications = new ArrayList<PTMModification>();
+	private final List<PTM> modifications = new ArrayList<PTM>();
 	private final String rawSequence;
 	public static final char NULL_SEQ = '-';
 
@@ -51,7 +53,7 @@ public class PeptideSequence {
 				if (modPosition == 0) {
 					charAt = beforeSeq;
 				} else {
-					charAt = modifications.get(modifications.size() - 1).getAa();
+					charAt = modifications.get(modifications.size() - 1).getPTMSites().get(0).getAA().charAt(0);
 				}
 			}
 			addModification(modificationShift, modPosition, charAt);
@@ -72,7 +74,7 @@ public class PeptideSequence {
 	 * @param aa
 	 */
 	private void addModification(Double modificationShift, int modPosition, char aa) {
-		modifications.add(new PTMModification(modificationShift, modPosition, aa));
+		modifications.add(new PTMEx(modificationShift, aa, modPosition));
 	}
 
 	/**
@@ -106,7 +108,7 @@ public class PeptideSequence {
 	/**
 	 * @return the modifications
 	 */
-	public List<PTMModification> getModifications() {
+	public List<PTM> getModifications() {
 		return modifications;
 	}
 

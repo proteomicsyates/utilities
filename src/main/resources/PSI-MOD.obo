@@ -8246,7 +8246,7 @@ xref: MassAvg: "482.35"
 xref: MassMono: "482.106346"
 xref: Origin: "H"
 xref: Source: "natural"
-xref: TermSpec: "none
+xref: TermSpec: "none"
 xref: UniMod: "UniMod:413"
 is_a: MOD:00909 ! modified L-histidine residue
 is_a: MOD:01163 ! guanylated residue
@@ -39393,7 +39393,8 @@ is_transitive: true
 [Term]
 id: MOD:90000
 name: AHA
-def: "AHA (custom modification from Yates lab)"
+def: "AHA (custom modification from Yates lab)" [PubMed:18688235]
+synonym: "AHA" EXACT PSI-MOD-alternate []
 xref: DiffMono: "523.2746"
 xref: Origin: "X"
 xref: Source: "artifact"
@@ -39403,9 +39404,10 @@ is_a: MOD:00912 ! modified L-lysine residue
 [Term]
 id: MOD:90001
 name: biotin-maleimide
-def: "biotin-maleimide (custom modification from Yates lab)"
+def: "biotin-maleimide (custom modification from Yates lab)" [PubMed:18688235]
+synonym: "biotin-maleimide" EXACT PSI-MOD-alternate []
 xref: DiffMono: "451.1889"
 xref: Origin: "C"
 xref: Source: "artifact"
 xref: TermSpec: "none"
-
+is_a: MOD:00912 ! modified L-lysine residue
