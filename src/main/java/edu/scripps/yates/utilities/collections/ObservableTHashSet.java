@@ -1,4 +1,4 @@
-package edu.scripps.yates.utilities.trove;
+package edu.scripps.yates.utilities.collections;
 
 import java.util.Collection;
 import java.util.HashSet;

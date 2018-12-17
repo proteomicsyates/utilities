@@ -1,4 +1,4 @@
-package edu.scripps.yates.utilities.trove;
+package edu.scripps.yates.utilities.collections;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -16,7 +16,7 @@ public class ObservableTObjectHashIterator<T> extends TObjectHashIterator<T> {
 
 	public ObservableTObjectHashIterator(TObjectHash<T> hash, Set<CollectionObserver<T>> collectionObservers) {
 		super(hash);
-		collectionObservers.addAll(collectionObservers);
+		this.collectionObservers.addAll(collectionObservers);
 	}
 
 	@Override

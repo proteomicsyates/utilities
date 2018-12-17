@@ -16,7 +16,10 @@ import edu.scripps.yates.utilities.proteomicsmodel.enums.AccessionType;
  *
  */
 public interface Protein
-		extends HasScores, HasRatios, HasAmounts, HasConditions, HasPsms, HasPeptides, HasMsRuns, GroupableProtein {
+		extends HasScores, HasRatios, HasAmounts, HasConditions, HasPsms, HasPeptides, HasMsRuns, GroupableProtein,
+		// a protein has several taxonomies because sometimes it represents a
+		// set of proteins
+		HasTaxonomies {
 
 	public Accession getPrimaryAccession();
 
@@ -53,7 +56,7 @@ public interface Protein
 
 	public Integer getLength();
 
-	public Double getPi();
+	public Float getPi();
 
 	public String getSequence();
 
@@ -67,35 +70,39 @@ public interface Protein
 
 	public void mergeWithProtein(Protein otherProtein);
 
-	public Double getCoverage();
+	public Float getCoverage();
 
-	public Double getEmpai();
+	public Float getEmpai();
 
 	public String getDescription();
 
-	public Double getMw();
+	public void setDescription(String description);
 
-	public Double getNsaf_norm();
+	public Float getMw();
 
-	public Double getNsaf();
+	public Float getNsaf_norm();
+
+	public Float getNsaf();
 
 	public String getSearchEngine();
 
 	public boolean addThreshold(Threshold threshold);
 
-	public void setEmpai(Double empai);
+	public void setEmpai(Float empai);
 
-	public void setNsaf(Double nsaf);
+	public void setNsaf(Float nsaf);
 
-	public void setNsaf_norm(Double nsaf_norm);
+	public void setNsaf_norm(Float nsaf_norm);
 
-	public void setCoverage(Double coverage);
+	public void setCoverage(Float coverage);
 
-	public void setMw(Double mw);
+	public void setMw(Float mw);
 
-	public void setPi(Double pi);
+	public void setPi(Float pi);
 
 	public void setPrimaryAccession(Accession accession);
+
+	public void setPrimaryAccession(String accession);
 
 	public void setSearchEngine(String searchEngine);
 

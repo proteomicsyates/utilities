@@ -17,4 +17,6 @@ public interface Amount {
 
 	public Boolean isManualSpc();
 
+	public void setCondition(Condition condition);
+
 }

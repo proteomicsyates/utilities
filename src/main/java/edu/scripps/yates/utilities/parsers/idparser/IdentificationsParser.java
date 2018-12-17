@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -94,7 +95,7 @@ public abstract class IdentificationsParser implements Parser {
 
 	}
 
-	public IdentificationsParser(List<File> s) throws FileNotFoundException {
+	public IdentificationsParser(Collection<File> s) throws FileNotFoundException {
 		fs = new THashMap<String, InputStream>();
 		for (final File remoteFile : s) {
 			fs.put(remoteFile.getAbsolutePath(), FileUtils.getInputStream(remoteFile));
@@ -117,6 +118,7 @@ public abstract class IdentificationsParser implements Parser {
 
 	private void process() throws IOException {
 		process(false);
+		processed = true;
 	}
 
 	protected abstract void process(boolean checkFormat) throws IOException;
@@ -438,9 +440,9 @@ public abstract class IdentificationsParser implements Parser {
 		// third merge proteins with secondary accessions
 		mergeProteinsWithSecondaryAccessionsInParser();
 
-		log.info(proteinsByAccession.size() + " proteins read in " + fs.size() + " DTASelect file(s).");
-		log.info(psmTableByFullSequence.size() + " peptides read in " + fs.size() + " DTASelect file(s).");
-		log.info(psmTableByPSMID.size() + " psms read in " + fs.size() + " DTASelect file(s).");
+		log.info(proteinsByAccession.size() + " proteins read in " + fs.size() + " file(s).");
+		log.info(psmTableByFullSequence.size() + " peptides read in " + fs.size() + " file(s).");
+		log.info(psmTableByPSMID.size() + " psms read in " + fs.size() + " file(s).");
 
 	}
 

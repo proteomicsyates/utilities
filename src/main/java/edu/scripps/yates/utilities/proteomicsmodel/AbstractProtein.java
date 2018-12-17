@@ -4,14 +4,19 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
+import edu.scripps.yates.utilities.fasta.FastaParser;
 import edu.scripps.yates.utilities.grouping.GroupablePeptide;
 import edu.scripps.yates.utilities.grouping.ProteinEvidence;
 import edu.scripps.yates.utilities.grouping.ProteinGroup;
 import edu.scripps.yates.utilities.proteomicsmodel.enums.AccessionType;
 import edu.scripps.yates.utilities.proteomicsmodel.factories.AccessionEx;
+import edu.scripps.yates.utilities.proteomicsmodel.factories.GeneEx;
+import edu.scripps.yates.utilities.proteomicsmodel.utils.ModelUtils;
+import edu.scripps.yates.utilities.proteomicsmodel.utils.PSMsOfAProtein;
 import gnu.trove.set.hash.THashSet;
 
 public abstract class AbstractProtein implements Protein {
@@ -20,7 +25,7 @@ public abstract class AbstractProtein implements Protein {
 	private Set<Ratio> ratios;
 	private Set<Amount> amounts;
 	private Set<Condition> conditions;
-	private List<PSM> psms;
+	private PSMsOfAProtein psms;
 	protected Integer spectrumCount;
 	private Set<MSRun> msRuns;
 	private ProteinGroup proteinGroup;
@@ -30,17 +35,21 @@ public abstract class AbstractProtein implements Protein {
 	private Set<Gene> genes;
 	private Set<ProteinAnnotation> annotations;
 	private Set<Threshold> thresholds;
-	private Set<Peptide> peptides;
-	private Double coverage;
-	private Double empai;
-	private Double mw;
-	private Double nsaf_norm;
-	private Double nsaf;
+	private THashSet<Peptide> peptides;
+	private Float coverage;
+	private Float empai;
+	private Float mw;
+	private Float nsaf_norm;
+	private Float nsaf;
 	private String searchEngine;
-	private Double pi;
+	private Float pi;
 	protected Integer length;
 	private Organism organism;
 	private String sequence;
+	private Set<String> taxonomies;
+	private boolean ignoreTaxonomy;
+	private boolean genesParsed = false;
+	private boolean organismParsed;
 
 	@Override
 	public Set<Score> getScores() {
@@ -101,6 +110,9 @@ public abstract class AbstractProtein implements Protein {
 			if (conditions == null) {
 				conditions = new THashSet<Condition>();
 			}
+			if (condition.getSample() != null && condition.getSample().getOrganism() != null) {
+				setOrganism(condition.getSample().getOrganism());
+			}
 			return conditions.add(condition);
 		}
 		return false;
@@ -109,7 +121,7 @@ public abstract class AbstractProtein implements Protein {
 	@Override
 	public List<PSM> getPSMs() {
 		if (psms == null) {
-			psms = new ArrayList<PSM>();
+			psms = new PSMsOfAProtein(this);
 		}
 		return psms;
 	}
@@ -118,17 +130,19 @@ public abstract class AbstractProtein implements Protein {
 	public boolean addPSM(PSM psm, boolean recursively) {
 		if (psm != null) {
 			if (psms == null) {
-				psms = new ArrayList<PSM>();
+				psms = new PSMsOfAProtein(this);
 			}
-			final boolean ret = psms.add(psm);
-			if (recursively) {
-				addPeptide(psm.getPeptide(), false);
-				if (psm.getPeptide() != null) {
-					psm.getPeptide().addProtein(this, false);
+			if (!psms.contains(psm)) {
+				final boolean ret = psms.add(psm);
+				if (recursively) {
+					addPeptide(psm.getPeptide(), false);
+					if (psm.getPeptide() != null) {
+						psm.getPeptide().addProtein(this, false);
+					}
+					psm.addProtein(this, false);
 				}
-				psm.addProtein(this, false);
+				return ret;
 			}
-			return ret;
 		}
 		return false;
 	}
@@ -208,6 +222,15 @@ public abstract class AbstractProtein implements Protein {
 
 	@Override
 	public Set<Gene> getGenes() {
+		if ((genes == null || genes.isEmpty()) && !genesParsed) {
+			final String geneFromFastaHeader = FastaParser.getGeneFromFastaHeader(getDescription());
+			if (geneFromFastaHeader != null) {
+				final GeneEx gene = new GeneEx(geneFromFastaHeader);
+				addGene(gene);
+			}
+
+			genesParsed = true;
+		}
 		return genes;
 	}
 
@@ -255,7 +278,7 @@ public abstract class AbstractProtein implements Protein {
 	}
 
 	@Override
-	public Double getPi() {
+	public Float getPi() {
 		return pi;
 	}
 
@@ -266,6 +289,12 @@ public abstract class AbstractProtein implements Protein {
 
 	@Override
 	public Organism getOrganism() {
+		if (!organismParsed && organism == null) {
+			if (FastaParser.isContaminant(getAccession())) {
+				organism = ModelUtils.getOrganismContaminant();
+			}
+			organismParsed = true;
+		}
 		return organism;
 	}
 
@@ -275,12 +304,12 @@ public abstract class AbstractProtein implements Protein {
 	}
 
 	@Override
-	public void setMw(Double mw) {
+	public void setMw(Float mw) {
 		this.mw = mw;
 	}
 
 	@Override
-	public void setPi(Double pi) {
+	public void setPi(Float pi) {
 		this.pi = pi;
 	}
 
@@ -325,9 +354,12 @@ public abstract class AbstractProtein implements Protein {
 		if (getCoverage() == -1.0) {
 			setCoverage(protein.getCoverage());
 		}
+		if (getPrimaryAccession() == null) {
+			setPrimaryAccession(protein.getPrimaryAccession());
+		}
 		final String description = protein.getDescription();
-		if (getPrimaryAccession() != null) {
-			getPrimaryAccession().setDescription(description);
+		if (getDescription() != null) {
+			setDescription(description);
 		}
 		if (protein.getEmpai() != null) {
 			setEmpai(protein.getEmpai());
@@ -348,17 +380,31 @@ public abstract class AbstractProtein implements Protein {
 		if (getPi() == null) {
 			setPi(protein.getPi());
 		}
-		// protein may have to be grouped again since it contains new PSMs
+		// protein may have to be grouped again since it contains new PSMs, so
+		// we reset group
 		setProteinGroup(null);
 		// spectrumCount may not be accurate now with new psms
 		setSpectrumCount(null);
 
-		if (!protein.getPSMs().isEmpty()) {
+		if (protein.getPSMs() != null) {
 			for (final PSM psm : protein.getPSMs()) {
 				addPSM(psm, true);
 				psm.getProteins().remove(protein);
 			}
-
+		}
+		if (protein.getPeptides() != null) {
+			for (final Peptide peptide2 : protein.getPeptides()) {
+				boolean found = false;
+				for (final Peptide peptide : getPeptides()) {
+					if (peptide.equals(peptide2)) {
+						found = true;
+						peptide.mergeWithPeptide(peptide2);
+					}
+				}
+				if (!found) {
+					addPeptide(peptide2, true);
+				}
+			}
 		}
 
 		if (getSearchEngine() == null) {
@@ -367,12 +413,12 @@ public abstract class AbstractProtein implements Protein {
 	}
 
 	@Override
-	public Double getCoverage() {
+	public Float getCoverage() {
 		return coverage;
 	}
 
 	@Override
-	public Double getEmpai() {
+	public Float getEmpai() {
 		return empai;
 	}
 
@@ -382,17 +428,25 @@ public abstract class AbstractProtein implements Protein {
 	}
 
 	@Override
-	public Double getMw() {
+	public void setDescription(String description) {
+		final Accession primaryAccession2 = getPrimaryAccession();
+		if (primaryAccession2 != null) {
+			primaryAccession2.setDescription(description);
+		}
+	}
+
+	@Override
+	public Float getMw() {
 		return mw;
 	}
 
 	@Override
-	public Double getNsaf_norm() {
+	public Float getNsaf_norm() {
 		return nsaf_norm;
 	}
 
 	@Override
-	public Double getNsaf() {
+	public Float getNsaf() {
 		return nsaf;
 	}
 
@@ -402,28 +456,33 @@ public abstract class AbstractProtein implements Protein {
 	}
 
 	@Override
-	public void setCoverage(Double coverage) {
+	public void setCoverage(Float coverage) {
 		this.coverage = coverage;
 	}
 
 	@Override
-	public void setNsaf_norm(Double nsaf_norm) {
+	public void setNsaf_norm(Float nsaf_norm) {
 		this.nsaf_norm = nsaf_norm;
 	}
 
 	@Override
-	public void setNsaf(Double nsaf) {
+	public void setNsaf(Float nsaf) {
 		this.nsaf = nsaf;
 	}
 
 	@Override
-	public void setEmpai(Double empai) {
+	public void setEmpai(Float empai) {
 		this.empai = empai;
 	}
 
 	@Override
 	public void setPrimaryAccession(Accession accession) {
 		primaryAccession = accession;
+	}
+
+	@Override
+	public void setPrimaryAccession(String accession) {
+		setPrimaryAccession(FastaParser.getACC(accession));
 	}
 
 	@Override
@@ -495,5 +554,71 @@ public abstract class AbstractProtein implements Protein {
 			}
 		}
 		return getAccession() + sb.toString();
+	}
+
+	@Override
+	public int hashCode() {
+		int hashCode = 1;
+		for (final MSRun msRun : getMSRuns()) {
+			hashCode += HashCodeBuilder.reflectionHashCode(msRun);
+		}
+		return 31 * hashCode;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof Protein) {
+			final Protein protein = (Protein) obj;
+			if (protein.getAccession().equals(getAccession())) {
+				if (protein.getMSRuns().size() == getMSRuns().size()) {
+					final Set<String> msRunsIDs1 = protein.getMSRuns().stream().map(m -> m.getRunId())
+							.collect(Collectors.toSet());
+					final Set<String> msRunsIDs2 = getMSRuns().stream().map(m -> m.getRunId())
+							.collect(Collectors.toSet());
+					if (msRunsIDs1.size() == msRunsIDs2.size()) {
+						for (final String string : msRunsIDs2) {
+							if (!msRunsIDs1.contains(string)) {
+								return false;
+							}
+						}
+						for (final String string : msRunsIDs1) {
+							if (!msRunsIDs2.contains(string)) {
+								return false;
+							}
+						}
+						return true;
+					}
+				}
+			}
+		}
+		return super.equals(obj);
+	}
+
+	@Override
+	public Set<String> getTaxonomies() {
+		if ((taxonomies == null || taxonomies.isEmpty()) && !ignoreTaxonomy) {
+			final String fastaHeader = getDescription();
+			final String accession = getAccession();
+			addTaxonomy(FastaParser.getOrganismNameFromFastaHeader(fastaHeader, accession));
+		}
+		return taxonomies;
+	}
+
+	@Override
+	public boolean addTaxonomy(String taxonomy) {
+		if (taxonomies == null) {
+			taxonomies = new THashSet<String>();
+		}
+		return taxonomies.add(taxonomy);
+	}
+
+	@Override
+	public boolean isIgnoreTaxonomy() {
+		return ignoreTaxonomy;
+	}
+
+	@Override
+	public void setIgnoreTaxonomy(boolean ignoreTaxonomy) {
+		this.ignoreTaxonomy = ignoreTaxonomy;
 	}
 }

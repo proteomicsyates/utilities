@@ -1,18 +1,38 @@
 package edu.scripps.yates.utilities.proteomicsmodel;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.log4j.Logger;
+
+import edu.scripps.yates.utilities.annotations.UniprotProteinLocalRetrieverInterface;
+import edu.scripps.yates.utilities.annotations.uniprot.UniprotEntryUtil;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.Entry;
 import edu.scripps.yates.utilities.fasta.FastaParser;
 import edu.scripps.yates.utilities.grouping.GroupableProtein;
 import edu.scripps.yates.utilities.grouping.PeptideRelation;
 import edu.scripps.yates.utilities.proteomicsmodel.adapters.PTMAdapter;
+import edu.scripps.yates.utilities.proteomicsmodel.enums.AccessionType;
+import edu.scripps.yates.utilities.proteomicsmodel.utils.ModelUtils;
+import edu.scripps.yates.utilities.sequence.PTMInPeptide;
+import edu.scripps.yates.utilities.sequence.PTMInProtein;
+import edu.scripps.yates.utilities.sequence.PositionInPeptide;
+import edu.scripps.yates.utilities.sequence.PositionInProtein;
+import edu.scripps.yates.utilities.sequence.ProteinSequenceUtils;
+import edu.scripps.yates.utilities.strings.StringUtils;
+import edu.scripps.yates.utilities.util.StringPosition;
+import gnu.trove.list.array.TIntArrayList;
+import gnu.trove.map.hash.THashMap;
 import gnu.trove.map.hash.TIntDoubleHashMap;
 import gnu.trove.set.hash.THashSet;
 
 public abstract class AbstractPeptide implements Peptide {
-
+	private static Logger log = Logger.getLogger(AbstractPeptide.class);
 	private Set<Score> scores;
 	private Set<Ratio> ratios;
 	private Set<Amount> amounts;
@@ -30,6 +50,10 @@ public abstract class AbstractPeptide implements Peptide {
 	private String searchEngine;
 	private Integer spectrumCount;
 	private int dbID;
+	private List<PTMInPeptide> ptmsInPeptide;
+	private Map<Character, List<PositionInProtein>> positionsInProteinsByQuantifiedAA;
+	private Set<String> taxonomies;
+	private boolean ignoreTaxonomy;
 
 	@Override
 	public Set<Score> getScores() {
@@ -162,6 +186,15 @@ public abstract class AbstractPeptide implements Peptide {
 
 	@Override
 	public String getFullSequence() {
+		if (fullSequence == null || (getPTMs() != null && !getPTMs().isEmpty() && fullSequence != null
+				&& fullSequence.equals(sequence))) {
+			if (getPTMs() != null && !getPTMs().isEmpty()) {
+				fullSequence = ModelUtils.getFullSequenceFromSequenceAndPTMs(getSequence(), getPTMs());
+
+			} else {
+				fullSequence = sequence;
+			}
+		}
 		return fullSequence;
 	}
 
@@ -179,11 +212,19 @@ public abstract class AbstractPeptide implements Peptide {
 			if (psms == null) {
 				psms = new ArrayList<PSM>();
 			}
-			final boolean ret = psms.add(psm);
-			if (recursively) {
-
+			if (!psms.contains(psm)) {
+				final boolean ret = psms.add(psm);
+				if (recursively) {
+					psm.setPeptide(this, false);
+					for (final Protein protein : psm.getProteins()) {
+						addProtein(protein, false);
+					}
+					for (final Protein protein : getProteins()) {
+						psm.addProtein(protein, false);
+					}
+				}
+				return ret;
 			}
-			return ret;
 		}
 		return false;
 	}
@@ -281,10 +322,354 @@ public abstract class AbstractPeptide implements Peptide {
 				}
 			}
 			if (!found) {
-				return ptms.add(newPtm);
+				final boolean ret = ptms.add(newPtm);
+				if (ret) {
+					fullSequence = null;
+				}
+				return ret;
 			}
 		}
 		return false;
+	}
+
+	@Override
+	public void setSequence(String sequence2) {
+		sequence = sequence2;
+	}
+
+	@Override
+	public int hashCode() {
+		int hashCode = HashCodeBuilder.reflectionHashCode(getFullSequence());
+		for (final MSRun msRun : getMSRuns()) {
+			hashCode += HashCodeBuilder.reflectionHashCode(msRun);
+		}
+		return 31 * hashCode;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof Peptide) {
+			final Peptide peptide = (Peptide) obj;
+			if (peptide.getFullSequence().equals(getFullSequence())) {
+				if (peptide.getMSRuns().size() == getMSRuns().size()) {
+					final Set<String> msRunsIDs1 = peptide.getMSRuns().stream().map(m -> m.getRunId())
+							.collect(Collectors.toSet());
+					final Set<String> msRunsIDs2 = getMSRuns().stream().map(m -> m.getRunId())
+							.collect(Collectors.toSet());
+					if (msRunsIDs1.size() == msRunsIDs2.size()) {
+						for (final String string : msRunsIDs2) {
+							if (!msRunsIDs1.contains(string)) {
+								return false;
+							}
+						}
+						for (final String string : msRunsIDs1) {
+							if (!msRunsIDs2.contains(string)) {
+								return false;
+							}
+						}
+						return true;
+					}
+				}
+			}
+		}
+		return super.equals(obj);
+	}
+
+	@Override
+	public void mergeWithPeptide(Peptide otherPeptide) {
+		for (final PSM psm : otherPeptide.getPSMs()) {
+			addPSM(psm, true);
+		}
+		for (final Protein protein : otherPeptide.getProteins()) {
+			addProtein(protein, true);
+		}
+	}
+
+	@Override
+	public List<PTMInProtein> getPTMsInProtein(UniprotProteinLocalRetrieverInterface uplr,
+			Map<String, String> proteinSequences) {
+		final List<PTMInProtein> ptmsInProtein = new ArrayList<PTMInProtein>();
+		final List<PTMInPeptide> ptms = getPTMsInPeptide();
+		if (ptms.isEmpty()) {
+			return ptmsInProtein;
+		}
+
+		for (final PTMInPeptide ptmInPeptide : ptms) {
+			final int positionInPeptide = ptmInPeptide.getPosition();
+
+			final Set<Protein> proteins = getProteins();
+			for (final Protein quantifiedProtein : proteins) {
+				final String acc = quantifiedProtein.getAccession();
+				String proteinSequence = null;
+				// it is important that we look for any protein
+				// CONTAINING the accession, so that we can search for
+				// the isoforms and proteoforms
+				if (proteinSequences != null && proteinSequences.containsKey(acc)) {
+					proteinSequence = proteinSequences.get(acc);
+				}
+				if (proteinSequence == null && uplr != null) {
+					final Map<String, Entry> annotatedProtein = uplr.getAnnotatedProtein(null, acc);
+					final Entry entry = annotatedProtein.get(acc);
+					if (entry != null) {
+						proteinSequence = UniprotEntryUtil.getProteinSequence(entry);
+					}
+				}
+				if (proteinSequence != null) {
+					final TIntArrayList positionsInProteinSequence = StringUtils.allPositionsOf(proteinSequence,
+							getSequence());
+					for (final int positionInProteinSequence : positionsInProteinSequence.toArray()) {
+						final int positionOfSiteInProtein = positionInProteinSequence + positionInPeptide - 1;
+						final PTMInProtein ptmInProtein = new PTMInProtein(positionOfSiteInProtein,
+								proteinSequence.charAt(positionOfSiteInProtein - 1), acc, ptmInPeptide.getDeltaMass());
+						if (!ptmsInProtein.contains(ptmInProtein)) {
+							ptmsInProtein.add(ptmInProtein);
+						}
+					}
+				} else {
+					throw new IllegalArgumentException("Protein sequence from protein " + acc
+							+ " not found neither in the fasta file nor in Uniprot");
+				}
+
+			}
+
+		}
+
+		return ptmsInProtein;
+	}
+
+	/**
+	 * @return the ptms
+	 */
+	@Override
+	public List<PTMInPeptide> getPTMsInPeptide() {
+		if (ptmsInPeptide == null) {
+			ptmsInPeptide = new ArrayList<PTMInPeptide>();
+			final List<StringPosition> tmp = FastaParser.getInside(getFullSequence());
+			for (final StringPosition stringPosition : tmp) {
+				final int position = stringPosition.position;
+				final char aa = getSequence().charAt(position - 1);
+				Double deltaMass = null;
+				try {
+					deltaMass = Double.valueOf(stringPosition.string);
+				} catch (final NumberFormatException e) {
+
+				}
+				final PTMInPeptide ptm = new PTMInPeptide(position, aa, getSequence(), deltaMass);
+				ptmsInPeptide.add(ptm);
+			}
+		}
+		return ptmsInPeptide;
+	}
+
+	@Override
+	public Map<PositionInPeptide, List<PositionInProtein>> getProteinKeysByPeptideKeysForPTMs(
+			UniprotProteinLocalRetrieverInterface uplr, Map<String, String> proteinSequences) {
+
+		final Map<PositionInPeptide, List<PositionInProtein>> ret = new THashMap<PositionInPeptide, List<PositionInProtein>>();
+		final Set<String> aas = new HashSet<String>();
+		aas.clear();
+
+		for (final PTMInPeptide positionInPeptide : getPTMsInPeptide()) {
+
+			final List<PositionInProtein> positionsInProtein = new ArrayList<PositionInProtein>();
+
+			final Set<Protein> proteins = getProteins();
+			for (final Protein quantifiedProtein : proteins) {
+				final String acc = quantifiedProtein.getAccession();
+
+				String proteinSequence = null;
+				// it is important that we look for any protein
+				// CONTAINING the accession, so that we can search for
+				// the isoforms and proteoforms
+				if (proteinSequences != null && proteinSequences.containsKey(acc)) {
+					proteinSequence = proteinSequences.get(acc);
+				}
+				if (proteinSequence == null && uplr != null) {
+					final Map<String, Entry> annotatedProtein = uplr.getAnnotatedProtein(null, acc);
+					final Entry entry = annotatedProtein.get(acc);
+					if (entry != null) {
+						proteinSequence = UniprotEntryUtil.getProteinSequence(entry);
+					}
+				}
+				if (proteinSequence != null) {
+
+					final TIntArrayList positionsInProteinSequence = StringUtils.allPositionsOf(proteinSequence,
+							getSequence());
+					for (final int positionInProteinSequence : positionsInProteinSequence.toArray()) {
+						final int positionOfSiteInProtein = positionInProteinSequence + positionInPeptide.getPosition()
+								- 1;
+						final PositionInProtein positionInProtein = new PositionInProtein(positionOfSiteInProtein,
+								proteinSequence.charAt(positionOfSiteInProtein - 1), acc);
+						if (!positionsInProtein.contains(positionInProtein)) {
+							positionsInProtein.add(positionInProtein);
+						}
+					}
+				} else {
+					if (FastaParser.getACC(acc).getAccessionType() == AccessionType.UNKNOWN) {
+						log.warn("Protein " + acc + " is ignored because we don't have its protein sequence");
+						continue;
+					}
+					throw new IllegalArgumentException("Protein sequence from protein " + acc
+							+ " not found neither in the fasta file nor in Uniprot");
+				}
+
+			}
+			if (!positionsInProtein.isEmpty()) {
+				ret.put(positionInPeptide, positionsInProtein);
+			}
+
+		}
+		return ret;
+	}
+
+	@Override
+	public Map<PositionInPeptide, List<PositionInProtein>> getProteinKeysByPeptideKeysForQuantifiedAAs(
+			char[] quantifiedAAs, UniprotProteinLocalRetrieverInterface uplr, Map<String, String> proteinSequences) {
+
+		final Map<PositionInPeptide, List<PositionInProtein>> ret = new THashMap<PositionInPeptide, List<PositionInProtein>>();
+		final Set<String> aas = new HashSet<String>();
+		aas.clear();
+		for (final char c : quantifiedAAs) {
+			final String aa = String.valueOf(c).toUpperCase();
+			if (!aas.contains(aa)) {
+				aas.add(aa);
+				final TIntArrayList positionsInPeptideSequence = StringUtils.allPositionsOf(getSequence(), aa);
+				for (final int positionInPeptide : positionsInPeptideSequence.toArray()) {
+					final PositionInPeptide positionInPeptideObj = new PositionInPeptide(positionInPeptide,
+							getSequence().charAt(positionInPeptide - 1), getSequence());
+					final List<PositionInProtein> positionsInProtein = new ArrayList<PositionInProtein>();
+
+					final Set<Protein> proteins = getProteins();
+					for (final Protein quantifiedProtein : proteins) {
+						final String acc = quantifiedProtein.getAccession();
+
+						String proteinSequence = null;
+						// it is important that we look for any protein
+						// CONTAINING the accession, so that we can search for
+						// the isoforms and proteoforms
+						if (proteinSequences != null && proteinSequences.containsKey(acc)) {
+							proteinSequence = proteinSequences.get(acc);
+						}
+						if (proteinSequence == null && uplr != null) {
+							final Map<String, Entry> annotatedProtein = uplr.getAnnotatedProtein(null, acc);
+							final Entry entry = annotatedProtein.get(acc);
+							if (entry != null) {
+								proteinSequence = UniprotEntryUtil.getProteinSequence(entry);
+							}
+						}
+						if (proteinSequence != null) {
+							final TIntArrayList positionsInProteinSequence = StringUtils.allPositionsOf(proteinSequence,
+									getSequence());
+							for (final int positionInProteinSequence : positionsInProteinSequence.toArray()) {
+								final int positionOfSiteInProtein = positionInProteinSequence + positionInPeptide - 1;
+								final PositionInProtein positionInProtein = new PositionInProtein(
+										positionOfSiteInProtein, proteinSequence.charAt(positionOfSiteInProtein - 1),
+										acc);
+								if (!positionsInProtein.contains(positionInProtein)) {
+									positionsInProtein.add(positionInProtein);
+								}
+							}
+						} else {
+							if (FastaParser.getACC(acc).getAccessionType() == AccessionType.UNKNOWN) {
+								log.warn("Protein " + acc + " is ignored because we don't have its protein sequence");
+								continue;
+							}
+							throw new IllegalArgumentException("Protein sequence from protein " + acc
+									+ " not found neither in the fasta file nor in Uniprot");
+						}
+
+					}
+					if (!positionsInProtein.isEmpty()) {
+						ret.put(positionInPeptideObj, positionsInProtein);
+					}
+				}
+			}
+		}
+		return ret;
+	}
+
+	@Override
+	public Map<Character, List<PositionInProtein>> getPositionInProteinForSites(char[] quantifiedAAs,
+			UniprotProteinLocalRetrieverInterface uplr) {
+		if (positionsInProteinsByQuantifiedAA == null) {
+			positionsInProteinsByQuantifiedAA = new THashMap<Character, List<PositionInProtein>>();
+		}
+
+		final Set<Protein> proteins = getProteins();
+		for (final Protein quantifiedProtein : proteins) {
+			for (final char quantifiedAA : quantifiedAAs) {
+				if (positionsInProteinsByQuantifiedAA.containsKey(quantifiedAA)) {
+					continue;
+				}
+				final List<PositionInProtein> list = new ArrayList<PositionInProtein>();
+				final String acc = quantifiedProtein.getAccession();
+				final Map<String, Entry> annotatedProtein = uplr.getAnnotatedProtein(null, acc);
+				final Entry entry = annotatedProtein.get(acc);
+				if (entry != null) {
+					final String proteinSequence = UniprotEntryUtil.getProteinSequence(entry);
+					if (proteinSequence != null) {
+						list.addAll(ProteinSequenceUtils.getPositionsInProteinForSites(quantifiedAAs, getSequence(),
+								proteinSequence, acc));
+						positionsInProteinsByQuantifiedAA.put(quantifiedAA, list);
+					}
+				}
+			}
+		}
+
+		return positionsInProteinsByQuantifiedAA;
+	}
+
+	@Override
+	public List<PositionInProtein> getStartingPositionsInProtein(String proteinACC,
+			UniprotProteinLocalRetrieverInterface uplr) {
+		final List<PositionInProtein> ret = new ArrayList<PositionInProtein>();
+
+		final Map<String, Entry> annotatedProtein = uplr.getAnnotatedProtein(null, proteinACC);
+		final Entry entry = annotatedProtein.get(proteinACC);
+		if (entry != null) {
+			final String proteinSequence = UniprotEntryUtil.getProteinSequence(entry);
+			if (proteinSequence != null) {
+				ret.addAll(ProteinSequenceUtils.getPositionsOfPeptideSequenceInProteinSequence(getSequence(),
+						proteinSequence, proteinACC));
+			}
+		}
+
+		return ret;
+	}
+
+	@Override
+	public Set<String> getTaxonomies() {
+		if ((taxonomies == null || taxonomies.isEmpty()) && !ignoreTaxonomy) {
+			for (final Protein protein : getProteins()) {
+				final String fastaHeader = protein.getDescription();
+				final String accession = protein.getAccession();
+				addTaxonomy(FastaParser.getOrganismNameFromFastaHeader(fastaHeader, accession));
+			}
+		}
+		return taxonomies;
+	}
+
+	@Override
+	public boolean addTaxonomy(String taxonomy) {
+		if (taxonomies == null) {
+			taxonomies = new THashSet<String>();
+		}
+		return taxonomies.add(taxonomy);
+	}
+
+	@Override
+	public boolean containsPTMs() {
+		return !getPTMsInPeptide().isEmpty();
+	}
+
+	@Override
+	public boolean isIgnoreTaxonomy() {
+		return ignoreTaxonomy;
+	}
+
+	@Override
+	public void setIgnoreTaxonomy(boolean ignoreTaxonomy) {
+		this.ignoreTaxonomy = ignoreTaxonomy;
 	}
 
 }

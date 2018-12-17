@@ -71,6 +71,7 @@ public class AmountEx implements Amount, Serializable {
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
@@ -142,6 +143,7 @@ public class AmountEx implements Amount, Serializable {
 		return manualSpc;
 	}
 
+	@Override
 	public void setCondition(Condition condition2) {
 		condition = condition2;
 

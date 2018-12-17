@@ -1,23 +1,31 @@
 package edu.scripps.yates.utilities.proteomicsmodel;
 
+import java.util.List;
+import java.util.Map;
+
+import edu.scripps.yates.utilities.annotations.UniprotProteinLocalRetrieverInterface;
 import edu.scripps.yates.utilities.grouping.GroupablePeptide;
+import edu.scripps.yates.utilities.sequence.PTMInPeptide;
+import edu.scripps.yates.utilities.sequence.PTMInProtein;
+import edu.scripps.yates.utilities.sequence.PositionInPeptide;
+import edu.scripps.yates.utilities.sequence.PositionInProtein;
 
 public interface PSM extends HasScores, HasRatios, HasAmounts, HasConditions, HasMSRun, GroupablePeptide, HasProteins,
-		HasPTMs, HasPeptide {
+		HasPTMs, HasPeptide, HasTaxonomies {
 
-	public Double getExperimentalMH();
+	public Float getExperimentalMH();
 
-	public Double getCalcMH();
+	public Float getCalcMH();
 
-	public Double getMassErrorPPM();
+	public Float getMassErrorPPM();
 
-	public Double getTotalIntensity();
+	public Float getTotalIntensity();
 
 	public Integer getSpr();
 
-	public Double getIonProportion();
+	public Float getIonProportion();
 
-	public Double getPi();
+	public Float getPi();
 
 	/**
 	 * Gets the peptide sequence including PTMs Nterm and Cterm aminoacids, as
@@ -41,9 +49,75 @@ public interface PSM extends HasScores, HasRatios, HasAmounts, HasConditions, Ha
 
 	public String getSearchEngine();
 
-	public Double getDeltaCn();
+	public Float getDeltaCn();
 
-	public Double getXCorr();
+	public void setDeltaCn(Float deltaCn);
 
-	Double getRtInMinutes();
+	public Float getXCorr();
+
+	public void setXCorr(Float xcorr);
+
+	public Float getRtInMinutes();
+
+	public List<PTMInPeptide> getPTMsInPeptide();
+
+	/**
+	 * Get a list of {@link PositionInProtein} for each quantified site in the
+	 * peptide sequence (represented as a {@link PositionInPeptide}).<br>
+	 * Examples:<br>
+	 * "PEPTIDE#4 {PROTEIN1#234, PROTEIN2#123}
+	 * 
+	 * @param quantifiedAAs
+	 * @param uplr
+	 *            used in order to get the protein sequence
+	 * @param proteinSequences
+	 *            map of protein sequences
+	 * @param dBIndex
+	 * @return
+	 */
+	public Map<PositionInPeptide, List<PositionInProtein>> getProteinKeysByPeptideKeysForQuantifiedAAs(
+			char[] quantifiedAAs, UniprotProteinLocalRetrieverInterface uplr, Map<String, String> proteinSequences);
+
+	/**
+	 * Get a list of {@link PositionInProtein} for each ptm site in the peptide
+	 * sequence (represented as a {@link PositionInPeptide}).<br>
+	 * Examples:<br>
+	 * "PEPTIDE#4 {PROTEIN1#234#238, PROTEIN2#123#127}
+	 * 
+	 * @param uplr
+	 *            used in order to get the protein sequence
+	 * @param proteinSequences
+	 *            map of protein sequences
+	 * @param dBIndex
+	 * @return
+	 */
+	public List<PTMInProtein> getPTMsInProtein(UniprotProteinLocalRetrieverInterface uplr,
+			Map<String, String> proteinSequences);
+
+	public boolean containsPTMs();
+
+	/**
+	 * Get a list of {@link PositionInProtein} for each PTM site in the peptide
+	 * sequence (represented as a {@link PositionInPeptide}).<br>
+	 * Examples:<br>
+	 * "PEPTIDE#4 {PROTEIN1#234, PROTEIN2#123}
+	 * 
+	 * @param quantifiedAAs
+	 * @param uplr
+	 *            used in order to get the protein sequence
+	 * @param proteinSequences
+	 *            map of protein sequences
+	 * @param dBIndex
+	 * @return
+	 */
+	public Map<PositionInPeptide, List<PositionInProtein>> getProteinKeysByPeptideKeysForPTMs(
+			UniprotProteinLocalRetrieverInterface uplr, Map<String, String> proteinSequences);
+
+	public Map<Character, List<PositionInProtein>> getPositionInProteinForSites(char[] quantifiedAAs,
+			UniprotProteinLocalRetrieverInterface uplr);
+
+	public List<PositionInProtein> getStartingPositionsInProtein(String proteinACC,
+			UniprotProteinLocalRetrieverInterface uplr);
+
+	public void setSequence(String seq);
 }

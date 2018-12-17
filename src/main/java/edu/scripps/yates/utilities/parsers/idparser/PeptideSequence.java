@@ -32,7 +32,6 @@ public class PeptideSequence {
 		// parse modifications over betweenDots string
 
 		int modPosition = 0;
-		int previousmod = 0;
 		while (betweenDots.contains("(") && betweenDots.contains(")")) {
 			final int openParenthesis = betweenDots.indexOf("(");
 			modPosition += openParenthesis;
@@ -59,7 +58,6 @@ public class PeptideSequence {
 			addModification(modificationShift, modPosition, charAt);
 
 			betweenDots = betweenDots.substring(closeParenthesis + 1);
-			previousmod = openParenthesis;
 		}
 
 		sequence.append(betweenDots);

@@ -11,7 +11,7 @@ import java.text.DecimalFormat;
 public class PTMInProtein extends PositionInProtein {
 
 	private final Double deltaMass;
-	private static final DecimalFormat formatter = new DecimalFormat("+#.###");
+	private static final DecimalFormat formatter = new DecimalFormat("+#.###;-#.###");
 
 	public PTMInProtein(int position, char aa, String proteinACC, Double deltaMass) {
 		super(position, aa, proteinACC);

@@ -1,7 +1,9 @@
 package edu.scripps.yates.utilities.proteomicsmodel.utils;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -36,11 +38,14 @@ public class ModelUtils {
 	private static final Logger log = Logger.getLogger(ModelUtils.class);
 	// private static final HashMap<MSRun, Map<String, Peptide>> peptidesByMSRun
 	// = new THashMap<MSRun, Map<String, Peptide>>();
-	public static Organism ORGANISM_CONTAMINANT;
+	private static Organism ORGANISM_CONTAMINANT;
 
-	static {
-		ORGANISM_CONTAMINANT = new OrganismEx("000000");
-		((OrganismEx) ORGANISM_CONTAMINANT).setName(FastaParser.CONTAMINANT_PREFIX);
+	public static Organism getOrganismContaminant() {
+		if (ORGANISM_CONTAMINANT == null) {
+			ORGANISM_CONTAMINANT = new OrganismEx("000000");
+			((OrganismEx) ORGANISM_CONTAMINANT).setName(FastaParser.CONTAMINANT_PREFIX);
+		}
+		return ORGANISM_CONTAMINANT;
 	}
 
 	public static Set<Ratio> getProteinRatiosBetweenTwoConditions(Protein protein, String condition1Name,
@@ -279,7 +284,7 @@ public class ModelUtils {
 	public static List<Ratio> getRatios(HasRatios obj, String condition1, String condition2) {
 		final List<Ratio> ret = new ArrayList<Ratio>();
 
-		final Set<Ratio> ratios = obj.getRatios();
+		final Set<? extends Ratio> ratios = obj.getRatios();
 		for (final Ratio ratio : ratios) {
 			if (ratio.getCondition1().getName().equalsIgnoreCase(condition1)) {
 				if (ratio.getCondition2().getName().equalsIgnoreCase(condition2)) {
@@ -499,4 +504,73 @@ public class ModelUtils {
 			throw e;
 		}
 	}
+
+	public static String getFullSequenceFromSequenceAndPTMs(String sequence, List<PTM> ptms) {
+		final List<PTM> ptmList = new ArrayList<PTM>();
+		// sort ptms by position
+		ptmList.addAll(ptms);
+		ptmList.sort(new Comparator<PTM>() {
+
+			@Override
+			public int compare(PTM o1, PTM o2) {
+				return Integer.compare(sortPTMSites(o1.getPTMSites()).get(0).getPosition(),
+						sortPTMSites(o2.getPTMSites()).get(0).getPosition());
+			}
+		});
+		final StringBuilder sb = new StringBuilder();
+
+		final List<PTMSite> sortedPTMSites = getAllPTMSitesSorted(ptms);
+		int currentPosition = 1;
+		for (final PTMSite ptmSite : sortedPTMSites) {
+			final PTM ptm = getPTM(ptmSite, ptms);
+			if (ptm == null) {
+				log.error("This cannot happen");
+			} else {
+				final int position = ptmSite.getPosition();
+				final String ptmString = "(" + ptmFormatter.format(ptm.getMassShift()) + ")";
+				sb.append(sequence.substring(currentPosition - 1, position)).append(ptmString);
+				currentPosition = position + 1;
+			}
+		}
+		sb.append(sequence.substring(currentPosition - 1));
+		return sb.toString();
+	}
+
+	private static DecimalFormat ptmFormatter = new DecimalFormat("+#.###;-#.###");
+	private static Comparator<PTMSite> ptmSiteComparator;
+
+	private static PTM getPTM(PTMSite ptmSite, List<PTM> ptMs2) {
+		for (final PTM ptm : ptMs2) {
+			if (ptm.getPTMSites().contains(ptmSite)) {
+				return ptm;
+			}
+		}
+		return null;
+	}
+
+	private static List<PTMSite> getAllPTMSitesSorted(Collection<PTM> ptms) {
+		final List<PTMSite> ret = new ArrayList<PTMSite>();
+		for (final PTM ptm : ptms) {
+			ret.addAll(ptm.getPTMSites());
+		}
+		return sortPTMSites(ret);
+	}
+
+	private static List<PTMSite> sortPTMSites(List<PTMSite> ptmSites) {
+		if (ptmSites.size() == 1) {
+			return ptmSites;
+		}
+		if (ptmSiteComparator == null) {
+			ptmSiteComparator = new Comparator<PTMSite>() {
+
+				@Override
+				public int compare(PTMSite o1, PTMSite o2) {
+					return Integer.compare(o1.getPosition(), o2.getPosition());
+				}
+			};
+		}
+		ptmSites.sort(ptmSiteComparator);
+		return ptmSites;
+	}
+
 }

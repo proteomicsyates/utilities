@@ -1,6 +1,7 @@
 package edu.scripps.yates.utilities.proteomicsmodel.staticstorage;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -27,10 +28,10 @@ import gnu.trove.set.hash.THashSet;
  */
 public class StaticProteomicsModelStorage {
 	private static final Logger log = Logger.getLogger(StaticProteomicsModelStorage.class);
-	private static final ItemStorage<Protein> proteinStorage = new ItemStorage<Protein>();
-	private static final ItemStorage<Peptide> peptideStorage = new ItemStorage<Peptide>();
-	private static final ItemStorage<PSM> psmStorage = new ItemStorage<PSM>();
-	private static final Map<String, MSRun> msRunsByID = new THashMap<String, MSRun>();
+	private final static ItemStorage<Protein> proteinStorage = new ItemStorage<Protein>();
+	private final static ItemStorage<Peptide> peptideStorage = new ItemStorage<Peptide>();
+	private final static ItemStorage<PSM> psmStorage = new ItemStorage<PSM>();
+	private final static Map<String, MSRun> msRunsByID = new THashMap<String, MSRun>();
 
 	public static void clearData() {
 		if (!proteinStorage.isEmpty()) {
@@ -72,6 +73,18 @@ public class StaticProteomicsModelStorage {
 		addProtein(protein, msRunID, conditionID);
 	}
 
+	public static void addProtein(Protein protein, Collection<MSRun> msRuns, String conditionID) {
+		for (final MSRun msRun2 : msRuns) {
+			addProtein(protein, msRun2, conditionID);
+		}
+	}
+
+	public static void addProtein(Protein protein, Collection<MSRun> msRuns, String conditionID, int excelRowIndex) {
+		for (final MSRun msRun : msRuns) {
+			addProtein(protein, msRun.getRunId(), conditionID, excelRowIndex);
+		}
+	}
+
 	public static void addProtein(Protein protein, String msRunID, String conditionID, int excelRowIndex) {
 		proteinStorage.add(protein, msRunID, conditionID, excelRowIndex, protein.getAccession());
 		if (protein.getSecondaryAccessions() != null) {
@@ -87,6 +100,16 @@ public class StaticProteomicsModelStorage {
 
 	public static void addPeptide(Peptide peptide, MSRun msRun, String conditionID) {
 		addPeptide(peptide, msRun.getRunId(), conditionID);
+	}
+
+	public static void addPeptide(Peptide peptide, Collection<MSRun> msRuns, String conditionID) {
+		addPeptide(peptide, msRuns, conditionID, -1);
+	}
+
+	public static void addPeptide(Peptide peptide, Collection<MSRun> msRuns, String conditionID, int excelRowIndex) {
+		for (final MSRun msRun2 : msRuns) {
+			addPeptide(peptide, msRun2.getRunId(), conditionID, excelRowIndex);
+		}
 	}
 
 	public static void addPeptide(Peptide peptide, String msRunID, String conditionID, int excelRowIndex) {
@@ -109,6 +132,24 @@ public class StaticProteomicsModelStorage {
 			// log.info("condition is null for psm");
 		}
 		psmStorage.add(psm, runID, conditionID, excelRowIndex, psm.getIdentifier());
+	}
+
+	public static boolean containsProtein(Collection<MSRun> msRuns, String conditionID, String accession) {
+		for (final MSRun msRun : msRuns) {
+			final boolean b = containsProtein(msRun, conditionID, accession);
+			if (b) {
+				return b;
+			}
+		}
+		return false;
+	}
+
+	public static boolean containsProtein(MSRun msRun, String conditionID, String accession) {
+		String msRunID = null;
+		if (msRun != null) {
+			msRunID = msRun.getRunId();
+		}
+		return containsProtein(msRunID, conditionID, -1, accession);
 	}
 
 	public static boolean containsProtein(String msRunID, String conditionID, String accession) {
@@ -143,12 +184,49 @@ public class StaticProteomicsModelStorage {
 		return containsPeptide(msRun.getRunId(), conditionID, sequence);
 	}
 
+	public static boolean containsPeptide(Collection<MSRun> msRuns, String conditionID, String sequence) {
+		for (final MSRun msRun2 : msRuns) {
+			final boolean b = containsPeptide(msRun2, conditionID, sequence);
+			if (b) {
+				return b;
+			}
+		}
+		return false;
+	}
+
 	public static boolean containsPeptide(String msRunID, String conditionID, int excelRowIndex, String sequence) {
 		return peptideStorage.contains(msRunID, conditionID, excelRowIndex, FastaParser.cleanSequence(sequence));
 	}
 
 	public static boolean containsPeptide(MSRun msRun, String conditionID, int excelRowIndex, String sequence) {
 		return containsPeptide(msRun.getRunId(), conditionID, excelRowIndex, sequence);
+	}
+
+	public static Set<Protein> getProtein(String conditionID, String accession, Collection<MSRun> msRuns) {
+		final Set<Protein> ret = new THashSet<Protein>();
+		for (final MSRun msRun : msRuns) {
+			ret.addAll(getProtein(msRun, conditionID, accession));
+		}
+		return ret;
+	}
+
+	public static Protein getSingleProtein(String conditionID, String accession, Collection<MSRun> msRuns) {
+		final Set<Protein> proteins = getProtein(conditionID, accession, msRuns);
+		if (proteins == null || proteins.isEmpty()) {
+			return null;
+		}
+		if (proteins.size() > 1) {
+			log.warn("Retrieved proteins are multiple!");
+		}
+		return proteins.iterator().next();
+	}
+
+	public static Set<Protein> getProtein(MSRun msRun, String conditionID, String accession) {
+		String msRunID = null;
+		if (msRun != null) {
+			msRunID = msRun.getRunId();
+		}
+		return getProtein(msRunID, conditionID, accession);
 	}
 
 	public static Set<Protein> getProtein(String msRunID, String conditionID, String accession) {
@@ -207,8 +285,30 @@ public class StaticProteomicsModelStorage {
 		return getPeptide(msRunID, conditionID, -1, sequence);
 	}
 
+	public static Set<Peptide> getPeptide(String conditionID, String sequence, Collection<MSRun> msRuns) {
+		final Set<Peptide> ret = new THashSet<Peptide>();
+		for (final MSRun msRun : msRuns) {
+			final Set<Peptide> ret2 = getPeptide(msRun, conditionID, sequence);
+			if (ret2 != null) {
+				ret.addAll(ret2);
+			}
+		}
+		return ret;
+	}
+
 	public static Set<Peptide> getPeptide(MSRun msRun, String conditionID, String sequence) {
 		return getPeptide(msRun.getRunId(), conditionID, sequence);
+	}
+
+	public static Peptide getSinglePeptide(Collection<MSRun> msRuns, String conditionID, String sequence) {
+		final Set<Peptide> peptides = getPeptide(conditionID, sequence, msRuns);
+		if (peptides == null || peptides.isEmpty()) {
+			return null;
+		}
+		if (peptides.size() > 1) {
+			log.warn("Retrieved peptides are multiple!");
+		}
+		return peptides.iterator().next();
 	}
 
 	public static Peptide getSinglePeptide(MSRun msRun, String conditionID, String sequence) {
@@ -253,5 +353,27 @@ public class StaticProteomicsModelStorage {
 		}
 		return set;
 
+	}
+
+	public static Set<Peptide> getPeptide(String conditionID, int excelRowIndex, String sequence,
+			Collection<MSRun> msRuns) {
+		final Set<Peptide> set = new THashSet<Peptide>();
+		for (final MSRun msRun : msRuns) {
+			set.addAll(peptideStorage.get(msRun.getRunId(), conditionID, excelRowIndex, sequence));
+		}
+		return set;
+
+	}
+
+	public static void addProtein(Protein protein, List<String> msRunIDs, String conditionID) {
+		for (final String msRunID : msRunIDs) {
+			addProtein(protein, msRunID, conditionID);
+		}
+	}
+
+	public static void addPeptide(Peptide peptide, List<String> msRunIDs, String conditionID) {
+		for (final String msRunID : msRunIDs) {
+			addPeptide(peptide, msRunID, conditionID, -1);
+		}
 	}
 }

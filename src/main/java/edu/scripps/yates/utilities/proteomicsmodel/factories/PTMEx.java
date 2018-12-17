@@ -3,9 +3,11 @@ package edu.scripps.yates.utilities.proteomicsmodel.factories;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import edu.scripps.yates.utilities.proteomicsmodel.PTM;
 import edu.scripps.yates.utilities.proteomicsmodel.PTMSite;
+import gnu.trove.set.hash.THashSet;
 import uk.ac.ebi.pride.utilities.pridemod.ModReader;
 
 public class PTMEx implements PTM, Serializable {
@@ -18,8 +20,10 @@ public class PTMEx implements PTM, Serializable {
 	private final double massShift;
 	private String cvId;
 	private List<PTMSite> ptmSites;
+	private String residues;
 	private static final ModReader modReader = ModReader.getInstance();
 	private static final Double PRECISION = 0.001;
+	private static final String UNKNOWN = "Unknown";
 
 	public PTMEx(String name, double massShift) {
 		this.name = name;
@@ -34,7 +38,7 @@ public class PTMEx implements PTM, Serializable {
 			cvId = ptms.get(0).getAccession();
 
 		} else {
-			name = null;
+			name = UNKNOWN;
 		}
 		addPtmSite(new PTMSiteEx(String.valueOf(aa), position));
 		this.massShift = massShift;
@@ -80,5 +84,26 @@ public class PTMEx implements PTM, Serializable {
 		if (ptmSites == null)
 			ptmSites = new ArrayList<PTMSite>();
 		ptmSites.add(ptmSite);
+	}
+
+	@Override
+	public String getResidues() {
+		if (residues == null) {
+			final Set<String> aas = new THashSet<String>();
+			final List<PTMSite> ptmSites2 = getPTMSites();
+			if (ptmSites2.size() == 1) {
+				residues = ptmSites2.iterator().next().getAA();
+				return residues;
+			}
+			for (final PTMSite ptmSite : ptmSites2) {
+				if (!aas.contains(ptmSite.getAA())) {
+					aas.add(ptmSite.getAA());
+				}
+			}
+			final StringBuilder sb = new StringBuilder();
+			aas.stream().forEach(aa -> sb.append(aa));
+			residues = sb.toString();
+		}
+		return residues;
 	}
 }

@@ -5,7 +5,6 @@ import java.io.Serializable;
 import org.apache.log4j.Logger;
 
 import edu.scripps.yates.utilities.proteomicsmodel.AbstractPeptide;
-import edu.scripps.yates.utilities.proteomicsmodel.MSRun;
 
 public class PeptideEx extends AbstractPeptide implements Serializable {
 
@@ -16,9 +15,9 @@ public class PeptideEx extends AbstractPeptide implements Serializable {
 
 	private static Logger log = Logger.getLogger(PeptideEx.class);
 
-	public PeptideEx(String fullSequence, MSRun msrun) {
+	public PeptideEx(String fullSequence) {
 		setFullSequence(fullSequence);
-		addMSRun(msrun);
+
 	}
 
 }

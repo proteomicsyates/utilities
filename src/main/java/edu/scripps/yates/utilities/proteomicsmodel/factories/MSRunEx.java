@@ -3,6 +3,8 @@ package edu.scripps.yates.utilities.proteomicsmodel.factories;
 import java.io.Serializable;
 import java.util.Date;
 
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 import edu.scripps.yates.utilities.proteomicsmodel.MSRun;
 import edu.scripps.yates.utilities.proteomicsmodel.Project;
 
@@ -87,6 +89,20 @@ public class MSRunEx implements MSRun, Serializable {
 	@Override
 	public String toString() {
 		return runID;
+	}
+
+	@Override
+	public int hashCode() {
+		return HashCodeBuilder.reflectionHashCode(runID);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof MSRun) {
+			final MSRun msRun = (MSRun) obj;
+			return msRun.getRunId().equals(getRunId());
+		}
+		return super.equals(obj);
 	}
 
 }
