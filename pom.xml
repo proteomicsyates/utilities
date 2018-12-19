@@ -62,6 +62,32 @@
          <groupId>com.compomics</groupId>
          <artifactId>utilities</artifactId>
          <version>4.12.12</version>
+         <exclusions>
+            <exclusion>
+               <groupId>batik</groupId>
+               <artifactId>batik-all</artifactId>
+            </exclusion>
+            <exclusion>
+               <artifactId>pdf-transcoder</artifactId>
+               <groupId>batik</groupId>
+            </exclusion>
+            <exclusion>
+               <artifactId>servlet-api</artifactId>
+               <groupId>javax.servlet</groupId>
+            </exclusion>
+            <exclusion>
+               <artifactId>ssj</artifactId>
+               <groupId>umontreal.iro.lecuyer.gof</groupId>
+            </exclusion>
+            <exclusion>
+               <artifactId>jshortcut</artifactId>
+               <groupId>net.jimmc</groupId>
+            </exclusion>
+            <exclusion>
+            	<groupId>jfree</groupId>
+            	<artifactId>jfreechart</artifactId>
+            </exclusion>
+         </exclusions>
       </dependency>
       <dependency>
          <groupId>com.jcraft</groupId>
