@@ -3,65 +3,41 @@ package edu.scripps.yates.utilities.parsers.idparser;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.scripps.yates.utilities.fasta.FastaParser;
 import edu.scripps.yates.utilities.proteomicsmodel.PTM;
+import edu.scripps.yates.utilities.proteomicsmodel.PTMPosition;
 import edu.scripps.yates.utilities.proteomicsmodel.factories.PTMEx;
 import edu.scripps.yates.utilities.staticstorage.StaticStrings;
+import gnu.trove.map.hash.TIntDoubleHashMap;
 
 public class PeptideSequence {
 	private final String sequence;
-	private char beforeSeq;
-	private char afterSeq;
+	private final char beforeSeq;
+	private final char afterSeq;
 	private final List<PTM> modifications = new ArrayList<PTM>();
-	private final String rawSequence;
+	private final String fullSequence;
+
 	public static final char NULL_SEQ = '-';
 
-	public PeptideSequence(String sequenceToParse) {
-		rawSequence = StaticStrings.getUniqueInstance(sequenceToParse);
-		sequence = StaticStrings.getUniqueInstance(parseSequence(sequenceToParse));
-	}
-
-	private String parseSequence(String sequenceToParse) {
-		final StringBuilder sequence = new StringBuilder();
-		String betweenDots = sequenceToParse;
-		if (sequenceToParse.contains(".")) {
-			betweenDots = "";
-			beforeSeq = sequenceToParse.substring(0, sequenceToParse.indexOf(".")).charAt(0);
-			afterSeq = sequenceToParse.substring(sequenceToParse.lastIndexOf(".") + 1).charAt(0);
-			betweenDots = sequenceToParse.substring(sequenceToParse.indexOf(".") + 1, sequenceToParse.lastIndexOf("."));
-		}
-		// parse modifications over betweenDots string
-
-		int modPosition = 0;
-		while (betweenDots.contains("(") && betweenDots.contains(")")) {
-			final int openParenthesis = betweenDots.indexOf("(");
-			modPosition += openParenthesis;
-			final int closeParenthesis = betweenDots.indexOf(")");
-			// before the open parenthesis
-			sequence.append(betweenDots.subSequence(0, openParenthesis));
-			final Double modificationShift = Double
-					.valueOf(betweenDots.substring(openParenthesis + 1, closeParenthesis));
-
-			final int modifiedAAPosition = openParenthesis - 1;// modPosition -
-			// 1 -
-			// previousmod;
-			char charAt;
-			// System.out.println(sequenceToParse + "\t" + betweenDots);
-			if (modifiedAAPosition >= 0) {
-				charAt = betweenDots.charAt(modifiedAAPosition);
-			} else {
-				if (modPosition == 0) {
-					charAt = beforeSeq;
-				} else {
-					charAt = modifications.get(modifications.size() - 1).getPTMSites().get(0).getAA().charAt(0);
-				}
+	public PeptideSequence(String sequenceToParse, boolean ptmsAsDeltaMass) {
+		final String rawSequence = StaticStrings.getUniqueInstance(sequenceToParse);
+		fullSequence = StaticStrings.getUniqueInstance(FastaParser.getSequenceInBetween(rawSequence));
+		sequence = StaticStrings.getUniqueInstance(FastaParser.cleanSequence(fullSequence));
+		final TIntDoubleHashMap ptms = FastaParser.getPTMsFromSequence(fullSequence, ptmsAsDeltaMass);
+		for (final int position : ptms.keys()) {
+			final double deltaMass = ptms.get(position);
+			if (position > 0 && position <= sequence.length()) {
+				addModification(deltaMass, position, sequence.substring(position - 1, position));
+			} else if (position == 0) {
+				final PTMPosition ptmPosition = PTMPosition.NTERM;
+				addModification(deltaMass, position, null, ptmPosition);
+			} else if (position == sequence.length()) {
+				final PTMPosition ptmPosition = PTMPosition.CTERM;
+				addModification(deltaMass, position, null, ptmPosition);
 			}
-			addModification(modificationShift, modPosition, charAt);
-
-			betweenDots = betweenDots.substring(closeParenthesis + 1);
 		}
-
-		sequence.append(betweenDots);
-		return sequence.toString();
+		beforeSeq = FastaParser.getBeforeSeq(rawSequence).charAt(0);
+		afterSeq = FastaParser.getAfterSeq(rawSequence).charAt(0);
 	}
 
 	/**
@@ -71,8 +47,12 @@ public class PeptideSequence {
 	 *            position of the modification, starting by 1 at the first AA
 	 * @param aa
 	 */
-	private void addModification(Double modificationShift, int modPosition, char aa) {
-		modifications.add(new PTMEx(modificationShift, aa, modPosition));
+	private void addModification(Double modificationShift, int modPosition, String aa) {
+		addModification(modificationShift, modPosition, aa, PTMPosition.NONE);
+	}
+
+	private void addModification(Double modificationShift, int modPosition, String aa, PTMPosition ptmPosition) {
+		modifications.add(new PTMEx(modificationShift, aa, modPosition, ptmPosition));
 	}
 
 	/**
@@ -80,13 +60,6 @@ public class PeptideSequence {
 	 */
 	public String getSequence() {
 		return sequence.toString();
-	}
-
-	/**
-	 * @return the sequence with no modifications
-	 */
-	public String getRawSequence() {
-		return rawSequence;
 	}
 
 	/**
@@ -108,6 +81,10 @@ public class PeptideSequence {
 	 */
 	public List<PTM> getModifications() {
 		return modifications;
+	}
+
+	public String getFullSequence() {
+		return fullSequence;
 	}
 
 }

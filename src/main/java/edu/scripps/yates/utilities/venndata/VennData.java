@@ -347,11 +347,11 @@ public class VennData {
 	public Collection<Object> getMaxCollection() {
 		final Set<Object> ret = new THashSet<Object>();
 		ret.addAll(hash1.values());
-		if (hash2.size() > hash1.size()) {
+		if (hash2.size() > ret.size()) {
 			ret.clear();
 			ret.addAll(hash2.values());
 		}
-		if (hash3.size() > hash2.size()) {
+		if (hash3.size() > ret.size()) {
 			ret.clear();
 			ret.addAll(hash3.values());
 		}

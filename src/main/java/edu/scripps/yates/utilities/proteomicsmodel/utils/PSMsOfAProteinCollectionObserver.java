@@ -22,7 +22,9 @@ public class PSMsOfAProteinCollectionObserver extends CollectionObserver<PSM> {
 
 	@Override
 	public boolean add(PSM psm) {
-		return protein.addPeptide(psm.getPeptide(), false);
+		final boolean ret = protein.addPeptide(psm.getPeptide(), false);
+		protein.addMSRun(psm.getMSRun());
+		return ret;
 	}
 
 	@Override

@@ -12,4 +12,8 @@ public interface PTMSite {
 	public int getPosition();
 
 	public Score getScore();
+
+	public PTMPosition getPTMPosition();
+
+	public void setPTMPosition(PTMPosition cterm);
 }

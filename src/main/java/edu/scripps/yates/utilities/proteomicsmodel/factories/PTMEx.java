@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 import edu.scripps.yates.utilities.proteomicsmodel.PTM;
+import edu.scripps.yates.utilities.proteomicsmodel.PTMPosition;
 import edu.scripps.yates.utilities.proteomicsmodel.PTMSite;
 import gnu.trove.set.hash.THashSet;
 import uk.ac.ebi.pride.utilities.pridemod.ModReader;
@@ -30,17 +31,21 @@ public class PTMEx implements PTM, Serializable {
 		this.massShift = massShift;
 	}
 
-	public PTMEx(double massShift, char aa, int position) {
+	public PTMEx(double massShift, String aa, int position) {
+		this(massShift, aa, position, position == 0 ? PTMPosition.NTERM : PTMPosition.NONE);
+	}
+
+	public PTMEx(double massShift, String aa, int position, PTMPosition ptmPosition) {
 		final List<uk.ac.ebi.pride.utilities.pridemod.model.PTM> ptms = modReader.getPTMListByMonoDeltaMass(massShift,
 				PRECISION);
 		if (ptms != null && !ptms.isEmpty()) {
 			name = ptms.get(0).getName();
 			cvId = ptms.get(0).getAccession();
-
 		} else {
 			name = UNKNOWN;
 		}
-		addPtmSite(new PTMSiteEx(String.valueOf(aa), position));
+
+		addPtmSite(new PTMSiteEx(aa, position, ptmPosition));
 		this.massShift = massShift;
 	}
 
@@ -106,4 +111,5 @@ public class PTMEx implements PTM, Serializable {
 		}
 		return residues;
 	}
+
 }

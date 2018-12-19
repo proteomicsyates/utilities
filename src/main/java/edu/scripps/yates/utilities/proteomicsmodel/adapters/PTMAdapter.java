@@ -5,6 +5,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import edu.scripps.yates.utilities.proteomicsmodel.PTM;
+import edu.scripps.yates.utilities.proteomicsmodel.PTMPosition;
 import edu.scripps.yates.utilities.proteomicsmodel.Score;
 import edu.scripps.yates.utilities.proteomicsmodel.factories.PTMEx;
 import uk.ac.ebi.pride.utilities.pridemod.ModReader;
@@ -18,29 +19,31 @@ public class PTMAdapter implements edu.scripps.yates.utilities.pattern.Adapter<P
 	private final uk.ac.ebi.pride.utilities.pridemod.model.PTM prideModPTM;
 	private static final String MOD0 = "MOD:00000";
 	private static final double PRECISION = 0.0001;
+	private final PTMPosition ptmPosition;
 
-	public PTMAdapter(double massShift, String aa, int position) {
-		this(massShift, aa, position, null);
+	public PTMAdapter(double massShift, String aa, int position, PTMPosition ptmPosition) {
+		this(massShift, aa, position, ptmPosition, null);
 	}
 
-	public PTMAdapter(double massShift, char aa, int position) {
-		this(massShift, String.valueOf(aa), position);
+	public PTMAdapter(double massShift, char aa, int position, PTMPosition ptmPosition) {
+		this(massShift, String.valueOf(aa), position, ptmPosition);
 	}
 
-	public PTMAdapter(String name, char aa, int position) {
-		this(name, String.valueOf(aa), position);
+	public PTMAdapter(String name, char aa, int position, PTMPosition ptmPosition) {
+		this(name, String.valueOf(aa), position, ptmPosition);
 	}
 
-	public PTMAdapter(String name, String aa, int position) {
-		this(name, aa, position, null);
+	public PTMAdapter(String name, String aa, int position, PTMPosition ptmPosition) {
+		this(name, aa, position, ptmPosition, null);
 	}
 
-	public PTMAdapter(String name, char aa, int position, Score score) {
-		this(name, String.valueOf(aa), position, score);
+	public PTMAdapter(String name, char aa, int position, PTMPosition ptmPosition, Score score) {
+		this(name, String.valueOf(aa), position, ptmPosition, score);
 	}
 
-	public PTMAdapter(String name, String aa, int position, Score score) {
+	public PTMAdapter(String name, String aa, int position, PTMPosition ptmPosition, Score score) {
 		this.position = position;
+		this.ptmPosition = ptmPosition;
 		this.aa = aa;
 		this.score = score;
 		final ModReader modReader = ModReader.getInstance();
@@ -56,13 +59,14 @@ public class PTMAdapter implements edu.scripps.yates.utilities.pattern.Adapter<P
 		}
 	}
 
-	public PTMAdapter(double massShift, char aa, int position, Score score) {
-		this(massShift, String.valueOf(aa), position, score);
+	public PTMAdapter(double massShift, char aa, int position, PTMPosition ptmPosition, Score score) {
+		this(massShift, String.valueOf(aa), position, ptmPosition, score);
 	}
 
-	public PTMAdapter(double massShift, String aa, int position, Score score) {
+	public PTMAdapter(double massShift, String aa, int position, PTMPosition ptmPosition, Score score) {
 		this.massShift = massShift;
 		this.position = position;
+		this.ptmPosition = ptmPosition;
 		this.aa = aa;
 		this.score = score;
 		final ModReader modReader = ModReader.getInstance();
@@ -85,7 +89,8 @@ public class PTMAdapter implements edu.scripps.yates.utilities.pattern.Adapter<P
 		if (prideModPTM != null) {
 			ptm.setCvId(prideModPTM.getAccession());
 		}
-		ptm.addPtmSite(new PTMSiteAdapter(aa, position, score).adapt());
+
+		ptm.addPtmSite(new PTMSiteAdapter(aa, position, ptmPosition, score).adapt());
 		return ptm;
 	}
 

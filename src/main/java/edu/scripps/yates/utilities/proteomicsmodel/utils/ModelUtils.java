@@ -526,10 +526,16 @@ public class ModelUtils {
 			if (ptm == null) {
 				log.error("This cannot happen");
 			} else {
-				final int position = ptmSite.getPosition();
+				int position = ptmSite.getPosition();
+				if (position == sequence.length() + 1) {
+					// it is c-term
+					position = position - 1;
+				}
 				final String ptmString = "(" + ptmFormatter.format(ptm.getMassShift()) + ")";
 				sb.append(sequence.substring(currentPosition - 1, position)).append(ptmString);
-				currentPosition = position + 1;
+				if (position < sequence.length() + 1) {
+					currentPosition = position + 1;
+				}
 			}
 		}
 		sb.append(sequence.substring(currentPosition - 1));

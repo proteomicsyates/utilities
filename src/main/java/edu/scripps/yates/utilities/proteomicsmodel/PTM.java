@@ -18,4 +18,5 @@ public interface PTM {
 	public List<PTMSite> getPTMSites();
 
 	public String getResidues();
+
 }

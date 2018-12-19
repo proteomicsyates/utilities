@@ -3,9 +3,8 @@ package edu.scripps.yates.utilities.collections;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
-
-import org.apache.commons.collections.iterators.ArrayListIterator;
 
 public class ObservableArrayList<T> extends ArrayList<T> {
 	/**
@@ -51,8 +50,8 @@ public class ObservableArrayList<T> extends ArrayList<T> {
 	}
 
 	@Override
-	public ArrayListIterator iterator() {
-		return new ObservableArrayListIterator<T>(this, observers);
+	public Iterator<T> iterator() {
+		return super.iterator();
 	}
 
 	@Override

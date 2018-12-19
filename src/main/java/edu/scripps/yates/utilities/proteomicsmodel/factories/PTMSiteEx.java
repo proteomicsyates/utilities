@@ -2,6 +2,7 @@ package edu.scripps.yates.utilities.proteomicsmodel.factories;
 
 import java.io.Serializable;
 
+import edu.scripps.yates.utilities.proteomicsmodel.PTMPosition;
 import edu.scripps.yates.utilities.proteomicsmodel.PTMSite;
 import edu.scripps.yates.utilities.proteomicsmodel.Score;
 
@@ -13,10 +14,12 @@ public class PTMSiteEx implements PTMSite, Serializable {
 	private final String aa;
 	private final int position;
 	private Score score;
+	private PTMPosition ptmPosition;
 
-	public PTMSiteEx(String aa, int position) {
+	public PTMSiteEx(String aa, int position, PTMPosition ptmPosition) {
 		this.aa = aa;
 		this.position = position;
+		this.ptmPosition = ptmPosition;
 	}
 
 	@Override
@@ -40,6 +43,16 @@ public class PTMSiteEx implements PTMSite, Serializable {
 	 */
 	public void setScore(Score score) {
 		this.score = score;
+	}
+
+	@Override
+	public PTMPosition getPTMPosition() {
+		return ptmPosition;
+	}
+
+	@Override
+	public void setPTMPosition(PTMPosition ptmPosition) {
+		this.ptmPosition = ptmPosition;
 	}
 
 }

@@ -31,6 +31,7 @@ import edu.scripps.yates.utilities.proteomicsmodel.PSM;
 import edu.scripps.yates.utilities.proteomicsmodel.Protein;
 import edu.scripps.yates.utilities.proteomicsmodel.enums.AccessionType;
 import edu.scripps.yates.utilities.proteomicsmodel.factories.AccessionEx;
+import edu.scripps.yates.utilities.proteomicsmodel.staticstorage.StaticProteomicsModelStorage;
 import edu.scripps.yates.utilities.remote.RemoteSSHFileReference;
 import edu.scripps.yates.utilities.util.Pair;
 import gnu.trove.map.hash.THashMap;
@@ -49,11 +50,11 @@ import gnu.trove.set.hash.THashSet;
  */
 public abstract class IdentificationsParser implements Parser {
 	private static final Logger log = Logger.getLogger(IdentificationsParser.class);
-	protected final Map<String, Protein> proteinsByAccession = new THashMap<String, Protein>();
-	protected final Map<String, PSM> psmTableByPSMID = new THashMap<String, PSM>();
-	protected final Map<String, Set<PSM>> psmTableByFullSequence = new THashMap<String, Set<PSM>>();
-	protected final List<ProteinGroup> proteinGroups = new ArrayList<ProteinGroup>();
-	protected final List<Protein> proteinList = new ArrayList<Protein>();
+	private final Map<String, Protein> proteinsByAccession = new THashMap<String, Protein>();
+	private final Map<String, PSM> psmTableByPSMID = new THashMap<String, PSM>();
+	private final Map<String, Set<PSM>> psmTableByFullSequence = new THashMap<String, Set<PSM>>();
+	private final List<ProteinGroup> proteinGroups = new ArrayList<ProteinGroup>();
+	private final List<Protein> proteinList = new ArrayList<Protein>();
 
 	protected String runPath;
 	protected DBIndexInterface dbIndex;
@@ -132,7 +133,28 @@ public abstract class IdentificationsParser implements Parser {
 		return destination;
 	}
 
-	protected void addToPSMTable(PSM psm) {
+	protected boolean addPSMToMaps(PSM psm) {
+		if (psm.getIdentifier()
+				.equals("Xi20180215_01_cNE_Uw1_0214LT_03_30C-42571-LLPPNSSSSSFSYQFSDLDSAAVDSDMYDLPK-4")) {
+			log.info("stop");
+		}
+		addPSMToMapByFullSequence(psm);
+
+		return addPTMToMapByPSMId(psm);
+	}
+
+	private boolean addPTMToMapByPSMId(PSM psm) {
+		final String psmID = psm.getIdentifier();
+		if (psmTableByPSMID.containsKey(psmID)) {
+			return false;
+		} else {
+			psmTableByPSMID.put(psmID, psm);
+			return true;
+		}
+
+	}
+
+	private void addPSMToMapByFullSequence(PSM psm) {
 		final String psmKey = psm.getFullSequence();
 		if (psmTableByFullSequence.containsKey(psmKey)) {
 			psmTableByFullSequence.get(psmKey).add(psm);
@@ -141,7 +163,6 @@ public abstract class IdentificationsParser implements Parser {
 			set.add(psm);
 			psmTableByFullSequence.put(psmKey, set);
 		}
-
 	}
 
 	public Map<String, Protein> getProteinMap() throws IOException {
@@ -293,7 +314,12 @@ public abstract class IdentificationsParser implements Parser {
 	}
 
 	protected boolean addProteinToMapAndList(Protein protein) {
-		proteinList.add(protein);
+		addProteinToList(protein);
+		return addProteinToMap(protein);
+
+	}
+
+	private boolean addProteinToMap(Protein protein) {
 		if (!proteinsByAccession.containsKey(protein.getAccession())) {
 			proteinsByAccession.put(protein.getAccession(), protein);
 			return true;
@@ -301,18 +327,22 @@ public abstract class IdentificationsParser implements Parser {
 		return false;
 	}
 
+	private boolean addProteinToList(Protein protein) {
+		return proteinList.add(protein);
+	}
+
 	private void mergeProteinsWithSecondaryAccessionsInParser() throws IOException {
 		if (uplr == null) {
 			return;
 		}
 		final Set<String> accessions = new THashSet<String>();
-		for (final Protein protein : getProteins()) {
+		for (final Protein protein : proteinList) {
 			final Accession accession = FastaParser.getACC(protein.getAccession());
 			accessions.add(accession.getAccession());
 			protein.getPrimaryAccession().setAccession(accession.getAccession());
 			protein.getPrimaryAccession().setAccessionType(accession.getAccessionType());
 			// just in case the accession has changed:
-			addProteinToMapAndList(protein);
+			addProteinToMap(protein);
 		}
 		String latestVersion = "latestVersion";
 		if (uniprotVersion != null) {
@@ -439,11 +469,22 @@ public abstract class IdentificationsParser implements Parser {
 		mapIPI2Uniprot();
 		// third merge proteins with secondary accessions
 		mergeProteinsWithSecondaryAccessionsInParser();
-
+		// fourth, use static proteomics storage to merge to previously created
+		// proteins, peptides and psms
+		mergeWithProteomicsStaticStorage();
 		log.info(proteinsByAccession.size() + " proteins read in " + fs.size() + " file(s).");
 		log.info(psmTableByFullSequence.size() + " peptides read in " + fs.size() + " file(s).");
 		log.info(psmTableByPSMID.size() + " psms read in " + fs.size() + " file(s).");
 
+	}
+
+	private void mergeWithProteomicsStaticStorage() {
+		for (final Protein protein : proteinList) {
+			if (StaticProteomicsModelStorage.containsProtein(protein.getMSRuns(), null, protein.getAccession())) {
+				protein.mergeWithProtein(StaticProteomicsModelStorage.getSingleProtein(null, protein.getAccession(),
+						protein.getMSRuns()));
+			}
+		}
 	}
 
 	/**
@@ -611,19 +652,27 @@ public abstract class IdentificationsParser implements Parser {
 			// proteins
 			final Set<String> psmIdsToDelete = new THashSet<String>();
 			for (final String psmID : psmTableByPSMID.keySet()) {
+				if ("Xi20180215_01_cNE_Uw1_0214LT_03_30C-42571-LLPPNSSSSSFSYQFSDLDSAAVDSDMYDLPK-4".equals(psmID)) {
+					final PSM psm = psmTableByPSMID.get(psmID);
+					log.info(psm);
+				}
 				if (psmTableByPSMID.get(psmID).getProteins().isEmpty()) {
 					psmIdsToDelete.add(psmID);
 				}
 			}
-			log.info("Removing " + psmIdsToDelete.size() + " PSMs assigned to decoy discarded proteins");
+			log.info("Removing  " + psmIdsToDelete.size() + " PSMs assigned to decoy discarded proteins");
 			for (final String psmID : psmIdsToDelete) {
 				final PSM psm = psmTableByPSMID.get(psmID);
+				if ("Xi20180215_01_cNE_Uw1_0214LT_03_30C-42571-LLPPNSSSSSFSYQFSDLDSAAVDSDMYDLPK-4".equals(psmID)) {
+					log.info(psm);
+				}
 				if (!psm.getProteins().isEmpty()) {
 					throw new IllegalArgumentException("This should not happen");
 				}
 				final Set<PSM> set = psmTableByFullSequence.get(psm.getFullSequence());
 				final boolean removed = set.remove(psm);
 				if (!removed) {
+					psm.getFullSequence();
 					throw new IllegalArgumentException("This should not happen");
 				}
 				if (set.isEmpty()) {
@@ -636,5 +685,29 @@ public abstract class IdentificationsParser implements Parser {
 
 			log.info(psmIdsToDelete.size() + " PSMs discarded as decoy");
 		}
+	}
+
+	public boolean containsPSMByPSMID(String psmID) {
+		return psmTableByPSMID.containsKey(psmID);
+	}
+
+	public PSM getPSMByPSMID(String psmID) {
+		return psmTableByPSMID.get(psmID);
+	}
+
+	public boolean containsProteinByAccession(String accession) {
+		return proteinsByAccession.containsKey(accession);
+	}
+
+	public Protein getProteinByAccession(String accession) {
+		return proteinsByAccession.get(accession);
+	}
+
+	public void addProteinGroup(ProteinGroup proteinGroup) {
+		proteinGroups.add(proteinGroup);
+	}
+
+	public int getProteinGroupsNumber() {
+		return proteinGroups.size();
 	}
 }

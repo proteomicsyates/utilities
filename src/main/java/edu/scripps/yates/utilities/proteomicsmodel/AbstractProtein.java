@@ -134,6 +134,7 @@ public abstract class AbstractProtein implements Protein {
 			}
 			if (!psms.contains(psm)) {
 				final boolean ret = psms.add(psm);
+				addMSRun(psm.getMSRun());
 				if (recursively) {
 					addPeptide(psm.getPeptide(), false);
 					if (psm.getPeptide() != null) {
@@ -374,7 +375,7 @@ public abstract class AbstractProtein implements Protein {
 		if (protein.getNsaf() != null) {
 			setNsaf(protein.getNsaf());
 		}
-		if (getNsaf_norm() == -1.0) {
+		if (getNsaf_norm() == null) {
 			setNsaf_norm(protein.getNsaf_norm());
 		}
 		if (getPi() == null) {

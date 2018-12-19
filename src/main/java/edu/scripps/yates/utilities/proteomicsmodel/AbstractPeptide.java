@@ -249,7 +249,8 @@ public abstract class AbstractPeptide implements Peptide {
 			for (final int position : ptMsFromSequence.keys()) {
 				final double deltaMass = ptMsFromSequence.get(position);
 				final String aa = getSequence().substring(position - 1, position);
-				final PTM ptm = new PTMAdapter(deltaMass, aa, position).adapt();
+				final PTM ptm = new PTMAdapter(deltaMass, aa, position,
+						PTMPosition.getPTMPositionFromSequence(getSequence(), position)).adapt();
 				addPTM(ptm);
 			}
 		}
@@ -322,6 +323,15 @@ public abstract class AbstractPeptide implements Peptide {
 				}
 			}
 			if (!found) {
+				for (final PTMSite ptmSite : newPtm.getPTMSites()) {
+					if (ptmSite.getPTMPosition() == PTMPosition.NONE) {
+						// maybe is because without knowing the length it cannot
+						// know that is a C-terminal
+						if (ptmSite.getPosition() == getSequence().length() + 1) {
+							ptmSite.setPTMPosition(PTMPosition.CTERM);
+						}
+					}
+				}
 				final boolean ret = ptms.add(newPtm);
 				if (ret) {
 					fullSequence = null;

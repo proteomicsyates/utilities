@@ -171,6 +171,7 @@ public abstract class AbstractPSM implements PSM {
 				proteins = new THashSet<Protein>();
 			}
 			final boolean ret = proteins.add(protein);
+			protein.addMSRun(getMSRun());
 			if (recursively) {
 				protein.addPSM(this, false);
 				protein.addPeptide(getPeptide(), false);
@@ -215,6 +216,16 @@ public abstract class AbstractPSM implements PSM {
 				}
 			}
 			if (!found) {
+				for (final PTMSite ptmSite : newPtm.getPTMSites()) {
+					if (ptmSite.getPTMPosition() == PTMPosition.NONE) {
+						// maybe is because without knowing the length it cannot
+						// know that is a C-terminal
+						if (ptmSite.getPosition() == getSequence().length() + 1) {
+							ptmSite.setPTMPosition(PTMPosition.CTERM);
+						}
+					}
+				}
+
 				final boolean ret = ptms.add(newPtm);
 				if (ret) {
 					fullSequence = null;
@@ -353,7 +364,8 @@ public abstract class AbstractPSM implements PSM {
 			for (final int position : ptMsFromSequence.keys()) {
 				final double deltaMass = ptMsFromSequence.get(position);
 				final String aa = getSequence().substring(position - 1, position);
-				final PTM ptm = new PTMAdapter(deltaMass, aa, position).adapt();
+				final PTM ptm = new PTMAdapter(deltaMass, aa, position,
+						PTMPosition.getPTMPositionFromSequence(getSequence(), position)).adapt();
 				addPTM(ptm);
 			}
 		}
@@ -440,7 +452,7 @@ public abstract class AbstractPSM implements PSM {
 	public boolean equals(Object obj) {
 		if (obj instanceof PSM) {
 			final PSM psm = (PSM) obj;
-			if (psm.getFullSequence().equals(getFullSequence())) {
+			if (psm.getIdentifier().equals(getIdentifier())) {
 				if (psm.getMSRun() != null && getMSRun() != null) {
 					if (psm.getMSRun().getRunId().equals(getMSRun().getRunId())) {
 						return true;
@@ -455,7 +467,7 @@ public abstract class AbstractPSM implements PSM {
 
 	@Override
 	public int hashCode() {
-		int hashCode = HashCodeBuilder.reflectionHashCode(getFullSequence());
+		int hashCode = HashCodeBuilder.reflectionHashCode(getIdentifier());
 		hashCode += HashCodeBuilder.reflectionHashCode(getMSRun());
 		return 31 * hashCode;
 	}
