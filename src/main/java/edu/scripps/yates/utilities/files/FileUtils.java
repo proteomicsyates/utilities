@@ -145,12 +145,10 @@ public class FileUtils {
 	}
 
 	/**
-	 * By default File#delete fails for non-empty directories, it works like
-	 * "rm". We need something a little more brutual - this does the equivalent
-	 * of "rm -r"
+	 * By default File#delete fails for non-empty directories, it works like "rm".
+	 * We need something a little more brutual - this does the equivalent of "rm -r"
 	 *
-	 * @param path
-	 *            Root File Path
+	 * @param path Root File Path
 	 * @return true iff the file and all sub files/directories have been removed
 	 * @throws FileNotFoundException
 	 */
@@ -219,13 +217,20 @@ public class FileUtils {
 			String startAfterLineBegginingBy) throws IOException {
 		int index = 0;
 
-		final Iterator<String> iterator = Files.lines(Paths.get(inputFile.getAbsolutePath()), Charset.defaultCharset())
-				.iterator();
-		while (iterator.hasNext()) {
-			index++;
-			final String line = iterator.next();
-			if (line.startsWith(startAfterLineBegginingBy)) {
-				break;
+		Stream<String> stream = null;
+		try {
+			stream = Files.lines(Paths.get(inputFile.getAbsolutePath()), Charset.defaultCharset());
+			final Iterator<String> iterator = stream.iterator();
+			while (iterator.hasNext()) {
+				index++;
+				final String line = iterator.next();
+				if (line.startsWith(startAfterLineBegginingBy)) {
+					break;
+				}
+			}
+		} finally {
+			if (stream != null) {
+				stream.close();
 			}
 		}
 
@@ -376,9 +381,8 @@ public class FileUtils {
 	 * @param csvFilePath
 	 * @param outputXlsFilePath
 	 * @param separator
-	 * @param sheetName
-	 *            if null, a new sheet will be created with standard name
-	 *            "sheet1", "sheet2"...
+	 * @param sheetName         if null, a new sheet will be created with standard
+	 *                          name "sheet1", "sheet2"...
 	 * @throws IOException
 	 */
 	public static XSSFWorkbook separatedValuesToXLSX(String csvFilePath, String outputXlsFilePath, String separator,
