@@ -352,14 +352,14 @@ public abstract class AbstractProtein implements Protein {
 	@Override
 	public void mergeWithProtein(Protein protein) {
 
-		if (getCoverage() == -1.0) {
+		if (protein.getCoverage() != null) {
 			setCoverage(protein.getCoverage());
 		}
 		if (getPrimaryAccession() == null) {
 			setPrimaryAccession(protein.getPrimaryAccession());
 		}
 		final String description = protein.getDescription();
-		if (getDescription() != null) {
+		if (protein.getDescription() != null) {
 			setDescription(description);
 		}
 		if (protein.getEmpai() != null) {
@@ -390,7 +390,6 @@ public abstract class AbstractProtein implements Protein {
 		if (protein.getPSMs() != null) {
 			for (final PSM psm : protein.getPSMs()) {
 				addPSM(psm, true);
-				psm.getProteins().remove(protein);
 			}
 		}
 		if (protein.getPeptides() != null) {
@@ -559,9 +558,12 @@ public abstract class AbstractProtein implements Protein {
 
 	@Override
 	public int hashCode() {
-		int hashCode = 1;
-		for (final MSRun msRun : getMSRuns()) {
-			hashCode += HashCodeBuilder.reflectionHashCode(msRun);
+		int hashCode = HashCodeBuilder.reflectionHashCode(getAccession());
+		final Set<MSRun> msRuns2 = getMSRuns();
+		if (msRuns2 != null) {
+			for (final MSRun msRun : msRuns2) {
+				hashCode += HashCodeBuilder.reflectionHashCode(msRun);
+			}
 		}
 		return 31 * hashCode;
 	}
@@ -571,6 +573,12 @@ public abstract class AbstractProtein implements Protein {
 		if (obj instanceof Protein) {
 			final Protein protein = (Protein) obj;
 			if (protein.getAccession().equals(getAccession())) {
+				if (protein.getMSRuns() == null) {
+					System.out.println("asdf");
+				}
+				if (getMSRuns() == null) {
+					System.out.println("a");
+				}
 				if (protein.getMSRuns().size() == getMSRuns().size()) {
 					final Set<String> msRunsIDs1 = protein.getMSRuns().stream().map(m -> m.getRunId())
 							.collect(Collectors.toSet());
@@ -607,10 +615,14 @@ public abstract class AbstractProtein implements Protein {
 
 	@Override
 	public boolean addTaxonomy(String taxonomy) {
+
 		if (taxonomies == null) {
 			taxonomies = new THashSet<String>();
 		}
-		return taxonomies.add(taxonomy);
+		if (taxonomy != null) {
+			return taxonomies.add(taxonomy);
+		}
+		return false;
 	}
 
 	@Override

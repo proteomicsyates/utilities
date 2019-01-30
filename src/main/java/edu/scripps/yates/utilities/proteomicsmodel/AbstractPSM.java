@@ -468,7 +468,9 @@ public abstract class AbstractPSM implements PSM {
 	@Override
 	public int hashCode() {
 		int hashCode = HashCodeBuilder.reflectionHashCode(getIdentifier());
-		hashCode += HashCodeBuilder.reflectionHashCode(getMSRun());
+		if (getMSRun() != null) {
+			hashCode += HashCodeBuilder.reflectionHashCode(getMSRun());
+		}
 		return 31 * hashCode;
 	}
 
