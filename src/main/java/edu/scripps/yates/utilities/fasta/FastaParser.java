@@ -94,9 +94,9 @@ public class FastaParser {
 	}
 
 	/**
-	 * From a header like >sp|Q96PG8|BBC3B_HUMAN Bcl-2-binding component 3
-	 * OS=Homo sapiens OX=9606 GN=BBC3 PE=2 SV=2 it returns BBC3B_HUMAN, which
-	 * is the string after the second '|' and before the first space
+	 * From a header like >sp|Q96PG8|BBC3B_HUMAN Bcl-2-binding component 3 OS=Homo
+	 * sapiens OX=9606 GN=BBC3 PE=2 SV=2 it returns BBC3B_HUMAN, which is the string
+	 * after the second '|' and before the first space
 	 * 
 	 * @param fastaHeader
 	 * @return
@@ -238,8 +238,8 @@ public class FastaParser {
 	}
 
 	/**
-	 * Gets a pair where the first element is the parsed protein accession and
-	 * the second is the accession type
+	 * Gets a pair where the first element is the parsed protein accession and the
+	 * second is the accession type
 	 *
 	 * @param id
 	 * @return never null.
@@ -340,12 +340,12 @@ public class FastaParser {
 	}
 
 	/**
-	 * Gets the OS=taxonomy name from the fasta header. Note that it is
-	 * necessary to be before the GN= annotation. It also takes the taxonomy if
-	 * it is between brackets if it is not found before.<br>
-	 * if it is not found yet, it uses the fullaccession provided to get the
-	 * Uniprot code if available and use the {@link UniprotSpeciesCodeMap} class
-	 * to get the species name.
+	 * Gets the OS=taxonomy name from the fasta header. Note that it is necessary to
+	 * be before the GN= annotation. It also takes the taxonomy if it is between
+	 * brackets if it is not found before.<br>
+	 * if it is not found yet, it uses the fullaccession provided to get the Uniprot
+	 * code if available and use the {@link UniprotSpeciesCodeMap} class to get the
+	 * species name.
 	 *
 	 * @param fastaheader
 	 * @return
@@ -488,8 +488,8 @@ public class FastaParser {
 	}
 
 	/**
-	 * If the uniprot accession is like
-	 * >Reverse_gi|75022131|sp|Q9GRW7.1|NONA_DROVI, it gets "_DROVI"
+	 * If the uniprot accession is like >Reverse_gi|75022131|sp|Q9GRW7.1|NONA_DROVI,
+	 * it gets "_DROVI"
 	 *
 	 * @param fastaheader
 	 * @return
@@ -505,8 +505,8 @@ public class FastaParser {
 	}
 
 	/**
-	 * Gets the GN=gene name from the fasta header. Note that it is necessary to
-	 * be before the annotation PE
+	 * Gets the GN=gene name from the fasta header. Note that it is necessary to be
+	 * before the annotation PE
 	 *
 	 * @param fastaheader
 	 * @return
@@ -526,8 +526,7 @@ public class FastaParser {
 	}
 
 	/**
-	 * If the string contains separators like "," or ";", take just the first
-	 * word
+	 * If the string contains separators like "," or ";", take just the first word
 	 *
 	 * @param trim
 	 * @return
@@ -575,8 +574,8 @@ public class FastaParser {
 	}
 
 	/**
-	 * This method parse the description string removing annotations from the
-	 * header like:<br>
+	 * This method parse the description string removing annotations from the header
+	 * like:<br>
 	 * "Tax_id=1234" or "OS=Drosophila virilis" or "GN=Dvir\GJ22546"...<br>
 	 * It also take out the sp|ASDFF|ASDF if exists.
 	 *
@@ -665,8 +664,8 @@ public class FastaParser {
 	 * <li>(-)TVAAPSVFIFPPSDEQLK(S) -> TVAAPSVFIFPPSDEQLK</li>
 	 * <li>K.EKS[167.00]KESAIASTEVK.L -> EKSKESAIASTEVK</li>
 	 * </ul>
-	 * getting just the sequence without modifications and between the pre and
-	 * post AA if available
+	 * getting just the sequence without modifications and between the pre and post
+	 * AA if available
 	 *
 	 * @param seq
 	 * @return
@@ -735,12 +734,10 @@ public class FastaParser {
 	}
 
 	/**
-	 * Gets a list of {@link StringPosition} objects with the information inside
-	 * of parenthesis or braquets. The information is the text and the position
-	 * in the text, not counting the text inside the parentheis or braquets by
-	 * itself.<br>
-	 * The position is based on 0, that is, starting from 0 in the first
-	 * character.
+	 * Gets a list of {@link StringPosition} objects with the information inside of
+	 * parenthesis or braquets. The information is the text and the position in the
+	 * text, not counting the text inside the parentheis or braquets by itself.<br>
+	 * The position is based on 0, that is, starting from 0 in the first character.
 	 *
 	 * @param seq
 	 * @return
@@ -1003,12 +1000,11 @@ public class FastaParser {
 			final Integer index = allPositionsOf.get(i) - 1;
 			if (index < sequence.length() - 1) {
 				// is followed by a number?
-				try {
-					Integer.valueOf(sequence.substring(index + 1, index + 2));
-
-				} catch (final NumberFormatException e) {
+				final char charAt = sequence.charAt(index + 1);
+				if (!Character.isDigit(charAt)) {
 					return index;
 				}
+
 			}
 		}
 		return null;
@@ -1027,13 +1023,11 @@ public class FastaParser {
 			final Integer index = allPositionsOf.get(i) - 1;
 			if (index < sequence.length() - 1) {
 				// is followed by a number? then is a modification like (80.009)
-				try {
-					Integer.valueOf(sequence.substring(index + 1, index + 2));
-
-				} catch (final NumberFormatException e) {
+				final char charAt = sequence.charAt(index + 1);
+				if (!Character.isDigit(charAt)) {
 					return index;
-
 				}
+
 			}
 		}
 		return null;
