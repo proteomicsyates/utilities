@@ -40,9 +40,6 @@ public class RatioEx implements Ratio, Serializable {
 		this.condition1 = condition1;
 		this.condition2 = condition2;
 		description = ratioDescription;
-		if (description == null) {
-			System.out.println("asdf");
-		}
 		this.aggregationLevel = aggregationLevel;
 	}
 
@@ -53,9 +50,6 @@ public class RatioEx implements Ratio, Serializable {
 		this.condition1 = condition1;
 		this.condition2 = condition2;
 		description = ratioDescription;
-		if (description == null) {
-			System.out.println("asdf");
-		}
 		this.combinationType = combinationType;
 		this.aggregationLevel = aggregationLevel;
 	}
@@ -169,32 +163,28 @@ public class RatioEx implements Ratio, Serializable {
 	}
 
 	/**
-	 * @param score
-	 *            the score to set
+	 * @param score the score to set
 	 */
 	public void setScore(Score score) {
 		this.score = score;
 	}
 
 	/**
-	 * @param combinationType
-	 *            the combinationType to set
+	 * @param combinationType the combinationType to set
 	 */
 	public void setCombinationType(CombinationType combinationType) {
 		this.combinationType = combinationType;
 	}
 
 	/**
-	 * @param condition1
-	 *            the condition1 to set
+	 * @param condition1 the condition1 to set
 	 */
 	public void setCondition1(Condition condition1) {
 		this.condition1 = condition1;
 	}
 
 	/**
-	 * @param condition2
-	 *            the condition2 to set
+	 * @param condition2 the condition2 to set
 	 */
 	public void setCondition2(Condition condition2) {
 		this.condition2 = condition2;

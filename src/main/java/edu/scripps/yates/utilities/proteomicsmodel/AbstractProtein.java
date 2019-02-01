@@ -26,7 +26,7 @@ public abstract class AbstractProtein implements Protein {
 	private Set<Amount> amounts;
 	private Set<Condition> conditions;
 	private PSMsOfAProtein psms;
-	protected Integer spectrumCount;
+	private Integer spectrumCount;
 	private Set<MSRun> msRuns;
 	private ProteinGroup proteinGroup;
 	private ProteinEvidence evidence;
@@ -43,7 +43,7 @@ public abstract class AbstractProtein implements Protein {
 	private Float nsaf;
 	private String searchEngine;
 	private Float pi;
-	protected Integer length;
+	private Integer length;
 	private Organism organism;
 	private String sequence;
 	private Set<String> taxonomies;
@@ -573,12 +573,6 @@ public abstract class AbstractProtein implements Protein {
 		if (obj instanceof Protein) {
 			final Protein protein = (Protein) obj;
 			if (protein.getAccession().equals(getAccession())) {
-				if (protein.getMSRuns() == null) {
-					System.out.println("asdf");
-				}
-				if (getMSRuns() == null) {
-					System.out.println("a");
-				}
 				if (protein.getMSRuns().size() == getMSRuns().size()) {
 					final Set<String> msRunsIDs1 = protein.getMSRuns().stream().map(m -> m.getRunId())
 							.collect(Collectors.toSet());
