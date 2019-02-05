@@ -57,6 +57,9 @@ public abstract class AbstractPeptide implements Peptide {
 
 	@Override
 	public Set<Score> getScores() {
+		if (scores == null) {
+			scores = new THashSet<Score>();
+		}
 		return scores;
 	}
 
@@ -70,6 +73,9 @@ public abstract class AbstractPeptide implements Peptide {
 
 	@Override
 	public Set<Ratio> getRatios() {
+		if (ratios == null) {
+			ratios = new THashSet<Ratio>();
+		}
 		return ratios;
 	}
 
@@ -83,6 +89,9 @@ public abstract class AbstractPeptide implements Peptide {
 
 	@Override
 	public Set<Amount> getAmounts() {
+		if (amounts == null) {
+			amounts = new THashSet<Amount>();
+		}
 		return amounts;
 	}
 
@@ -96,6 +105,9 @@ public abstract class AbstractPeptide implements Peptide {
 
 	@Override
 	public Set<Condition> getConditions() {
+		if (conditions == null) {
+			conditions = new THashSet<Condition>();
+		}
 		return conditions;
 	}
 
@@ -109,6 +121,9 @@ public abstract class AbstractPeptide implements Peptide {
 
 	@Override
 	public Set<MSRun> getMSRuns() {
+		if (msRuns == null) {
+			msRuns = new THashSet<MSRun>();
+		}
 		return msRuns;
 	}
 

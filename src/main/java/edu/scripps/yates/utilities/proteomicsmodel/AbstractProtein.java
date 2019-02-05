@@ -69,6 +69,9 @@ public abstract class AbstractProtein implements Protein {
 
 	@Override
 	public Set<Ratio> getRatios() {
+		if (ratios == null) {
+			ratios = new THashSet<Ratio>();
+		}
 		return ratios;
 	}
 
@@ -85,6 +88,9 @@ public abstract class AbstractProtein implements Protein {
 
 	@Override
 	public Set<Amount> getAmounts() {
+		if (amounts == null) {
+			amounts = new THashSet<Amount>();
+		}
 		return amounts;
 	}
 
@@ -101,6 +107,9 @@ public abstract class AbstractProtein implements Protein {
 
 	@Override
 	public Set<Condition> getConditions() {
+		if (conditions == null) {
+			conditions = new THashSet<Condition>();
+		}
 		return conditions;
 	}
 
@@ -158,6 +167,9 @@ public abstract class AbstractProtein implements Protein {
 
 	@Override
 	public Set<MSRun> getMSRuns() {
+		if (msRuns == null) {
+			msRuns = new THashSet<MSRun>();
+		}
 		return msRuns;
 	}
 
@@ -237,11 +249,17 @@ public abstract class AbstractProtein implements Protein {
 
 	@Override
 	public Set<ProteinAnnotation> getAnnotations() {
+		if (annotations == null) {
+			annotations = new THashSet<ProteinAnnotation>();
+		}
 		return annotations;
 	}
 
 	@Override
 	public Set<Threshold> getThresholds() {
+		if (thresholds == null) {
+			thresholds = new THashSet<Threshold>();
+		}
 		return thresholds;
 	}
 
@@ -270,6 +288,9 @@ public abstract class AbstractProtein implements Protein {
 
 	@Override
 	public Set<Peptide> getPeptides() {
+		if (peptides == null) {
+			peptides = new THashSet<Peptide>();
+		}
 		return peptides;
 	}
 
@@ -527,8 +548,9 @@ public abstract class AbstractProtein implements Protein {
 	public boolean addProteinAnnotation(ProteinAnnotation proteinAnnotation) {
 
 		if (proteinAnnotation != null) {
-			if (annotations == null)
+			if (annotations == null) {
 				annotations = new THashSet<ProteinAnnotation>();
+			}
 			return annotations.add(proteinAnnotation);
 		}
 		return false;

@@ -69,6 +69,9 @@ public abstract class AbstractPSM implements PSM {
 
 	@Override
 	public Set<Score> getScores() {
+		if (scores == null) {
+			scores = new THashSet<Score>();
+		}
 		return scores;
 	}
 
@@ -82,6 +85,9 @@ public abstract class AbstractPSM implements PSM {
 
 	@Override
 	public Set<Ratio> getRatios() {
+		if (ratios == null) {
+			ratios = new THashSet<Ratio>();
+		}
 		return ratios;
 	}
 
@@ -95,6 +101,9 @@ public abstract class AbstractPSM implements PSM {
 
 	@Override
 	public Set<Amount> getAmounts() {
+		if (amounts == null) {
+			amounts = new THashSet<Amount>();
+		}
 		return amounts;
 	}
 
@@ -108,6 +117,9 @@ public abstract class AbstractPSM implements PSM {
 
 	@Override
 	public Set<Condition> getConditions() {
+		if (conditions == null) {
+			conditions = new THashSet<Condition>();
+		}
 		return conditions;
 	}
 
@@ -186,6 +198,9 @@ public abstract class AbstractPSM implements PSM {
 
 	@Override
 	public List<PTM> getPTMs() {
+		if (ptms == null) {
+			ptms = new ArrayList<PTM>();
+		}
 		return ptms;
 	}
 
