@@ -2,6 +2,7 @@ package edu.scripps.yates.utilities.proteomicsmodel;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -581,10 +582,13 @@ public abstract class AbstractProtein implements Protein {
 	@Override
 	public int hashCode() {
 		int hashCode = HashCodeBuilder.reflectionHashCode(getAccession());
-		final Set<MSRun> msRuns2 = getMSRuns();
-		if (msRuns2 != null) {
-			for (final MSRun msRun : msRuns2) {
-				hashCode += HashCodeBuilder.reflectionHashCode(msRun);
+		if (getMSRuns() != null) {
+			final List<String> msRuns2 = getMSRuns().stream().map(m -> m.getRunId()).collect(Collectors.toList());
+			if (msRuns2 != null) {
+				Collections.sort(msRuns2);
+				for (final String msRun : msRuns2) {
+					hashCode += HashCodeBuilder.reflectionHashCode(msRun);
+				}
 			}
 		}
 		return 31 * hashCode;
