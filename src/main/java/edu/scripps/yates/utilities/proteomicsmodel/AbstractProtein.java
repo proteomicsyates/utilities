@@ -615,6 +615,7 @@ public abstract class AbstractProtein implements Protein {
 					}
 				}
 			}
+			return false;
 		}
 		return super.equals(obj);
 	}

@@ -27,6 +27,10 @@ public class MSRunEx implements MSRun, Serializable {
 
 	}
 
+	protected String getRunID() {
+		return runID;
+	}
+
 	/**
 	 * @return the id of the run
 	 */
@@ -52,8 +56,7 @@ public class MSRunEx implements MSRun, Serializable {
 	}
 
 	/**
-	 * @param date
-	 *            the date to set
+	 * @param date the date to set
 	 */
 	public void setDate(Date date) {
 		this.date = date;
@@ -74,8 +77,7 @@ public class MSRunEx implements MSRun, Serializable {
 	}
 
 	/**
-	 * @param project
-	 *            the project to set
+	 * @param project the project to set
 	 */
 	public void setProject(Project project) {
 		this.project = project;
