@@ -2,10 +2,8 @@ package edu.scripps.yates.utilities.proteomicsmodel;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -581,16 +579,16 @@ public abstract class AbstractProtein implements Protein {
 
 	@Override
 	public int hashCode() {
-		int hashCode = HashCodeBuilder.reflectionHashCode(getAccession());
-		if (getMSRuns() != null) {
-			final List<String> msRuns2 = getMSRuns().stream().map(m -> m.getRunId()).collect(Collectors.toList());
-			if (msRuns2 != null) {
-				Collections.sort(msRuns2);
-				for (final String msRun : msRuns2) {
-					hashCode += HashCodeBuilder.reflectionHashCode(msRun);
-				}
-			}
-		}
+		final int hashCode = HashCodeBuilder.reflectionHashCode(getAccession());
+//		if (getMSRuns() != null) {
+//			final List<String> msRuns2 = getMSRuns().stream().map(m -> m.getRunId()).collect(Collectors.toList());
+//			if (msRuns2 != null) {
+//				Collections.sort(msRuns2);
+//				for (final String msRun : msRuns2) {
+//					hashCode += HashCodeBuilder.reflectionHashCode(msRun);
+//				}
+//			}
+//		}
 		return 31 * hashCode;
 	}
 
@@ -599,25 +597,26 @@ public abstract class AbstractProtein implements Protein {
 		if (obj instanceof Protein) {
 			final Protein protein = (Protein) obj;
 			if (protein.getAccession().equals(getAccession())) {
-				if (protein.getMSRuns().size() == getMSRuns().size()) {
-					final Set<String> msRunsIDs1 = protein.getMSRuns().stream().map(m -> m.getRunId())
-							.collect(Collectors.toSet());
-					final Set<String> msRunsIDs2 = getMSRuns().stream().map(m -> m.getRunId())
-							.collect(Collectors.toSet());
-					if (msRunsIDs1.size() == msRunsIDs2.size()) {
-						for (final String string : msRunsIDs2) {
-							if (!msRunsIDs1.contains(string)) {
-								return false;
-							}
-						}
-						for (final String string : msRunsIDs1) {
-							if (!msRunsIDs2.contains(string)) {
-								return false;
-							}
-						}
-						return true;
-					}
-				}
+//				if (protein.getMSRuns().size() == getMSRuns().size()) {
+//					final Set<String> msRunsIDs1 = protein.getMSRuns().stream().map(m -> m.getRunId())
+//							.collect(Collectors.toSet());
+//					final Set<String> msRunsIDs2 = getMSRuns().stream().map(m -> m.getRunId())
+//							.collect(Collectors.toSet());
+//					if (msRunsIDs1.size() == msRunsIDs2.size()) {
+//						for (final String string : msRunsIDs2) {
+//							if (!msRunsIDs1.contains(string)) {
+//								return false;
+//							}
+//						}
+//						for (final String string : msRunsIDs1) {
+//							if (!msRunsIDs2.contains(string)) {
+//								return false;
+//							}
+//						}
+//						return true;
+//					}
+//				}
+				return true;
 			}
 			return false;
 		}
