@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.log4j.Logger;
@@ -364,13 +363,13 @@ public abstract class AbstractPeptide implements Peptide {
 
 	@Override
 	public int hashCode() {
-		int hashCode = HashCodeBuilder.reflectionHashCode(getFullSequence());
-		final Set<MSRun> msRuns2 = getMSRuns();
-		if (msRuns2 != null) {
-			for (final MSRun msRun : msRuns2) {
-				hashCode += HashCodeBuilder.reflectionHashCode(msRun);
-			}
-		}
+		final int hashCode = HashCodeBuilder.reflectionHashCode(getFullSequence());
+//		final Set<MSRun> msRuns2 = getMSRuns();
+//		if (msRuns2 != null) {
+//			for (final MSRun msRun : msRuns2) {
+//				hashCode += HashCodeBuilder.reflectionHashCode(msRun);
+//			}
+//		}
 		return 31 * hashCode;
 	}
 
@@ -379,25 +378,26 @@ public abstract class AbstractPeptide implements Peptide {
 		if (obj instanceof Peptide) {
 			final Peptide peptide = (Peptide) obj;
 			if (peptide.getFullSequence().equals(getFullSequence())) {
-				if (peptide.getMSRuns().size() == getMSRuns().size()) {
-					final Set<String> msRunsIDs1 = peptide.getMSRuns().stream().map(m -> m.getRunId())
-							.collect(Collectors.toSet());
-					final Set<String> msRunsIDs2 = getMSRuns().stream().map(m -> m.getRunId())
-							.collect(Collectors.toSet());
-					if (msRunsIDs1.size() == msRunsIDs2.size()) {
-						for (final String string : msRunsIDs2) {
-							if (!msRunsIDs1.contains(string)) {
-								return false;
-							}
-						}
-						for (final String string : msRunsIDs1) {
-							if (!msRunsIDs2.contains(string)) {
-								return false;
-							}
-						}
-						return true;
-					}
-				}
+//				if (peptide.getMSRuns().size() == getMSRuns().size()) {
+//					final Set<String> msRunsIDs1 = peptide.getMSRuns().stream().map(m -> m.getRunId())
+//							.collect(Collectors.toSet());
+//					final Set<String> msRunsIDs2 = getMSRuns().stream().map(m -> m.getRunId())
+//							.collect(Collectors.toSet());
+//					if (msRunsIDs1.size() == msRunsIDs2.size()) {
+//						for (final String string : msRunsIDs2) {
+//							if (!msRunsIDs1.contains(string)) {
+//								return false;
+//							}
+//						}
+//						for (final String string : msRunsIDs1) {
+//							if (!msRunsIDs2.contains(string)) {
+//								return false;
+//							}
+//						}
+//						return true;
+//					}
+//				}
+				return true;
 			}
 		}
 		return super.equals(obj);
