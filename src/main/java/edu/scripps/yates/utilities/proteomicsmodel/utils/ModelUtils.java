@@ -70,8 +70,8 @@ public class ModelUtils {
 	}
 
 	/**
-	 * Return a list of protein as a result of the union of the two input list
-	 * of proteins
+	 * Return a list of protein as a result of the union of the two input list of
+	 * proteins
 	 *
 	 * @param list1
 	 * @param list2
@@ -154,8 +154,8 @@ public class ModelUtils {
 	}
 
 	/**
-	 * Gets all accessions, primary or not from the protein that are of a
-	 * certain {@link AccessionType}
+	 * Gets all accessions, primary or not from the protein that are of a certain
+	 * {@link AccessionType}
 	 *
 	 * @param prot
 	 * @param accType
@@ -481,10 +481,10 @@ public class ModelUtils {
 					sb.append(")");
 				}
 			}
-			for (int pos = 1; pos <= cleanSequence.length(); pos++) {
-				if (map.contains(pos)) {
-					sb.append(cleanSequence.charAt(pos));
-					final PTM ptm = map.get(pos);
+			for (int index = 0; index < cleanSequence.length(); index++) {
+				if (map.contains(index + 1)) {
+					sb.append(cleanSequence.charAt(index));
+					final PTM ptm = map.get(index + 1);
 
 					final Double massShift = ptm.getMassShift();
 					if (massShift != null) {
@@ -494,7 +494,7 @@ public class ModelUtils {
 					}
 
 				} else {
-					sb.append(cleanSequence.charAt(pos));
+					sb.append(cleanSequence.charAt(index));
 				}
 			}
 			return sb.toString();
