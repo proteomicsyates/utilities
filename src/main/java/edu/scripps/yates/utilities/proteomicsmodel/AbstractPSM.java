@@ -423,9 +423,9 @@ public abstract class AbstractPSM implements PSM {
 			sb.append(" in MSrun: " + getMSRun().getRunId());
 		}
 		if (sb != null) {
-			return getFullSequence() + sb.toString();
+			return getIdentifier() + sb.toString();
 		}
-		return getFullSequence();
+		return getIdentifier();
 	}
 
 	@Override
