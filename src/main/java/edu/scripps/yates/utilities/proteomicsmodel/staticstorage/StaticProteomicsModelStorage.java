@@ -116,7 +116,8 @@ public class StaticProteomicsModelStorage {
 		if (conditionID == null) {
 			// log.info("condition is null for peptide");
 		}
-		peptideStorage.add(peptide, msRunID, conditionID, excelRowIndex, peptide.getFullSequence());
+		peptideStorage.add(peptide, msRunID, conditionID, excelRowIndex,
+				FastaParser.getSequenceInBetween(peptide.getFullSequence()));
 	}
 
 	public static void addPSM(PSM psm, String runID, String conditionID) {
@@ -195,7 +196,7 @@ public class StaticProteomicsModelStorage {
 	}
 
 	public static boolean containsPeptide(String msRunID, String conditionID, int excelRowIndex, String sequence) {
-		return peptideStorage.contains(msRunID, conditionID, excelRowIndex, FastaParser.cleanSequence(sequence));
+		return peptideStorage.contains(msRunID, conditionID, excelRowIndex, sequence);
 	}
 
 	public static boolean containsPeptide(MSRun msRun, String conditionID, int excelRowIndex, String sequence) {
