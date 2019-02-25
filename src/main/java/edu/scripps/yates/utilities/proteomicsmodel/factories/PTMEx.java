@@ -23,7 +23,7 @@ public class PTMEx implements PTM, Serializable {
 	private List<PTMSite> ptmSites;
 	private String residues;
 	private static final ModReader modReader = ModReader.getInstance();
-	private static final Double PRECISION = 0.001;
+	public static final Double PRECISION = 0.001;
 	private static final String UNKNOWN = "Unknown";
 
 	public PTMEx(String name, double massShift) {
@@ -70,16 +70,14 @@ public class PTMEx implements PTM, Serializable {
 	}
 
 	/**
-	 * @param cvId
-	 *            the cvId to set
+	 * @param cvId the cvId to set
 	 */
 	public void setCvId(String cvId) {
 		this.cvId = cvId;
 	}
 
 	/**
-	 * @param ptmSites
-	 *            the ptmSites to set
+	 * @param ptmSites the ptmSites to set
 	 */
 	public void setPtmSites(List<PTMSite> ptmSites) {
 		this.ptmSites = ptmSites;

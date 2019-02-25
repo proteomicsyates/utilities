@@ -18,7 +18,6 @@ public class PTMAdapter implements edu.scripps.yates.utilities.pattern.Adapter<P
 	private final static Logger log = Logger.getLogger(PTMAdapter.class);
 	private final uk.ac.ebi.pride.utilities.pridemod.model.PTM prideModPTM;
 	private static final String MOD0 = "MOD:00000";
-	private static final double PRECISION = 0.0001;
 	private final PTMPosition ptmPosition;
 
 	public PTMAdapter(double massShift, String aa, int position, PTMPosition ptmPosition) {
@@ -71,7 +70,7 @@ public class PTMAdapter implements edu.scripps.yates.utilities.pattern.Adapter<P
 		this.score = score;
 		final ModReader modReader = ModReader.getInstance();
 		final List<uk.ac.ebi.pride.utilities.pridemod.model.PTM> ptmListByMonoDeltaMass = modReader
-				.getPTMListByMonoDeltaMass(massShift, PRECISION);
+				.getPTMListByMonoDeltaMass(massShift, PTMEx.PRECISION);
 		if (ptmListByMonoDeltaMass != null && !ptmListByMonoDeltaMass.isEmpty()) {
 			prideModPTM = ptmListByMonoDeltaMass.get(0);
 		} else {
