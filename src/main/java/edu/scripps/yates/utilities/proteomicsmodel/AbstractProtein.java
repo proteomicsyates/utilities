@@ -422,7 +422,6 @@ public abstract class AbstractProtein implements Protein {
 				for (final Peptide peptide : getPeptides()) {
 					if (peptide.equals(peptide2)) {
 						found = true;
-						peptide.mergeWithPeptide(peptide2);
 					}
 				}
 				if (!found) {
@@ -583,7 +582,7 @@ public abstract class AbstractProtein implements Protein {
 
 	@Override
 	public int hashCode() {
-		final int hashCode = HashCodeBuilder.reflectionHashCode(getAccession());
+		final int hashCode = new HashCodeBuilder().append(getAccession()).toHashCode();
 //		if (getMSRuns() != null) {
 //			final List<String> msRuns2 = getMSRuns().stream().map(m -> m.getRunId()).collect(Collectors.toList());
 //			if (msRuns2 != null) {

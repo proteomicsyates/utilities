@@ -366,7 +366,7 @@ public abstract class AbstractPeptide implements Peptide {
 
 	@Override
 	public int hashCode() {
-		final int hashCode = HashCodeBuilder.reflectionHashCode(getFullSequence());
+		final int hashCode = new HashCodeBuilder().append(getFullSequence()).toHashCode();
 //		final Set<MSRun> msRuns2 = getMSRuns();
 //		if (msRuns2 != null) {
 //			for (final MSRun msRun : msRuns2) {
