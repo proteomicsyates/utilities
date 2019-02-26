@@ -228,6 +228,9 @@ public abstract class AbstractPeptide implements Peptide {
 			}
 			if (!psms.contains(psm)) {
 				final boolean ret = psms.add(psm);
+				if (psm.getMSRun() != null) {
+					addMSRun(psm.getMSRun());
+				}
 				if (recursively) {
 					psm.setPeptide(this, false);
 					for (final Protein protein : psm.getProteins()) {

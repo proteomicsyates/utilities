@@ -142,7 +142,9 @@ public abstract class AbstractProtein implements Protein {
 			}
 			if (!psms.contains(psm)) {
 				final boolean ret = psms.add(psm);
-				addMSRun(psm.getMSRun());
+				if (psm.getMSRun() != null) {
+					addMSRun(psm.getMSRun());
+				}
 				if (recursively) {
 					addPeptide(psm.getPeptide(), false);
 					if (psm.getPeptide() != null) {
