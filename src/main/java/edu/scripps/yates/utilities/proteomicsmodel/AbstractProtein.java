@@ -373,7 +373,9 @@ public abstract class AbstractProtein implements Protein {
 
 	@Override
 	public void mergeWithProtein(Protein protein) {
-
+		if (protein == this) {
+			return;
+		}
 		if (protein.getCoverage() != null) {
 			setCoverage(protein.getCoverage());
 		}
