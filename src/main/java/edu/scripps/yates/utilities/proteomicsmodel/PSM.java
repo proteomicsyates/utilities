@@ -11,7 +11,7 @@ import edu.scripps.yates.utilities.sequence.PositionInPeptide;
 import edu.scripps.yates.utilities.sequence.PositionInProtein;
 
 public interface PSM extends HasScores, HasRatios, HasAmounts, HasConditions, HasMSRun, GroupablePeptide, HasProteins,
-		HasPTMs, HasPeptide, HasTaxonomies {
+		HasPTMs, HasPeptide, HasTaxonomies, HasKey {
 
 	public Float getExperimentalMH();
 
@@ -28,8 +28,8 @@ public interface PSM extends HasScores, HasRatios, HasAmounts, HasConditions, Ha
 	public Float getPi();
 
 	/**
-	 * Gets the peptide sequence including PTMs Nterm and Cterm aminoacids, as
-	 * it is reported by the search engine
+	 * Gets the peptide sequence including PTMs Nterm and Cterm aminoacids, as it is
+	 * reported by the search engine
 	 *
 	 * @return
 	 */
@@ -68,10 +68,8 @@ public interface PSM extends HasScores, HasRatios, HasAmounts, HasConditions, Ha
 	 * "PEPTIDE#4 {PROTEIN1#234, PROTEIN2#123}
 	 * 
 	 * @param quantifiedAAs
-	 * @param uplr
-	 *            used in order to get the protein sequence
-	 * @param proteinSequences
-	 *            map of protein sequences
+	 * @param uplr             used in order to get the protein sequence
+	 * @param proteinSequences map of protein sequences
 	 * @param dBIndex
 	 * @return
 	 */
@@ -84,10 +82,8 @@ public interface PSM extends HasScores, HasRatios, HasAmounts, HasConditions, Ha
 	 * Examples:<br>
 	 * "PEPTIDE#4 {PROTEIN1#234#238, PROTEIN2#123#127}
 	 * 
-	 * @param uplr
-	 *            used in order to get the protein sequence
-	 * @param proteinSequences
-	 *            map of protein sequences
+	 * @param uplr             used in order to get the protein sequence
+	 * @param proteinSequences map of protein sequences
 	 * @param dBIndex
 	 * @return
 	 */
@@ -103,10 +99,8 @@ public interface PSM extends HasScores, HasRatios, HasAmounts, HasConditions, Ha
 	 * "PEPTIDE#4 {PROTEIN1#234, PROTEIN2#123}
 	 * 
 	 * @param quantifiedAAs
-	 * @param uplr
-	 *            used in order to get the protein sequence
-	 * @param proteinSequences
-	 *            map of protein sequences
+	 * @param uplr             used in order to get the protein sequence
+	 * @param proteinSequences map of protein sequences
 	 * @param dBIndex
 	 * @return
 	 */

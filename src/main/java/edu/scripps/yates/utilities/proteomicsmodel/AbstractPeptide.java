@@ -53,6 +53,7 @@ public abstract class AbstractPeptide implements Peptide {
 	private Map<Character, List<PositionInProtein>> positionsInProteinsByQuantifiedAA;
 	private Set<String> taxonomies;
 	private boolean ignoreTaxonomy;
+	private String key;
 
 	@Override
 	public Set<Score> getScores() {
@@ -177,6 +178,9 @@ public abstract class AbstractPeptide implements Peptide {
 		if (protein != null) {
 			if (proteins == null) {
 				proteins = new THashSet<Protein>();
+			}
+			if (protein.getAccession().equalsIgnoreCase("B2R7E7")) {
+				log.info(protein);
 			}
 			final boolean ret = proteins.add(protein);
 			if (recursively) {
@@ -365,43 +369,14 @@ public abstract class AbstractPeptide implements Peptide {
 	}
 
 	@Override
-	public int hashCode() {
-		final int hashCode = new HashCodeBuilder().append(getFullSequence()).toHashCode();
-//		final Set<MSRun> msRuns2 = getMSRuns();
-//		if (msRuns2 != null) {
-//			for (final MSRun msRun : msRuns2) {
-//				hashCode += HashCodeBuilder.reflectionHashCode(msRun);
-//			}
-//		}
-		return 31 * hashCode;
+	public final int hashCode() {
+		return new HashCodeBuilder().append(getKey()).toHashCode();
 	}
 
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof Peptide) {
-			final Peptide peptide = (Peptide) obj;
-			if (peptide.getFullSequence().equals(getFullSequence())) {
-//				if (peptide.getMSRuns().size() == getMSRuns().size()) {
-//					final Set<String> msRunsIDs1 = peptide.getMSRuns().stream().map(m -> m.getRunId())
-//							.collect(Collectors.toSet());
-//					final Set<String> msRunsIDs2 = getMSRuns().stream().map(m -> m.getRunId())
-//							.collect(Collectors.toSet());
-//					if (msRunsIDs1.size() == msRunsIDs2.size()) {
-//						for (final String string : msRunsIDs2) {
-//							if (!msRunsIDs1.contains(string)) {
-//								return false;
-//							}
-//						}
-//						for (final String string : msRunsIDs1) {
-//							if (!msRunsIDs2.contains(string)) {
-//								return false;
-//							}
-//						}
-//						return true;
-//					}
-//				}
-				return true;
-			}
+			return ((Peptide) obj).getKey().equals(getKey());
 		}
 		return super.equals(obj);
 	}
@@ -703,4 +678,12 @@ public abstract class AbstractPeptide implements Peptide {
 		this.ignoreTaxonomy = ignoreTaxonomy;
 	}
 
+	@Override
+	public final String getKey() {
+		return key;
+	}
+
+	public void setKey(String key) {
+		this.key = key;
+	}
 }

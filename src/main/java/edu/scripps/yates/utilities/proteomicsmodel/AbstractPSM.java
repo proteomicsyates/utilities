@@ -66,6 +66,7 @@ public abstract class AbstractPSM implements PSM {
 	private List<PTMInPeptide> ptmsInPeptide;
 	private boolean ignoreTaxonomy;
 	private Map<Character, List<PositionInProtein>> positionsInProteinsByQuantifiedAA;
+	private String key;
 
 	@Override
 	public Set<Score> getScores() {
@@ -464,30 +465,21 @@ public abstract class AbstractPSM implements PSM {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public final boolean equals(Object obj) {
 		if (obj instanceof PSM) {
 			final PSM psm = (PSM) obj;
-			if (psm.getIdentifier().equals(getIdentifier())) {
-				if (psm.getMSRun() != null && getMSRun() != null) {
-					if (psm.getMSRun().getRunId().equals(getMSRun().getRunId())) {
-						return true;
-					}
-				}
-			}
-			return false;
+			return psm.getKey().equals(getKey());
 		}
 		return super.equals(obj);
 
 	}
 
 	@Override
-	public int hashCode() {
+	public final int hashCode() {
 		final HashCodeBuilder hashCodeBuilder = new HashCodeBuilder();
-		hashCodeBuilder.append(getIdentifier());
-		if (getMSRun() != null) {
-			hashCodeBuilder.append(HashCodeBuilder.reflectionHashCode(getMSRun()));
-		}
-		return 31 * hashCodeBuilder.toHashCode();
+		hashCodeBuilder.append(getKey());
+
+		return hashCodeBuilder.toHashCode();
 	}
 
 	@Override
@@ -777,4 +769,12 @@ public abstract class AbstractPSM implements PSM {
 		this.ignoreTaxonomy = ignoreTaxonomy;
 	}
 
+	@Override
+	public final String getKey() {
+		return key;
+	}
+
+	public void setKey(String key) {
+		this.key = key;
+	}
 }

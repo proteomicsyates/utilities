@@ -17,11 +17,12 @@ public class ProteinEx extends AbstractProtein implements Serializable {
 		final AccessionEx accessionEx = new AccessionEx(accession, accessionType);
 		setPrimaryAccession(accessionEx);
 		setOrganism(organism);
-
+		setKey(getAccession());
 	}
 
 	public ProteinEx(String accession) {
 		setPrimaryAccession(accession);
+		setKey(getAccession());
 	}
 
 	public ProteinEx(AccessionType accessionType, String accession) {
@@ -30,6 +31,7 @@ public class ProteinEx extends AbstractProtein implements Serializable {
 
 	public ProteinEx(Accession accession) {
 		setPrimaryAccession(accession);
+		setKey(getAccession());
 	}
 
 }

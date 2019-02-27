@@ -16,6 +16,7 @@ public class PSMEx extends AbstractPSM implements Serializable {
 
 	public PSMEx(String psmID, String sequence, String fullSequence) {
 		super();
+		setKey(psmID);
 		setIdentifier(psmID);
 		if (sequence != null) {
 			setSequence(sequence);

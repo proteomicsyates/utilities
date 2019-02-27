@@ -11,7 +11,7 @@ import edu.scripps.yates.utilities.sequence.PositionInPeptide;
 import edu.scripps.yates.utilities.sequence.PositionInProtein;
 
 public interface Peptide extends HasRatios, HasScores, HasAmounts, HasConditions, HasPsms, HasMsRuns, HasProteins,
-		HasPTMs, GroupablePeptide, HasTaxonomies {
+		HasPTMs, GroupablePeptide, HasTaxonomies, HasKey {
 
 	public int getDBId();
 
@@ -38,10 +38,8 @@ public interface Peptide extends HasRatios, HasScores, HasAmounts, HasConditions
 	 * "PEPTIDE#4 {PROTEIN1#234, PROTEIN2#123}
 	 * 
 	 * @param quantifiedAAs
-	 * @param uplr
-	 *            used in order to get the protein sequence
-	 * @param proteinSequences
-	 *            map of protein sequences
+	 * @param uplr             used in order to get the protein sequence
+	 * @param proteinSequences map of protein sequences
 	 * @param dBIndex
 	 * @return
 	 */
@@ -55,10 +53,8 @@ public interface Peptide extends HasRatios, HasScores, HasAmounts, HasConditions
 	 * "PEPTIDE#4 {PROTEIN1#234, PROTEIN2#123}
 	 * 
 	 * @param quantifiedAAs
-	 * @param uplr
-	 *            used in order to get the protein sequence
-	 * @param proteinSequences
-	 *            map of protein sequences
+	 * @param uplr             used in order to get the protein sequence
+	 * @param proteinSequences map of protein sequences
 	 * @param dBIndex
 	 * @return
 	 */
@@ -79,10 +75,8 @@ public interface Peptide extends HasRatios, HasScores, HasAmounts, HasConditions
 	 * Examples:<br>
 	 * "PEPTIDE#4 {PROTEIN1#234#238, PROTEIN2#123#127}
 	 * 
-	 * @param uplr
-	 *            used in order to get the protein sequence
-	 * @param proteinSequences
-	 *            map of protein sequences
+	 * @param uplr             used in order to get the protein sequence
+	 * @param proteinSequences map of protein sequences
 	 * @param dBIndex
 	 * @return
 	 */

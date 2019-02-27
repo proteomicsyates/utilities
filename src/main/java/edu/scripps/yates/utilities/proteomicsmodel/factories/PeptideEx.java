@@ -16,6 +16,7 @@ public class PeptideEx extends AbstractPeptide implements Serializable {
 	private static Logger log = Logger.getLogger(PeptideEx.class);
 
 	public PeptideEx(String fullSequence) {
+		setKey(fullSequence);
 		setFullSequence(fullSequence);
 
 	}

@@ -19,7 +19,7 @@ public interface Protein
 		extends HasScores, HasRatios, HasAmounts, HasConditions, HasPsms, HasPeptides, HasMsRuns, GroupableProtein,
 		// a protein has several taxonomies because sometimes it represents a
 		// set of proteins
-		HasTaxonomies {
+		HasTaxonomies, HasKey {
 
 	public Accession getPrimaryAccession();
 
@@ -46,8 +46,8 @@ public interface Protein
 	 * If a {@link Threshold} with the name indicated in the parameter has been
 	 * applied to the protein it will return yes if it has been passed or false
 	 * otherwise. <br>
-	 * In case of the {@link Threshold} has not been applied to the
-	 * {@link Protein}, it will return null value.
+	 * In case of the {@link Threshold} has not been applied to the {@link Protein},
+	 * it will return null value.
 	 *
 	 * @param thresholdName
 	 * @return
