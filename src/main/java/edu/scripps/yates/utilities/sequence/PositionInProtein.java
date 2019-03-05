@@ -56,17 +56,35 @@ public class PositionInProtein {
 		return super.equals(obj);
 	}
 
+	private static boolean isNumber(char c) {
+		return c >= 48 && c <= 57;
+	}
+
+	/**
+	 * Converts the string "Q9Y3B7#K81-Q9Y3B7-2#K55" to position 81 of Q9Y3B7 and
+	 * position 55 of Q9Y3B7
+	 * 
+	 * @param string
+	 * @param separator
+	 * @return
+	 */
 	public static List<PositionInProtein> parseStringToPositionInProtein(String string, String separator) {
 		final List<PositionInProtein> ret = new ArrayList<PositionInProtein>();
 		final List<String> subStrings = new ArrayList<String>();
 		if (string.contains(separator)) {
 			final String[] split = string.split(separator);
 			for (final String string2 : split) {
-				subStrings.add(string2);
+				if (isNumber(string2.charAt(0))) {
+					final int lastIndex = subStrings.size() - 1;
+					subStrings.set(lastIndex, subStrings.get(lastIndex) + separator + string2);
+				} else {
+					subStrings.add(string2);
+				}
 			}
 		} else {
 			subStrings.add(string);
 		}
+
 		for (final String string2 : subStrings) {
 			if (string2.contains(SEPARATOR)) {
 				try {
