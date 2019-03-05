@@ -379,7 +379,10 @@ public abstract class AbstractPSM implements PSM {
 		if (!ptMsFromSequence.isEmpty()) {
 			for (final int position : ptMsFromSequence.keys()) {
 				final double deltaMass = ptMsFromSequence.get(position);
-				final String aa = getSequence().substring(position - 1, position);
+				String aa = null;
+				if (position > 0 && position <= getSequence().length()) { // not N-term or C-term
+					aa = getSequence().substring(position - 1, position);
+				}
 				final PTM ptm = new PTMAdapter(deltaMass, aa, position,
 						PTMPosition.getPTMPositionFromSequence(getSequence(), position)).adapt();
 				addPTM(ptm);
