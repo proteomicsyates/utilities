@@ -3,7 +3,7 @@ package edu.scripps.yates.utilities.annotations.uniprot;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-
+ 
 import edu.scripps.yates.utilities.annotations.uniprot.xml.CommentType;
 import edu.scripps.yates.utilities.annotations.uniprot.xml.DbReferenceType;
 import edu.scripps.yates.utilities.annotations.uniprot.xml.Entry;

@@ -13,40 +13,25 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * Describes non-nuclear gene locations (organelles and plasmids).
- *             Equivalent to the flat file OG-line.
+ * Describes a chemical reaction.
  * 
- * <p>Java class for geneLocationType complex type.
+ * <p>Java class for reactionType complex type.
  * 
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType name="geneLocationType">
+ * &lt;complexType name="reactionType">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
- *         &lt;element name="name" type="{http://uniprot.org/uniprot}statusType" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element name="text" type="{http://www.w3.org/2001/XMLSchema}string"/>
+ *         &lt;element name="dbReference" type="{http://uniprot.org/uniprot}dbReferenceType" maxOccurs="unbounded"/>
  *       &lt;/sequence>
- *       &lt;attribute name="type" use="required">
- *         &lt;simpleType>
- *           &lt;restriction base="{http://www.w3.org/2001/XMLSchema}string">
- *             &lt;enumeration value="apicoplast"/>
- *             &lt;enumeration value="chloroplast"/>
- *             &lt;enumeration value="organellar chromatophore"/>
- *             &lt;enumeration value="cyanelle"/>
- *             &lt;enumeration value="hydrogenosome"/>
- *             &lt;enumeration value="mitochondrion"/>
- *             &lt;enumeration value="non-photosynthetic plastid"/>
- *             &lt;enumeration value="nucleomorph"/>
- *             &lt;enumeration value="plasmid"/>
- *             &lt;enumeration value="plastid"/>
- *           &lt;/restriction>
- *         &lt;/simpleType>
- *       &lt;/attribute>
  *       &lt;attribute name="evidence" type="{http://uniprot.org/uniprot}intListType" />
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -56,68 +41,70 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "geneLocationType", propOrder = {
-    "name"
+@XmlType(name = "reactionType", propOrder = {
+    "text",
+    "dbReference"
 })
-public class GeneLocationType {
+public class ReactionType {
 
-    protected List<StatusType> name;
-    @XmlAttribute(name = "type", required = true)
-    protected String type;
+    @XmlElement(required = true)
+    protected String text;
+    @XmlElement(required = true)
+    protected List<DbReferenceType> dbReference;
     @XmlAttribute(name = "evidence")
     protected List<Integer> evidence;
 
     /**
-     * Gets the value of the name property.
-     * 
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the name property.
-     * 
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getName().add(newItem);
-     * </pre>
-     * 
-     * 
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link StatusType }
-     * 
-     * 
-     */
-    public List<StatusType> getName() {
-        if (name == null) {
-            name = new ArrayList<StatusType>();
-        }
-        return this.name;
-    }
-
-    /**
-     * Gets the value of the type property.
+     * Gets the value of the text property.
      * 
      * @return
      *     possible object is
      *     {@link String }
      *     
      */
-    public String getType() {
-        return type;
+    public String getText() {
+        return text;
     }
 
     /**
-     * Sets the value of the type property.
+     * Sets the value of the text property.
      * 
      * @param value
      *     allowed object is
      *     {@link String }
      *     
      */
-    public void setType(String value) {
-        this.type = value;
+    public void setText(String value) {
+        this.text = value;
+    }
+
+    /**
+     * Gets the value of the dbReference property.
+     * 
+     * <p>
+     * This accessor method returns a reference to the live list,
+     * not a snapshot. Therefore any modification you make to the
+     * returned list will be present inside the JAXB object.
+     * This is why there is not a <CODE>set</CODE> method for the dbReference property.
+     * 
+     * <p>
+     * For example, to add a new item, do as follows:
+     * <pre>
+     *    getDbReference().add(newItem);
+     * </pre>
+     * 
+     * 
+     * <p>
+     * Objects of the following type(s) are allowed in the list
+     * {@link DbReferenceType }
+     * 
+     * 
+     */
+    public List<DbReferenceType> getDbReference() {
+        if (dbReference == null) {
+            dbReference = new ArrayList<DbReferenceType>();
+        }
+        return this.dbReference;
     }
 
     /**
