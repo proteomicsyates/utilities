@@ -4,10 +4,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.net.PrintCommandListener;
+import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPReply;
@@ -65,6 +68,39 @@ public class FTPUtils {
 
 	}
 
+	/**
+	 * Download a file with regular FTP
+	 * 
+	 * @param host
+	 * @param user
+	 * @param pwd
+	 * @param remoteFilePath
+	 * @param outputStream
+	 * @throws IOException
+	 * @throws Exception
+	 */
+	public static void downloadFile(String host, String user, String pwd, String remoteFilePath,
+			OutputStream outputStream) throws IOException {
+		final FTPClient ftp = loginFTPClient(host, user, pwd);
+
+		ftp.addProtocolCommandListener(new PrintCommandListener(new PrintWriter(System.out)));
+		int reply;
+		ftp.connect(host);
+		reply = ftp.getReplyCode();
+		if (!FTPReply.isPositiveCompletion(reply)) {
+			ftp.disconnect();
+			throw new IllegalArgumentException("Exception in connecting to FTP Server");
+		}
+		ftp.login(user, pwd);
+		ftp.setFileType(FTP.BINARY_FILE_TYPE);
+		ftp.enterLocalPassiveMode();
+		ftp.retrieveFile(remoteFilePath, outputStream);
+		if (ftp.isConnected()) {
+			ftp.logout();
+			ftp.disconnect();
+		}
+	}
+
 	public static Session loginSSHClient(String hostName, String userName, String password, int port)
 			throws JSchException {
 		final JSch jsch = new JSch();
@@ -105,13 +141,10 @@ public class FTPUtils {
 	/**
 	 * Creates a nested directory structure on a FTP server
 	 * 
-	 * @param ftpClient
-	 *            an instance of org.apache.commons.net.ftp.FTPClient class.
-	 * @param dirPath
-	 *            Path of the directory, i.e /projects/java/ftp/demo
+	 * @param ftpClient an instance of org.apache.commons.net.ftp.FTPClient class.
+	 * @param dirPath   Path of the directory, i.e /projects/java/ftp/demo
 	 * @return true if the directory was created successfully, false otherwise
-	 * @throws IOException
-	 *             if any error occurred during client-server communication
+	 * @throws IOException if any error occurred during client-server communication
 	 */
 	public static boolean makeDirectories(FTPClient ftpClient, String dirPath, PrintStream log) throws IOException {
 		final String[] pathElements = dirPath.split("/");
@@ -149,8 +182,7 @@ public class FTPUtils {
 	 * 
 	 * @param dirPath
 	 * @return true if exists, false otherwise
-	 * @throws IOException
-	 *             thrown if any I/O error occurred.
+	 * @throws IOException thrown if any I/O error occurred.
 	 */
 	public static boolean checkDirectoryExists(FTPClient ftpClient, String dirPath) throws IOException {
 		ftpClient.changeWorkingDirectory(dirPath);
@@ -166,8 +198,7 @@ public class FTPUtils {
 	 * 
 	 * @param filePath
 	 * @return true if exists, false otherwise
-	 * @throws IOException
-	 *             thrown if any I/O error occurred.
+	 * @throws IOException thrown if any I/O error occurred.
 	 */
 	public static boolean checkFileExists(FTPClient ftpClient, String filePath) throws IOException {
 		final InputStream inputStream = ftpClient.retrieveFileStream(filePath);
@@ -179,8 +210,8 @@ public class FTPUtils {
 	}
 
 	/**
-	 * "Getting files recursively from remote host located under folder
-	 * folderPath with a certain extension
+	 * "Getting files recursively from remote host located under folder folderPath
+	 * with a certain extension
 	 * 
 	 * @param extension
 	 * @return
