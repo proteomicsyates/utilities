@@ -3,7 +3,7 @@ package edu.scripps.yates.utilities.annotations.uniprot;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
- 
+
 import edu.scripps.yates.utilities.annotations.uniprot.xml.CommentType;
 import edu.scripps.yates.utilities.annotations.uniprot.xml.DbReferenceType;
 import edu.scripps.yates.utilities.annotations.uniprot.xml.Entry;
@@ -89,8 +89,8 @@ public class UniprotEntryUtil {
 	 * @param entry
 	 * @param justPrimary
 	 * @param secondaryIfPrimaryIsNull
-	 * @return a list of pairs: first element is the name of the gene and second
-	 *         is the type of the gene
+	 * @return a list of pairs: first element is the name of the gene and second is
+	 *         the type of the gene
 	 */
 	public static List<Pair<String, String>> getGeneName(Entry entry, boolean justPrimary,
 			boolean secondaryIfPrimaryIsNull) {
@@ -157,6 +157,15 @@ public class UniprotEntryUtil {
 			}
 		}
 		return null;
+	}
+
+	public static boolean isSwissProt(Entry entry) {
+		if (entry != null) {
+			if (entry.getDataset().equals("Swiss-Prot")) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public static String getProteinDescription(Entry entry) {
