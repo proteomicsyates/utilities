@@ -41,7 +41,7 @@ public class UniprotSpeciesCodeMap {
 		load();
 	}
 
-	public static UniprotSpeciesCodeMap getInstance() {
+	public synchronized static UniprotSpeciesCodeMap getInstance() {
 		if (instance == null)
 			instance = new UniprotSpeciesCodeMap();
 		return instance;
@@ -60,14 +60,14 @@ public class UniprotSpeciesCodeMap {
 	}
 
 	private boolean localLoad() {
-		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-		InputStream is = classLoader.getResourceAsStream(localSpeciesFileName);
+		final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+		final InputStream is = classLoader.getResourceAsStream(localSpeciesFileName);
 		if (is != null)
 			try {
 				parse(is);
 				log.info(mapByCode.size() + " species mapped");
 				return true;
-			} catch (IOException e) {
+			} catch (final IOException e) {
 				e.printStackTrace();
 			}
 		return false;
@@ -78,19 +78,19 @@ public class UniprotSpeciesCodeMap {
 		URL url;
 		try {
 			url = new URL(speciesFileURLString);
-			InputStream is = url.openStream();
+			final InputStream is = url.openStream();
 			parse(is);
 			return true;
-		} catch (MalformedURLException e) {
+		} catch (final MalformedURLException e) {
 			e.printStackTrace();
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			e.printStackTrace();
 		}
 		return false;
 	}
 
 	private void parse(InputStream is) throws IOException {
-		BufferedReader br = new BufferedReader(new InputStreamReader(is));
+		final BufferedReader br = new BufferedReader(new InputStreamReader(is));
 		// get first line of the remote file as release notes
 		String line = null;
 		boolean started = false;
@@ -121,7 +121,8 @@ public class UniprotSpeciesCodeMap {
 
 						// create the object if data is present
 						if (code != null) {
-							UniprotOrganism organism = new UniprotOrganism(code, kingdom, taxonCode, scientificName);
+							final UniprotOrganism organism = new UniprotOrganism(code, kingdom, taxonCode,
+									scientificName);
 							if (commonName != null)
 								organism.setCommonName(commonName);
 							if (synonim != null)
@@ -149,7 +150,7 @@ public class UniprotSpeciesCodeMap {
 							}
 							try {
 								taxonCode = Long.valueOf(token);
-							} catch (NumberFormatException e) {
+							} catch (final NumberFormatException e) {
 
 							}
 						} else if (numToken == 4) {
@@ -190,7 +191,7 @@ public class UniprotSpeciesCodeMap {
 				return mapByTaxonCode.get(Long.valueOf(string));
 
 			}
-		} catch (NumberFormatException e) {
+		} catch (final NumberFormatException e) {
 		}
 
 		if (string.startsWith(HIV)) {
@@ -201,11 +202,11 @@ public class UniprotSpeciesCodeMap {
 
 	private UniprotOrganism lookAsHIV(String string) {
 		// get the isolate
-		Pattern isolatePattern = Pattern.compile(ISOLATE);
+		final Pattern isolatePattern = Pattern.compile(ISOLATE);
 		final Matcher matcher = isolatePattern.matcher(string);
 		if (matcher.find()) {
 			final String isolate = matcher.group(1).trim();
-			for (String scientificName : mapByScientificName.keySet()) {
+			for (final String scientificName : mapByScientificName.keySet()) {
 				if (scientificName.contains(HIV) && scientificName.contains("isolate " + isolate))
 					return mapByScientificName.get(scientificName);
 			}
