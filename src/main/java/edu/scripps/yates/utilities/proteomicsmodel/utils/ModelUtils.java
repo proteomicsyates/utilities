@@ -202,7 +202,7 @@ public class ModelUtils {
 		return ret;
 	}
 
-	public static Set<ProteinAnnotation> getProteinAnnotations(Set<ProteinAnnotation> proteinAnnotations,
+	public static Set<ProteinAnnotation> getProteinAnnotations(Collection<ProteinAnnotation> proteinAnnotations,
 			AnnotationType annotationType) {
 		final Set<ProteinAnnotation> ret = new THashSet<ProteinAnnotation>();
 		for (final ProteinAnnotation proteinAnnotation : proteinAnnotations) {
