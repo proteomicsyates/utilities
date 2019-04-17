@@ -62,7 +62,7 @@ public class InferencePeptide {
 	}
 
 	public void setRelation(PeptideRelation relation) {
-		for (GroupablePeptide p : mergedPeptides) {
+		for (final GroupablePeptide p : mergedPeptides) {
 			p.setRelation(relation);
 		}
 		this.relation = relation;
@@ -73,7 +73,7 @@ public class InferencePeptide {
 		if (!(obj instanceof InferencePeptide))
 			return super.equals(obj);
 		else {
-			InferencePeptide peptide = (InferencePeptide) obj;
+			final InferencePeptide peptide = (InferencePeptide) obj;
 			return peptide.getSequence().equals(getSequence());
 		}
 	}
