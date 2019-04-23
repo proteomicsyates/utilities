@@ -25,4 +25,8 @@ public interface Project {
 	public boolean isPrivate();
 
 	public boolean isBig();
+
+	public PrincipalInvestigator getPrincipalInvestigator();
+
+	public Set<String> getInstruments();
 }

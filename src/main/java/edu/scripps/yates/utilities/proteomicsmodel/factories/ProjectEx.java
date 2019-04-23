@@ -7,6 +7,7 @@ import java.util.Set;
 
 import edu.scripps.yates.utilities.proteomicsmodel.Condition;
 import edu.scripps.yates.utilities.proteomicsmodel.MSRun;
+import edu.scripps.yates.utilities.proteomicsmodel.PrincipalInvestigator;
 import edu.scripps.yates.utilities.proteomicsmodel.Project;
 import gnu.trove.set.hash.THashSet;
 
@@ -28,6 +29,8 @@ public class ProjectEx implements Project, Serializable {
 	private String tag;
 	private Date uploadedDate;
 	private boolean big;
+	private PrincipalInvestigator principalInvestigator;
+	private Set<String> instruments;
 
 	public ProjectEx(String name, String description) {
 		super();
@@ -36,16 +39,14 @@ public class ProjectEx implements Project, Serializable {
 	}
 
 	/**
-	 * @param releaseDate
-	 *            the releaseDate to set
+	 * @param releaseDate the releaseDate to set
 	 */
 	public void setReleaseDate(Date releaseDate) {
 		this.releaseDate = releaseDate;
 	}
 
 	/**
-	 * @param pubmedLink
-	 *            the pubmedLink to set
+	 * @param pubmedLink the pubmedLink to set
 	 */
 	public void setPubmedLink(URL pubmedLink) {
 		this.pubmedLink = pubmedLink;
@@ -86,8 +87,7 @@ public class ProjectEx implements Project, Serializable {
 	}
 
 	/**
-	 * @param isPrivate
-	 *            the isPrivate to set
+	 * @param isPrivate the isPrivate to set
 	 */
 	public void setPrivate(boolean isPrivate) {
 		this.isPrivate = isPrivate;
@@ -104,16 +104,14 @@ public class ProjectEx implements Project, Serializable {
 	}
 
 	/**
-	 * @param tag
-	 *            the tag to set
+	 * @param tag the tag to set
 	 */
 	public void setTag(String tag) {
 		this.tag = tag;
 	}
 
 	/**
-	 * @param uploadedDate
-	 *            the uploadedDate to set
+	 * @param uploadedDate the uploadedDate to set
 	 */
 	public void setUploadedDate(Date uploadedDate) {
 		this.uploadedDate = uploadedDate;
@@ -140,11 +138,28 @@ public class ProjectEx implements Project, Serializable {
 	}
 
 	/**
-	 * @param big
-	 *            the big to set
+	 * @param big the big to set
 	 */
 	public void setBig(boolean big) {
 		this.big = big;
+	}
+
+	@Override
+	public PrincipalInvestigator getPrincipalInvestigator() {
+		return principalInvestigator;
+	}
+
+	@Override
+	public Set<String> getInstruments() {
+		return instruments;
+	}
+
+	public void setInstruments(Set<String> instruments) {
+		this.instruments = instruments;
+	}
+
+	public void setPrincipalInvestigator(PrincipalInvestigator principalInvestigator) {
+		this.principalInvestigator = principalInvestigator;
 	}
 
 }
