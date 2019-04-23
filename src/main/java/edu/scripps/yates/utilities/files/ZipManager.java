@@ -8,6 +8,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -41,6 +42,10 @@ public class ZipManager {
 	}
 
 	public static File compressGZipFile(File inputFile, File outputFile) throws IOException {
+		return compressGZipFile(inputFile, outputFile, false);
+	}
+
+	public static File compressGZipFile(File inputFile, File outputFile, boolean append) throws IOException {
 		// if it is already compressed, return the input file
 		if (FilenameUtils.getExtension(inputFile.getName()).equalsIgnoreCase("gz"))
 			return inputFile;
@@ -50,13 +55,48 @@ public class ZipManager {
 
 		// Create the GZIP file
 		final BufferedOutputStream bufferedOut = new BufferedOutputStream(
-				new GZIPOutputStream(new FileOutputStream(outputFile)));
+				new GZIPOutputStream(new FileOutputStream(outputFile, append)));
 		final BufferedInputStream bufferedIn = new BufferedInputStream(new FileInputStream(inputFile));
 
 		copyInputStream(bufferedIn, bufferedOut);
 
 		return outputFile;
 
+	}
+
+	public static File compressZipFile(Collection<File> inputFiles, File outputZipFile) throws IOException {
+
+		if (outputZipFile == null)
+			return null;
+
+		// create byte buffer
+		final byte[] buffer = new byte[1024];
+
+		final FileOutputStream fos = new FileOutputStream(outputZipFile);
+		final ZipOutputStream zos = new ZipOutputStream(fos);
+		for (final File inputFile : inputFiles) {
+
+			final FileInputStream fis = new FileInputStream(inputFile);
+
+			// begin writing a new ZIP entry, positions the stream to the start of the entry
+			// data
+			zos.putNextEntry(new ZipEntry(inputFile.getName()));
+
+			int length;
+
+			while ((length = fis.read(buffer)) > 0) {
+				zos.write(buffer, 0, length);
+			}
+
+			zos.closeEntry();
+
+			// close the InputStream
+			fis.close();
+		}
+		// close the ZipOutputStream
+		zos.close();
+
+		return outputZipFile;
 	}
 
 	public static File compressZipFile(File inputFile, File outputFile) throws IOException {
@@ -79,8 +119,8 @@ public class ZipManager {
 	}
 
 	/**
-	 * Decompress the FIRST entry of a zip file in the same folder as the zip,
-	 * or in a temp file if there is some problem writting in that folder
+	 * Decompress the FIRST entry of a zip file in the same folder as the zip, or in
+	 * a temp file if there is some problem writting in that folder
 	 * 
 	 * @param file
 	 * @return the first entry of the zipped file
@@ -209,9 +249,8 @@ public class ZipManager {
 	/**
 	 * 
 	 * @param file
-	 * @param deleteOnExit
-	 *            indicates if the decompressed file (if the source is is a gzip
-	 *            file) will be delete on exit or not
+	 * @param deleteOnExit indicates if the decompressed file (if the source is is a
+	 *                     gzip file) will be delete on exit or not
 	 * @return
 	 */
 	public static File decompressGZipFileIfNeccessary(File file, boolean ignoreExtension, boolean deleteOnExit) {
@@ -241,9 +280,8 @@ public class ZipManager {
 	/**
 	 * 
 	 * @param file
-	 * @param deleteOnExit
-	 *            indicates if the decompressed file (if the source is is a gzip
-	 *            file) will be delete on exit or not
+	 * @param deleteOnExit indicates if the decompressed file (if the source is is a
+	 *                     gzip file) will be delete on exit or not
 	 * @return
 	 */
 	public static File decompressZipFileIfNeccessary(File file, boolean ignoreExtension, boolean deleteOnExit) {
@@ -273,9 +311,8 @@ public class ZipManager {
 	/**
 	 * 
 	 * @param file
-	 * @param deleteOnExit
-	 *            indicates if the decompressed file (if the source is is a gzip
-	 *            file) will be delete on exit or not
+	 * @param deleteOnExit indicates if the decompressed file (if the source is is a
+	 *                     gzip file) will be delete on exit or not
 	 * @return
 	 */
 	public static File decompressFileIfNeccessary(File file, boolean ignoreExtension, boolean deleteOnExit) {
