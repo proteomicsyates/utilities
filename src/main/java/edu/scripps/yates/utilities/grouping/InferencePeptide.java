@@ -74,6 +74,9 @@ public class InferencePeptide {
 			return super.equals(obj);
 		else {
 			final InferencePeptide peptide = (InferencePeptide) obj;
+			if (peptide.getSequence() == null) {
+				return false;
+			}
 			return peptide.getSequence().equals(getSequence());
 		}
 	}
