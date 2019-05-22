@@ -172,9 +172,6 @@ public class PAnalyzer {
 	private void classifyPeptides() {
 		// Locate unique peptides
 		for (final InferencePeptide pept : mPepts.values()) {
-			if (pept.getMergedPeptides().get(0).getSequence().equals("SSSTMSLQEYGTSSR")) {
-				log.info(pept.getMergedPeptides().get(0).getIdentifier());
-			}
 			if (pept.getInferenceProteins().size() == 1) {
 				pept.setRelation(PeptideRelation.UNIQUE);
 				pept.getInferenceProteins().get(0).setEvidence(ProteinEvidence.CONCLUSIVE);
