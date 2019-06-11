@@ -15,4 +15,7 @@ public interface DBIndexInterface {
 
 	public Set<IndexedProtein> getProteins(String seq) throws DBIndexStoreException;
 
+	public IndexedProtein getIndexedProteinById(int proteinId) throws DBIndexStoreException;
+
+	public String getProteinSequenceById(int proteinId) throws DBIndexStoreException;
 }

@@ -10,11 +10,13 @@ import edu.scripps.yates.utilities.annotations.uniprot.xml.Entry;
 import edu.scripps.yates.utilities.annotations.uniprot.xml.EvidencedStringType;
 import edu.scripps.yates.utilities.annotations.uniprot.xml.GeneNameType;
 import edu.scripps.yates.utilities.annotations.uniprot.xml.GeneType;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.IsoformType;
 import edu.scripps.yates.utilities.annotations.uniprot.xml.PropertyType;
 import edu.scripps.yates.utilities.annotations.uniprot.xml.ProteinType.AlternativeName;
 import edu.scripps.yates.utilities.annotations.uniprot.xml.ProteinType.SubmittedName;
 import edu.scripps.yates.utilities.annotations.uniprot.xml.SubcellularLocationType;
 import edu.scripps.yates.utilities.annotations.uniprot.xml.Uniprot;
+import edu.scripps.yates.utilities.fasta.FastaParser;
 import edu.scripps.yates.utilities.util.Pair;
 import gnu.trove.set.hash.THashSet;
 
@@ -285,6 +287,35 @@ public class UniprotEntryUtil {
 								}
 							}
 						}
+					}
+				}
+			}
+		}
+		return ret;
+	}
+
+	/**
+	 * Get the available isoforms accessions from an {@link Entry}
+	 * 
+	 * @param entry
+	 * @return
+	 */
+	public static List<String> getIsoforms(Entry entry) {
+		final List<String> ret = new ArrayList<String>();
+		if (entry.getComment() != null) {
+			for (final CommentType comment : entry.getComment()) {
+				if (comment.getIsoform() != null) {
+					for (final IsoformType isoform : comment.getIsoform()) {
+						final List<String> ids = isoform.getId();
+						for (final String acc : ids) {
+							final String isoformVersion = FastaParser.getIsoformVersion(acc);
+							if (isoformVersion != null) {
+								if (Integer.valueOf(isoformVersion) > 1) {
+									ret.add(acc);
+								}
+							}
+						}
+
 					}
 				}
 			}

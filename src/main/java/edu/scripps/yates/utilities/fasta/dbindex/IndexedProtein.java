@@ -12,7 +12,7 @@ public class IndexedProtein {
 	private String accession;
 	private String fastaDefLine;
 
-	public IndexedProtein(long id) {
+	public IndexedProtein(int id) {
 		this.id = id;
 	}
 
@@ -53,8 +53,7 @@ public class IndexedProtein {
 	}
 
 	/**
-	 * @param fastaDefLine
-	 *            the fastaDefLine to set
+	 * @param fastaDefLine the fastaDefLine to set
 	 */
 	public void setFastaDefLine(String fastaDefLine) {
 		this.fastaDefLine = fastaDefLine;

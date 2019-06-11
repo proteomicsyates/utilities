@@ -206,8 +206,7 @@ public abstract class IdentificationsParser implements Parser {
 	}
 
 	/**
-	 * @param dbIndex
-	 *            the dbIndex to set
+	 * @param dbIndex the dbIndex to set
 	 */
 	public void setDbIndex(DBIndexInterface dbIndex) {
 		this.dbIndex = dbIndex;
@@ -271,8 +270,7 @@ public abstract class IdentificationsParser implements Parser {
 	}
 
 	/**
-	 * @param searchEngineVersion
-	 *            the searchEngineVersion to set
+	 * @param searchEngineVersion the searchEngineVersion to set
 	 */
 	public void setSearchEngineVersion(String searchEngineVersion) {
 		this.searchEngineVersion = searchEngineVersion;
@@ -368,7 +366,7 @@ public abstract class IdentificationsParser implements Parser {
 		final ProgressCounter counter = new ProgressCounter(initialSize, ProgressPrintingType.PERCENTAGE_STEPS, 0);
 		for (final Set<String> accessionSet : listOfSets) {
 			final Map<String, Entry> annotatedProteins = uplr.getAnnotatedProteins(uniprotVersion, accessionSet,
-					retrieveFastaIsoforms);
+					retrieveFastaIsoforms, false);
 			for (final String accession : accessionSet) {
 				counter.increment();
 				final String progress = counter.printIfNecessary();
@@ -416,8 +414,8 @@ public abstract class IdentificationsParser implements Parser {
 
 	/**
 	 * To be called after process().<br>
-	 * If proteins have IPI accessions, look for the mapping from IPI 2 Uniprot.
-	 * It adds new entries to the map, but it doesn't create any new
+	 * If proteins have IPI accessions, look for the mapping from IPI 2 Uniprot. It
+	 * adds new entries to the map, but it doesn't create any new
 	 * {@link QuantifiedProteinInterface}
 	 */
 	private void mapIPI2Uniprot() {
@@ -495,8 +493,7 @@ public abstract class IdentificationsParser implements Parser {
 	}
 
 	/**
-	 * @param ignoreNotFoundPeptidesInDB
-	 *            the ignoreNotFoundPeptidesInDB to set
+	 * @param ignoreNotFoundPeptidesInDB the ignoreNotFoundPeptidesInDB to set
 	 */
 	public void setIgnoreNotFoundPeptidesInDB(boolean ignoreNotFoundPeptidesInDB) {
 		this.ignoreNotFoundPeptidesInDB = ignoreNotFoundPeptidesInDB;
@@ -602,8 +599,8 @@ public abstract class IdentificationsParser implements Parser {
 	}
 
 	/**
-	 * Parse DTASelectProtein locus for getting the primary accession, parsing
-	 * it accordingly
+	 * Parse DTASelectProtein locus for getting the primary accession, parsing it
+	 * accordingly
 	 *
 	 * @param protein
 	 * @return
@@ -615,8 +612,8 @@ public abstract class IdentificationsParser implements Parser {
 	}
 
 	/**
-	 * Parse DTASelectProtein locus for getting the primary accession, parsing
-	 * it accordingly
+	 * Parse DTASelectProtein locus for getting the primary accession, parsing it
+	 * accordingly
 	 *
 	 * @param dtaSelectProtein
 	 * @return
@@ -636,9 +633,8 @@ public abstract class IdentificationsParser implements Parser {
 	}
 
 	/**
-	 * in case of decoyPattern is enabled, we may have some PSMs assigned to
-	 * those decoy proteins that have not been saved, so we need to discard
-	 * them.<br>
+	 * in case of decoyPattern is enabled, we may have some PSMs assigned to those
+	 * decoy proteins that have not been saved, so we need to discard them.<br>
 	 * We iterate over the psms, and we will remove the ones with no proteins
 	 * 
 	 */

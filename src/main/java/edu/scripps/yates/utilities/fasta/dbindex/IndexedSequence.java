@@ -17,9 +17,9 @@ public class IndexedSequence {
 	private String resRight;
 	private String modSequence;
 	/**
-	 * Offset is mostly an internal storage details however it can be useful to
-	 * the user, e.g. to generate a report view showing where the peptide occurs
-	 * in the protein
+	 * Offset is mostly an internal storage details however it can be useful to the
+	 * user, e.g. to generate a report view showing where the peptide occurs in the
+	 * protein
 	 */
 	private int sequenceOffset;
 	private int sequenceLen;
@@ -160,14 +160,14 @@ public class IndexedSequence {
 	 * @param proteinId
 	 */
 	public IndexedSequence(double precMass, int sequenceOffset, int sequenceLen, String sequence, String resLeft,
-			String resRight, long proteinId) {
+			String resRight, int proteinId) {
 		mass = precMass;
 		this.sequenceOffset = sequenceOffset;
 		this.sequenceLen = sequenceLen;
 		this.sequence = sequence;
 		this.resLeft = resLeft;
 		this.resRight = resRight;
-		proteinIds.add((int) proteinId);
+		proteinIds.add(proteinId);
 	}
 
 	public IndexedSequence(double mass, int sequenceOffset, int length, String[] pArr) {
@@ -201,10 +201,10 @@ public class IndexedSequence {
 	}
 
 	/**
-	 * Two sequences are equal if their sequence strings are equals TODO
-	 * consider resLeft and resRight for completeness, to qualify seemingly same
-	 * sequences This is used to e.g. filter out duplicates like in
-	 * MassRangeFilteringIndex, etc.
+	 * Two sequences are equal if their sequence strings are equals TODO consider
+	 * resLeft and resRight for completeness, to qualify seemingly same sequences
+	 * This is used to e.g. filter out duplicates like in MassRangeFilteringIndex,
+	 * etc.
 	 *
 	 * @param obj
 	 * @return
@@ -313,8 +313,7 @@ public class IndexedSequence {
 	/**
 	 * set residue if it is determined after the sequence has been created
 	 *
-	 * @param res
-	 *            residue info to set
+	 * @param res residue info to set
 	 */
 	public void setResidues(ResidueInfo res) {
 		resLeft = res.getResidueLeft();
