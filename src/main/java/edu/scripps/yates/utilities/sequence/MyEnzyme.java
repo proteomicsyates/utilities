@@ -1,7 +1,7 @@
 package edu.scripps.yates.utilities.sequence;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Vector;
 
@@ -10,7 +10,7 @@ import com.compomics.util.protein.Enzyme;
 import gnu.trove.map.hash.THashMap;
 
 public class MyEnzyme extends Enzyme {
-	private final Map<String, List<String>> cleavagesBySequence = new THashMap<String, List<String>>();
+	private final Map<String, Collection<String>> cleavagesBySequence = new THashMap<String, Collection<String>>();
 	private boolean cacheEnabled = false;
 
 	public MyEnzyme(String aTitle, String aCleavage, String aRestrict, String aPosition, int aMiscleavages) {
@@ -55,24 +55,23 @@ public class MyEnzyme extends Enzyme {
 
 	/**
 	 * This method is the focus of the Enzyme instance. It can perform an
-	 * <i>in-silico</i> digest of a Protein sequence according to the
-	 * specifications detailed in the construction or via the setters. Only
-	 * returns peptides between the minimum and maximum peptide lengths.
+	 * <i>in-silico</i> digest of a Protein sequence according to the specifications
+	 * detailed in the construction or via the setters. Only returns peptides
+	 * between the minimum and maximum peptide lengths.
 	 *
-	 * @param aProtein
-	 *            Protein instance to cleave.
-	 * @param minPeptideLength
-	 *            The minimum peptide length to consider
-	 * @param maxPeptideLength
-	 *            The maximum peptide length to consider
+	 * @param aProtein         Protein instance to cleave.
+	 * @param minPeptideLength The minimum peptide length to consider
+	 * @param maxPeptideLength The maximum peptide length to consider
 	 * @return Protein[] with the resultant peptides.
 	 */
-	public List<String> cleave(String aProtein, int minPeptideLength, int maxPeptideLength) {
+	public Collection<String> cleave(String aProtein, int minPeptideLength, int maxPeptideLength,
+			Collection<String> result) {
 		if (cacheEnabled && cleavagesBySequence.containsKey(aProtein)) {
 			return cleavagesBySequence.get(aProtein);
 		}
-		final List<String> result = new ArrayList<String>();
-
+		if (result == null) {
+			result = new ArrayList<String>();
+		}
 		// We'll need a lot of stuff here.
 		// - a Vector for all the startindices
 		// - a Vector for the stopindices
