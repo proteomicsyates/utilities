@@ -2,7 +2,6 @@ package edu.scripps.yates.utilities.fasta;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -20,7 +19,6 @@ import edu.scripps.yates.utilities.taxonomy.UniprotOrganism;
 import edu.scripps.yates.utilities.taxonomy.UniprotSpeciesCodeMap;
 import edu.scripps.yates.utilities.util.StringPosition;
 import gnu.trove.list.array.TIntArrayList;
-import gnu.trove.map.hash.THashMap;
 import gnu.trove.map.hash.TIntDoubleHashMap;
 import gnu.trove.set.hash.THashSet;
 
@@ -71,7 +69,7 @@ public class FastaParser {
 	public static final String CONTAMINANT_PREFIX = "contaminant";
 
 	private static Logger log = Logger.getLogger(FastaParser.class);
-	private static final Map<String, String> uniprotAccCache = new THashMap<String, String>();
+//	private static final Map<String, String> uniprotAccCache = new THashMap<String, String>();
 	private static final Pattern UNIPROT_SP_ACC_TMP = Pattern.compile(".*s.\\|(\\S+)\\|\\S*\\s*.*");
 	private static final Pattern UNIPROT_TR_ACC_TMP = Pattern.compile(".*tr\\|(\\S+)\\|\\S*\\s*.*");
 	private static final Pattern UNIPROT_SP_ACC_TMP2 = Pattern.compile(".*sp\\|\\S+\\|\\S*\\s(.*)");
@@ -126,13 +124,13 @@ public class FastaParser {
 	 * @return nulls if that is not a uniprot entry
 	 */
 	public static String getUniProtACC(String id) {
-		if (uniprotAccCache.containsKey(id)) {
-			return uniprotAccCache.get(id);
-		}
+//		if (uniprotAccCache.containsKey(id)) {
+//			return uniprotAccCache.get(id);
+//		}
 
 		if (id != null && !"".equals(id)) {
 			if (id.length() > 600) {
-				uniprotAccCache.put(id, null);
+//				uniprotAccCache.put(id, null);
 				return null;
 			}
 
@@ -173,7 +171,7 @@ public class FastaParser {
 					final Matcher matcher6 = dashAndNumber.matcher(tmp);
 					if (matcher6.find()) {
 						final String string = trim + matcher6.group(1);
-						uniprotAccCache.put(id, string);
+//						uniprotAccCache.put(id, string);
 						return string;
 					}
 					// check that there is no more words before the id
@@ -187,15 +185,15 @@ public class FastaParser {
 				if (tmp.length() > 0) {
 
 					if (endingByWord.matcher(tmp).find()) {
-						uniprotAccCache.put(id, null);
+//						uniprotAccCache.put(id, null);
 						return null;
 					}
 				}
-				uniprotAccCache.put(id, trim);
+//				uniprotAccCache.put(id, trim);
 				return trim;
 			}
 		}
-		uniprotAccCache.put(id, null);
+//		uniprotAccCache.put(id, null);
 		return null;
 	}
 
@@ -214,6 +212,9 @@ public class FastaParser {
 	public static String getNCBIACC(String id) {
 		if (id != null && !"".equals(id)) {
 			if (id.length() > 600) {
+				return null;
+			}
+			if (!id.toLowerCase().contains("gi")) {
 				return null;
 			}
 			final Matcher matcher = NCBI_ACC.matcher(id);
@@ -707,6 +708,52 @@ public class FastaParser {
 
 	}
 
+	/**
+	 * This function works the same as cleanSequence, but additionally, if finds
+	 * some annotation of a sequence variance like [ADF->ITV], applies the
+	 * substitution and returns the resulting sequence with the variance.
+	 *
+	 * @param seq
+	 * @return
+	 */
+	public static String extendedCleanSequence(String seq) {
+		if (seq == null)
+			return null;
+		final String seqTmp = seq.trim();
+
+		if (somethingExtrangeInSequence(seqTmp)) {
+
+			// parenthesis or brackets
+			final List<String> outside = getOutsideNotInclusingVariants(seqTmp);
+			if (!outside.isEmpty()) {
+
+				final String tmp = appendListTakingIntoAccountVariants(outside);
+				final String removeBeforeAfterAAs = removeBeforeAfterAAs(tmp);
+				if (!removeBeforeAfterAAs.equals(seq)) {
+					return cleanSequence(removeBeforeAfterAAs);
+				}
+			}
+
+		}
+		final String errorMessage = "Peptide sequence '" + seq
+				+ "' is not supported. Either having not recognizable characteres or in lower case? Has it a non standard PTM enconded on it? PTMs can be encoded as in PEPTID[+45.92]E";
+		AssignMass.getInstance(true);
+		for (int index = 0; index < seq.length(); index++) {
+			final char aa = seq.charAt(index);
+			if (!AssignMass.containsMass(aa)) {
+				throw new IllegalArgumentException("'" + aa + "' not recognized. " + errorMessage);
+			}
+		}
+		if (!seq.toUpperCase().equals(seq)) {
+			// it has something in lower case
+
+			throw new IllegalArgumentException(errorMessage);
+
+		}
+		return seq.toUpperCase();
+
+	}
+
 	public static List<String> getOutside(String seq) {
 		int numOpen = 0;
 		final List<String> ret = new ArrayList<String>();
@@ -731,6 +778,74 @@ public class FastaParser {
 			ret.add(outside.toString());
 		}
 		return ret;
+	}
+
+	/**
+	 * Makes the same as getOutside but keeps the brackets with the variants
+	 * information.<br>
+	 * ABDSRE[+89.45]ASDF[AS->PRT]ABC --> returned list: [ABDSRE, ASDF, PRT, ABC]
+	 * 
+	 * @param seq
+	 * @return
+	 */
+	public static List<String> getOutsideNotInclusingVariants(String seq) {
+		int numOpen = 0;
+		final List<String> ret = new ArrayList<String>();
+		StringBuffer outside = new StringBuffer();
+		boolean isVariant = false;
+		for (int i = 0; i < seq.length(); i++) {
+			final char charAt = seq.charAt(i);
+			if (charAt == '[' || charAt == '(') {
+				if (!"".equals(outside.toString())) {
+					ret.add(outside.toString());
+				}
+				if (charAt == '[' && isVariant(seq, i + 1)) {
+					outside = new StringBuffer();
+					isVariant = true;
+				} else {
+					numOpen++;
+				}
+			} else if (charAt == ')' || charAt == ']') {
+				if (isVariant) {
+					isVariant = false;
+					ret.add(outside.toString());
+				} else {
+					numOpen--;
+				}
+				outside = new StringBuffer();
+			} else {
+				if (numOpen == 0) {
+					outside.append(charAt);
+				}
+			}
+		}
+		if (!"".equals(outside.toString())) {
+			ret.add(outside.toString());
+		}
+		return ret;
+	}
+
+	/**
+	 * Returns true if looking to the substring starting from index to the next ']'
+	 * it contains '->' as this example: [ASDF->WER]
+	 * 
+	 * @param seq
+	 * @param index
+	 * @return
+	 */
+	private static boolean isVariant(String seq, int index) {
+		if (seq.length() <= index) {
+			return false;
+		}
+		final String substring = seq.substring(index);
+		final int indexOf = substring.indexOf(']');
+		if (indexOf > -1) {
+			final String substringVariant = substring.substring(0, indexOf);
+			if (substringVariant.contains("->")) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -857,6 +972,28 @@ public class FastaParser {
 		final StringBuffer sb = new StringBuffer();
 		for (final String string : list) {
 			sb.append(string);
+		}
+		return sb.toString();
+	}
+
+	/**
+	 * Makes the same as appendList but if one of the elements contains a "->", then
+	 * it appends only the part after the "->"
+	 * 
+	 * @param list
+	 * @return
+	 */
+	private static String appendListTakingIntoAccountVariants(List<String> list) {
+		final StringBuffer sb = new StringBuffer();
+		for (final String string : list) {
+			if (string.contains("->")) {
+				final String[] split = string.split("->");
+				if (split.length == 2) {
+					sb.append(split[1]);
+				}
+			} else {
+				sb.append(string);
+			}
 		}
 		return sb.toString();
 	}
@@ -1062,6 +1199,13 @@ public class FastaParser {
 
 		System.out.println(FastaParser
 				.getACC("A6NKZ8\tA6NKZ8;  RecName: Full=Putative tubulin beta chain-like protein ENSP00000290377;"));
+
+		final List<String> ret = FastaParser.getOutsideNotInclusingVariants("ABDSRE[+89.45]ASDF[AS->PRT]ABC");
+		for (final String string : ret) {
+			System.out.println(string);
+		}
+		System.out.println(FastaParser.extendedCleanSequence("ABDSRE[+89.45]ASDF[AS->PRT]ABC"));
+		System.out.println(FastaParser.extendedCleanSequence("ABDSRE[+89.45]ASDF[AS->]ABC"));
 	}
 
 	public static boolean isContaminant(String accession) {
