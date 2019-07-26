@@ -1,12 +1,15 @@
 package edu.scripps.yates.utilities.maths;
 
+import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 import org.apache.commons.math3.stat.descriptive.moment.Mean;
 import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation;
 import org.apache.commons.math3.stat.descriptive.rank.Median;
 
+import gnu.trove.list.TDoubleList;
 import gnu.trove.list.array.TDoubleArrayList;
 import gnu.trove.list.array.TFloatArrayList;
 import gnu.trove.list.array.TIntArrayList;
+import gnu.trove.list.array.TLongArrayList;
 
 public class Maths {
 	private Maths() {
@@ -180,6 +183,16 @@ public class Maths {
 	 * Returns the average value in the array a[], NaN if no such value.
 	 */
 	public static double mean(TIntArrayList a) {
+		if (a.isEmpty())
+			return Double.NaN;
+
+		return 1.0 * a.sum() / a.size();
+	}
+
+	/**
+	 * Returns the average value in the array a[], NaN if no such value.
+	 */
+	public static double mean(TLongArrayList a) {
 		if (a.isEmpty())
 			return Double.NaN;
 
@@ -458,6 +471,22 @@ public class Maths {
 
 	}
 
+	//
+
+	/**
+	 * Function to calculate sample error or Standard Error of Measurement, that
+	 * is the standard deviation divided by the squared root of the size of the
+	 * sample
+	 * 
+	 * @param arr
+	 * @param n
+	 * @return
+	 */
+	public static double sem(double arr[]) {
+		// Formula to find sample error.
+		return stddev(arr) / Math.sqrt(1.0 * arr.length);
+	}
+
 	/**
 	 * Z-score calculation: (value-mean)/stdev a z-score greater than 3 could be
 	 * considered as an outlier
@@ -496,5 +525,35 @@ public class Maths {
 
 	public static double log(double x, int base) {
 		return Math.log(x) / Math.log(base);
+	}
+
+	public static double correlationCoefficient(TDoubleList x, TDoubleList y) {
+		// double sum_X = 0, sum_Y = 0, sum_XY = 0;
+		// double squareSum_X = 0, squareSum_Y = 0;
+		// final int n = x.size();
+		// for (int i = 0; i < n; i++) {
+		// // sum of elements of array X.
+		// sum_X = sum_X + x.get(i);
+		//
+		// // sum of elements of array Y.
+		// sum_Y = sum_Y + y.get(i);
+		//
+		// // sum of X[i] * Y[i].
+		// sum_XY = sum_XY + x.get(i) * y.get(i);
+		//
+		// // sum of square of array elements.
+		// squareSum_X = squareSum_X + x.get(i) * x.get(i);
+		// squareSum_Y = squareSum_Y + y.get(i) * y.get(i);
+		// }
+		// // use formula for calculating correlation
+		// // coefficient.
+		// final double corr = (n * sum_XY - sum_X * sum_Y)
+		// / Math.sqrt((n * squareSum_X - sum_X * sum_X) * (n * squareSum_Y -
+		// sum_Y * sum_Y));
+		//
+		// return corr;
+
+		// replaced by Maths3 from apache
+		return new PearsonsCorrelation().correlation(x.toArray(), y.toArray());
 	}
 }
