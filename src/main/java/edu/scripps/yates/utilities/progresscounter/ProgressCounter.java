@@ -156,7 +156,8 @@ public class ProgressCounter {
 	}
 
 	public double getPercentage() {
-		return count.longValue() * 100.0 / total;
+		final double d = count.longValue() * 100.0 / total;
+		return d;
 	}
 
 	public void setTotal(long max) {
