@@ -6,10 +6,9 @@ import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation;
 import org.apache.commons.math3.stat.descriptive.rank.Median;
 
 import gnu.trove.list.TDoubleList;
-import gnu.trove.list.array.TDoubleArrayList;
-import gnu.trove.list.array.TFloatArrayList;
-import gnu.trove.list.array.TIntArrayList;
-import gnu.trove.list.array.TLongArrayList;
+import gnu.trove.list.TFloatList;
+import gnu.trove.list.TIntList;
+import gnu.trove.list.TLongList;
 
 public class Maths {
 	private Maths() {
@@ -172,7 +171,7 @@ public class Maths {
 	/**
 	 * Returns the average value in the array a[], NaN if no such value.
 	 */
-	public static double mean(TDoubleArrayList a) {
+	public static double mean(TDoubleList a) {
 		if (a.isEmpty())
 			return Double.NaN;
 
@@ -182,7 +181,7 @@ public class Maths {
 	/**
 	 * Returns the average value in the array a[], NaN if no such value.
 	 */
-	public static double mean(TIntArrayList a) {
+	public static double mean(TIntList a) {
 		if (a.isEmpty())
 			return Double.NaN;
 
@@ -192,7 +191,7 @@ public class Maths {
 	/**
 	 * Returns the average value in the array a[], NaN if no such value.
 	 */
-	public static double mean(TLongArrayList a) {
+	public static double mean(TLongList a) {
 		if (a.isEmpty())
 			return Double.NaN;
 
@@ -202,7 +201,7 @@ public class Maths {
 	/**
 	 * Returns the average value in the array a[], NaN if no such value.
 	 */
-	public static float mean(TFloatArrayList a) {
+	public static float mean(TFloatList a) {
 		if (a.isEmpty())
 			return Float.NaN;
 
@@ -326,7 +325,7 @@ public class Maths {
 	 * Returns the sample standard deviation in the array a[], NaN if no such
 	 * value.
 	 */
-	public static double stddev(TDoubleArrayList a) {
+	public static double stddev(TDoubleList a) {
 		return stddev(a.toArray());
 	}
 
@@ -350,7 +349,7 @@ public class Maths {
 	 * Returns the sample standard deviation in the array a[], NaN if no such
 	 * value.
 	 */
-	public static double stddev(TIntArrayList a) {
+	public static double stddev(TIntList a) {
 		return stddev(a.toArray());
 	}
 
