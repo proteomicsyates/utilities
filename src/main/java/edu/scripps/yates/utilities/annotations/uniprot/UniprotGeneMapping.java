@@ -29,8 +29,9 @@ public class UniprotGeneMapping {
 	/**
 	 * Gene name to Uniprot accession map.
 	 */
-	private final Map<Gene, Set<String>> geneNameToAccession = new THashMap<Gene, Set<String>>();
-	private final Map<String, Set<Gene>> accessionToGeneNames = new THashMap<String, Set<Gene>>();
+	private final Map<String, Set<String>> geneNameToAccession = new THashMap<String, Set<String>>();
+	private final Map<Gene, Set<String>> geneToAccession = new THashMap<Gene, Set<String>>();
+	private final Map<String, Set<Gene>> accessionToGenes = new THashMap<String, Set<Gene>>();
 	private boolean loaded = false;
 	private final File uniprotPath;
 	private final String taxonomy;
@@ -41,25 +42,52 @@ public class UniprotGeneMapping {
 	public static final String GENE_SYNONM = "Gene_Synonym";
 	public static final String GENE_NAME = "Gene_Name";
 	public static final String ENSEMBL = "Ensembl";
+	private final boolean mapToENSEMBL;
+	private final boolean mapToGENENAME;
+	private final boolean mapToGENESYNONIM;
 
-	public UniprotGeneMapping(File uniprotPath, String taxonomy) {
+	public UniprotGeneMapping(File uniprotPath, String taxonomy, boolean mapToENSEMBL, boolean mapToGENENAME,
+			boolean mapToGENESYNONIM) {
 		this.uniprotPath = uniprotPath;
 		this.taxonomy = taxonomy;
+		this.mapToENSEMBL = mapToENSEMBL;
+		this.mapToGENENAME = mapToGENENAME;
+		this.mapToGENESYNONIM = mapToGENESYNONIM;
 	}
 
 	public static UniprotGeneMapping getInstance(File uniprotPath, String taxonomy) {
-		if (!instances.containsKey(taxonomy)) {
-			instances.put(taxonomy, new UniprotGeneMapping(uniprotPath, taxonomy));
+		return getInstance(uniprotPath, taxonomy, true, true, true);
+	}
+
+	public static UniprotGeneMapping getInstance(File uniprotPath, String taxonomy, boolean mapToENSEMBL,
+			boolean mapToGENENAME, boolean mapToGENESYNONIM) {
+		final String key = taxonomy + "ENSEMBL=" + mapToENSEMBL + " GENENAME=" + mapToGENENAME + " GENESYNONIM="
+				+ mapToGENESYNONIM;
+		if (!instances.containsKey(key)) {
+			instances.put(key,
+					new UniprotGeneMapping(uniprotPath, taxonomy, mapToENSEMBL, mapToGENENAME, mapToGENESYNONIM));
 		}
-		return instances.get(taxonomy);
+		return instances.get(key);
 	}
 
 	public Set<String> mapGeneToUniprotACC(String geneNameOrID) throws IOException {
 		if (!loaded) {
 			importFromFile(getMappingFile());
 		}
-		if (geneNameToAccession.containsKey(geneNameOrID)) {
-			return geneNameToAccession.get(geneNameOrID);
+
+		if (geneNameToAccession.containsKey(geneNameOrID.trim().toUpperCase())) {
+			return geneNameToAccession.get(geneNameOrID.trim().toUpperCase());
+		}
+		return Collections.emptySet();
+	}
+
+	public Set<String> mapGeneToUniprotACC(Gene gene) throws IOException {
+		if (!loaded) {
+			importFromFile(getMappingFile());
+		}
+
+		if (geneToAccession.containsKey(gene)) {
+			return geneToAccession.get(gene);
 		}
 		return Collections.emptySet();
 	}
@@ -75,8 +103,8 @@ public class UniprotGeneMapping {
 		if (!loaded) {
 			importFromFile(getMappingFile());
 		}
-		if (accessionToGeneNames.containsKey(uniprotACC)) {
-			final Set<Gene> genes = accessionToGeneNames.get(uniprotACC);
+		if (accessionToGenes.containsKey(uniprotACC)) {
+			final Set<Gene> genes = accessionToGenes.get(uniprotACC);
 			return genes.stream().map(gene -> gene.getName()).collect(Collectors.toSet());
 
 		}
@@ -91,14 +119,21 @@ public class UniprotGeneMapping {
 	 * @return
 	 * @throws IOException
 	 */
-	public Map<String, String> mapUniprotACCToGeneByType(String uniprotACC) throws IOException {
+	public Map<String, Set<String>> mapUniprotACCToGeneByType(String uniprotACC) throws IOException {
 		if (!loaded) {
 			importFromFile(getMappingFile());
 		}
-		if (accessionToGeneNames.containsKey(uniprotACC)) {
-			final Set<Gene> genes = accessionToGeneNames.get(uniprotACC);
-			final Map<String, String> map = new THashMap<String, String>();
-			genes.forEach(gene -> map.put(gene.getType(), gene.getName()));
+		if (accessionToGenes.containsKey(uniprotACC)) {
+			final Set<Gene> genes = accessionToGenes.get(uniprotACC);
+
+			final Map<String, Set<String>> map = new THashMap<String, Set<String>>();
+			for (final Gene gene : genes) {
+				if (!map.containsKey(gene.getType())) {
+					map.put(gene.getType(), new THashSet<String>());
+				}
+				map.get(gene.getType()).add(gene.getName());
+			}
+
 			return map;
 
 		}
@@ -165,7 +200,8 @@ public class UniprotGeneMapping {
 		if (file == null) {
 			throw new IllegalArgumentException("Mapping file for taxonomy " + taxonomy + " not available");
 		}
-		log.info("Loading mapping file: " + file.getAbsolutePath());
+		log.info("Loading mapping file: " + file.getAbsolutePath() + " ("
+				+ FileUtils.getDescriptiveSizeFromBytes(file.length()) + ")");
 		// read the species list
 		final FileReader r = new FileReader(file);
 		try {
@@ -183,36 +219,48 @@ public class UniprotGeneMapping {
 						final String accession = splittedLine[0];
 						final String type = splittedLine[1];
 						String geneName = null;
-						if (type.equals(GENE_NAME)) {
-							geneName = splittedLine[2];
+						if (mapToGENENAME && type.equals(GENE_NAME)) {
+							geneName = splittedLine[2].trim().toUpperCase();
 							if (geneName != null) {
-								final Gene gene = new Gene(geneName, type);
-								if (!geneNameToAccession.containsKey(gene)) {
-									geneNameToAccession.put(gene, new THashSet<String>());
+								if (!geneNameToAccession.containsKey(geneName)) {
+									geneNameToAccession.put(geneName, new THashSet<String>());
 								}
-								geneNameToAccession.get(gene).add(accession);
+								geneNameToAccession.get(geneName).add(accession);
+								final Gene gene = new Gene(geneName, type);
+								if (!geneToAccession.containsKey(gene)) {
+									geneToAccession.put(gene, new THashSet<String>());
+								}
+								geneToAccession.get(gene).add(accession);
 							}
 						}
 
-						if (type.equals(GENE_SYNONM)) {
-							geneName = splittedLine[2];
+						if (mapToGENESYNONIM && type.equals(GENE_SYNONM)) {
+							geneName = splittedLine[2].trim().toUpperCase();
 							if (geneName != null) {
-								final Gene gene = new Gene(geneName, type);
-								if (!geneNameToAccession.containsKey(gene)) {
-									geneNameToAccession.put(gene, new THashSet<String>());
+								if (!geneNameToAccession.containsKey(geneName)) {
+									geneNameToAccession.put(geneName, new THashSet<String>());
 								}
-								geneNameToAccession.get(gene).add(accession);
+								geneNameToAccession.get(geneName).add(accession);
+								final Gene gene = new Gene(geneName, type);
+								if (!geneToAccession.containsKey(gene)) {
+									geneToAccession.put(gene, new THashSet<String>());
+								}
+								geneToAccession.get(gene).add(accession);
 							}
 						}
 
-						if (type.equals(ENSEMBL)) {
-							geneName = splittedLine[2];
+						if (mapToENSEMBL && type.equals(ENSEMBL)) {
+							geneName = splittedLine[2].trim().toUpperCase();
 							if (geneName != null) {
-								final Gene gene = new Gene(geneName, type);
-								if (!geneNameToAccession.containsKey(gene)) {
-									geneNameToAccession.put(gene, new THashSet<String>());
+								if (!geneNameToAccession.containsKey(geneName)) {
+									geneNameToAccession.put(geneName, new THashSet<String>());
 								}
-								geneNameToAccession.get(gene).add(accession);
+								geneNameToAccession.get(geneName).add(accession);
+								final Gene gene = new Gene(geneName, type);
+								if (!geneToAccession.containsKey(gene)) {
+									geneToAccession.put(gene, new THashSet<String>());
+								}
+								geneToAccession.get(gene).add(accession);
 							}
 						}
 					}
@@ -223,7 +271,7 @@ public class UniprotGeneMapping {
 				loaded = true;
 				log.info(geneNameToAccession.size() + " genes mapped to uniprot accessions");
 				getReverseMapping();
-				log.info(accessionToGeneNames.size() + " uniprot accessions mapped to genes");
+				log.info(accessionToGenes.size() + " uniprot accessions mapped to genes");
 			}
 
 		} finally {
@@ -232,13 +280,13 @@ public class UniprotGeneMapping {
 	}
 
 	private void getReverseMapping() {
-		for (final Gene gene : geneNameToAccession.keySet()) {
-			final Set<String> accs = geneNameToAccession.get(gene);
+		for (final Gene gene : geneToAccession.keySet()) {
+			final Set<String> accs = geneToAccession.get(gene);
 			for (final String acc : accs) {
-				if (!accessionToGeneNames.containsKey(acc)) {
-					accessionToGeneNames.put(acc, new THashSet<Gene>());
+				if (!accessionToGenes.containsKey(acc)) {
+					accessionToGenes.put(acc, new THashSet<Gene>());
 				}
-				accessionToGeneNames.get(acc).add(gene);
+				accessionToGenes.get(acc).add(gene);
 			}
 		}
 
