@@ -12,7 +12,6 @@ import org.apache.log4j.Logger;
 import edu.scripps.yates.utilities.dates.DatesUtil;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
-import gnu.trove.set.hash.TIntHashSet;
 
 /**
  * 
@@ -126,10 +125,12 @@ public class PAnalyzer {
 	private void createInferenceMaps(Collection<GroupableProtein> proteins) {
 		InferenceProtein iProt = null;
 		InferencePeptide iPept = null;
-		final TIntHashSet proteinIds = new TIntHashSet();
+		final THashSet<String> proteinIds = new THashSet<String>();
 		boolean someProteinwithoutPeptides = false;
+		final THashMap<String, String> accs = new THashMap<String, String>();
 		for (final GroupableProtein prot : proteins) {
 			if (!proteinIds.contains(prot.getUniqueID())) {
+				accs.put(prot.getUniqueID(), prot.getAccession());
 				proteinIds.add(prot.getUniqueID());
 				iProt = mProts.get(prot.getAccession());
 				if (iProt == null) {
@@ -162,6 +163,10 @@ public class PAnalyzer {
 				}
 			} else {
 				log.warn("This protein is already taken ");
+				if (accs.containsKey(prot.getUniqueID())) {
+					log.info("Protein " + prot.getAccession() + "\t" + prot.getUniqueID());
+					log.info("Protein " + accs.get(prot.getUniqueID()));
+				}
 			}
 		}
 		if (someProteinwithoutPeptides)
@@ -183,8 +188,8 @@ public class PAnalyzer {
 			if (prot.getEvidence() == ProteinEvidence.CONCLUSIVE)
 				// if conclusive is because they have a unique peptide
 				for (final InferencePeptide pept : prot.getInferencePeptides())
-					if (pept.getRelation() != PeptideRelation.UNIQUE)
-						pept.setRelation(PeptideRelation.NONDISCRIMINATING);
+				if (pept.getRelation() != PeptideRelation.UNIQUE)
+				pept.setRelation(PeptideRelation.NONDISCRIMINATING);
 
 		// Locate non-meaningful peptides (second round)
 		boolean shared;
