@@ -141,10 +141,13 @@ public class FTPUtils {
 	/**
 	 * Creates a nested directory structure on a FTP server
 	 * 
-	 * @param ftpClient an instance of org.apache.commons.net.ftp.FTPClient class.
-	 * @param dirPath   Path of the directory, i.e /projects/java/ftp/demo
+	 * @param ftpClient
+	 *            an instance of org.apache.commons.net.ftp.FTPClient class.
+	 * @param dirPath
+	 *            Path of the directory, i.e /projects/java/ftp/demo
 	 * @return true if the directory was created successfully, false otherwise
-	 * @throws IOException if any error occurred during client-server communication
+	 * @throws IOException
+	 *             if any error occurred during client-server communication
 	 */
 	public static boolean makeDirectories(FTPClient ftpClient, String dirPath, PrintStream log) throws IOException {
 		final String[] pathElements = dirPath.split("/");
@@ -182,7 +185,8 @@ public class FTPUtils {
 	 * 
 	 * @param dirPath
 	 * @return true if exists, false otherwise
-	 * @throws IOException thrown if any I/O error occurred.
+	 * @throws IOException
+	 *             thrown if any I/O error occurred.
 	 */
 	public static boolean checkDirectoryExists(FTPClient ftpClient, String dirPath) throws IOException {
 		ftpClient.changeWorkingDirectory(dirPath);
@@ -198,7 +202,8 @@ public class FTPUtils {
 	 * 
 	 * @param filePath
 	 * @return true if exists, false otherwise
-	 * @throws IOException thrown if any I/O error occurred.
+	 * @throws IOException
+	 *             thrown if any I/O error occurred.
 	 */
 	public static boolean checkFileExists(FTPClient ftpClient, String filePath) throws IOException {
 		final InputStream inputStream = ftpClient.retrieveFileStream(filePath);
@@ -210,8 +215,8 @@ public class FTPUtils {
 	}
 
 	/**
-	 * "Getting files recursively from remote host located under folder folderPath
-	 * with a certain extension
+	 * "Getting files recursively from remote host located under folder
+	 * folderPath with a certain extension
 	 * 
 	 * @param extension
 	 * @return
@@ -322,8 +327,12 @@ public class FTPUtils {
 			return totalSize;
 
 		} finally {
-			sftpChannel.exit();
-			sftpChannel.disconnect();
+			if (sftpChannel != null) {
+				sftpChannel.exit();
+				sftpChannel.disconnect();
+			} else {
+				log.warn("Something happened!");
+			}
 		}
 
 	}
