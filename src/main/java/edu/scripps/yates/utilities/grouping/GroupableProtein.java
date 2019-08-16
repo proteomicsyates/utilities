@@ -8,7 +8,7 @@ public interface GroupableProtein {
 
 	public ProteinGroup getProteinGroup();
 
-	public int getUniqueID();
+	public String getUniqueID();
 
 	public String getAccession();
 
