@@ -201,8 +201,8 @@ public abstract class AbstractProtein implements Protein {
 	}
 
 	@Override
-	public int getUniqueID() {
-		return hashCode();
+	public String getUniqueID() {
+		return getKey();
 	}
 
 	@Override
