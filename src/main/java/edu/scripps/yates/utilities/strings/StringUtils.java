@@ -186,4 +186,10 @@ public class StringUtils {
 		}
 		return ret.toString();
 	}
+
+	public static void addIfNotEmpty(StringBuilder sb, String text) {
+		if (!"".equals(sb.toString())) {
+			sb.append(text);
+		}
+	}
 }
