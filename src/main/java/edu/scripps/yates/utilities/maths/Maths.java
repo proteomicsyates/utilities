@@ -209,8 +209,7 @@ public class Maths {
 	}
 
 	/**
-	 * Returns the average value in the subarray a[lo..hi], NaN if no such
-	 * value.
+	 * Returns the average value in the subarray a[lo..hi], NaN if no such value.
 	 */
 	public static double mean(double[] a, int lo, int hi) {
 		final int length = hi - lo + 1;
@@ -250,8 +249,7 @@ public class Maths {
 	}
 
 	/**
-	 * Returns the sample variance in the subarray a[lo..hi], NaN if no such
-	 * value.
+	 * Returns the sample variance in the subarray a[lo..hi], NaN if no such value.
 	 */
 	public static double var(double[] a, int lo, int hi) {
 		final int length = hi - lo + 1;
@@ -314,56 +312,52 @@ public class Maths {
 	}
 
 	/**
-	 * Returns the sample standard deviation in the array a[], NaN if no such
-	 * value.
+	 * Returns the sample standard deviation in the array a[], NaN if no such value.
 	 */
 	public static double stddev(double[] a) {
 		return Math.sqrt(var(a));
 	}
 
 	/**
-	 * Returns the sample standard deviation in the array a[], NaN if no such
-	 * value.
+	 * Returns the sample standard deviation in the array a[], NaN if no such value.
 	 */
 	public static double stddev(TDoubleList a) {
 		return stddev(a.toArray());
 	}
 
 	/**
-	 * Returns the sample standard deviation in the subarray a[lo..hi], NaN if
-	 * no such value.
+	 * Returns the sample standard deviation in the subarray a[lo..hi], NaN if no
+	 * such value.
 	 */
 	public static double stddev(double[] a, int lo, int hi) {
 		return Math.sqrt(var(a, lo, hi));
 	}
 
 	/**
-	 * Returns the sample standard deviation in the array a[], NaN if no such
-	 * value.
+	 * Returns the sample standard deviation in the array a[], NaN if no such value.
 	 */
 	public static double stddev(int[] a) {
 		return Math.sqrt(var(a));
 	}
 
 	/**
-	 * Returns the sample standard deviation in the array a[], NaN if no such
-	 * value.
+	 * Returns the sample standard deviation in the array a[], NaN if no such value.
 	 */
 	public static double stddev(TIntList a) {
 		return stddev(a.toArray());
 	}
 
 	/**
-	 * Returns the population standard deviation in the array a[], NaN if no
-	 * such value.
+	 * Returns the population standard deviation in the array a[], NaN if no such
+	 * value.
 	 */
 	public static double stddevp(double[] a) {
 		return Math.sqrt(varp(a));
 	}
 
 	/**
-	 * Returns the population standard deviation in the subarray a[lo..hi], NaN
-	 * if no such value.
+	 * Returns the population standard deviation in the subarray a[lo..hi], NaN if
+	 * no such value.
 	 */
 	public static double stddevp(double[] a, int lo, int hi) {
 		return Math.sqrt(varp(a, lo, hi));
@@ -415,8 +409,8 @@ public class Maths {
 	}
 
 	/**
-	 * Checks if the value is equals to Double.MAX_VALUE or Double.MIN_VALUE or
-	 * the negative of these numbers
+	 * Checks if the value is equals to Double.MAX_VALUE or Double.MIN_VALUE or the
+	 * negative of these numbers
 	 *
 	 * @param value
 	 * @return
@@ -450,14 +444,14 @@ public class Maths {
 
 	/**
 	 * This is an outliers test: Mi=0.6745(xi−x~)/MAD where MAD is the median
-	 * absolute deviation x~ is the median of the population and xi is the value
-	 * to test wether is an outlier or not.<br>
+	 * absolute deviation x~ is the median of the population and xi is the value to
+	 * test wether is an outlier or not.<br>
 	 *
 	 *
 	 * @param valueToTest
 	 * @param populationValues
-	 * @return if the return value is greater than 3.5, then it should be
-	 *         considered as a potential outlier.
+	 * @return if the return value is greater than 3.5, then it should be considered
+	 *         as a potential outlier.
 	 */
 	public static double iglewiczHoaglinTest(double valueToTest, double[] populationValues) {
 		final double factor = 0.6745;
@@ -473,9 +467,8 @@ public class Maths {
 	//
 
 	/**
-	 * Function to calculate sample error or Standard Error of Measurement, that
-	 * is the standard deviation divided by the squared root of the size of the
-	 * sample
+	 * Function to calculate sample error or Standard Error of Measurement, that is
+	 * the standard deviation divided by the squared root of the size of the sample
 	 * 
 	 * @param arr
 	 * @param n
@@ -554,5 +547,18 @@ public class Maths {
 
 		// replaced by Maths3 from apache
 		return new PearsonsCorrelation().correlation(x.toArray(), y.toArray());
+	}
+
+	/**
+	 * Coefficient of variation: 100 * stdev / mean
+	 * 
+	 * @param values
+	 * @return
+	 */
+	public static double cv(TDoubleList values) {
+		final double stddev = stddev(values);
+		final double mean = mean(values);
+		final double cv = 100.0 * stddev / mean;
+		return cv;
 	}
 }
