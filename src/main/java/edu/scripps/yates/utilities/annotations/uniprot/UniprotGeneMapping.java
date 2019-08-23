@@ -112,8 +112,8 @@ public class UniprotGeneMapping {
 	}
 
 	/**
-	 * Gets a map of all gene names mapped to this uniprot acc mapped by its
-	 * gene type
+	 * Gets a map of all gene names mapped to this uniprot acc mapped by its gene
+	 * type
 	 * 
 	 * @param uniprotACC
 	 * @return
