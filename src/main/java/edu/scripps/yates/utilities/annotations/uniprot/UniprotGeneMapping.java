@@ -163,7 +163,7 @@ public class UniprotGeneMapping {
 				uniprotFTPRemoteFolder, "gz");
 		for (final FTPFile ftpFile : filesInFolderByExtension) {
 			final String name = ftpFile.getName();
-			if (name.toLowerCase().contains(taxonomy.toLowerCase())) {
+			if (name.toLowerCase().startsWith(taxonomy.toLowerCase())) {
 				log.info("File for taxonomy '" + taxonomy + "' found in server. Now downloading.");
 				final String remoteFilePath = uniprotFTPRemoteFolder + ftpFile.getName();
 				final File mappinfFileCompressed = new File(mappingFolder.getAbsolutePath() + File.separator + name);
