@@ -45,6 +45,7 @@ public class UniprotGeneMapping {
 	private final boolean mapToENSEMBL;
 	private final boolean mapToGENENAME;
 	private final boolean mapToGENESYNONIM;
+	private final static Set<String> notFoundTaxonomies = new THashSet<String>();
 
 	public UniprotGeneMapping(File uniprotPath, String taxonomy, boolean mapToENSEMBL, boolean mapToGENENAME,
 			boolean mapToGENESYNONIM) {
@@ -71,8 +72,13 @@ public class UniprotGeneMapping {
 	}
 
 	public Set<String> mapGeneToUniprotACC(String geneNameOrID) throws IOException {
+		if (geneNameOrID == null) {
+			return Collections.emptySet();
+		}
 		if (!loaded) {
-			importFromFile(getMappingFile());
+			if (taxonomy != null) {
+				importFromFile(getMappingFile());
+			}
 		}
 
 		if (geneNameToAccession.containsKey(geneNameOrID.trim().toUpperCase())) {
@@ -82,8 +88,13 @@ public class UniprotGeneMapping {
 	}
 
 	public Set<String> mapGeneToUniprotACC(Gene gene) throws IOException {
+		if (gene == null) {
+			return Collections.emptySet();
+		}
 		if (!loaded) {
-			importFromFile(getMappingFile());
+			if (taxonomy != null) {
+				importFromFile(getMappingFile());
+			}
 		}
 
 		if (geneToAccession.containsKey(gene)) {
@@ -100,8 +111,13 @@ public class UniprotGeneMapping {
 	 * @throws IOException
 	 */
 	public Set<String> mapUniprotACCToGene(String uniprotACC) throws IOException {
+		if (uniprotACC == null) {
+			return Collections.emptySet();
+		}
 		if (!loaded) {
-			importFromFile(getMappingFile());
+			if (taxonomy != null) {
+				importFromFile(getMappingFile());
+			}
 		}
 		if (accessionToGenes.containsKey(uniprotACC)) {
 			final Set<Gene> genes = accessionToGenes.get(uniprotACC);
@@ -120,8 +136,13 @@ public class UniprotGeneMapping {
 	 * @throws IOException
 	 */
 	public Map<String, Set<String>> mapUniprotACCToGeneByType(String uniprotACC) throws IOException {
+		if (uniprotACC == null) {
+			return Collections.emptyMap();
+		}
 		if (!loaded) {
-			importFromFile(getMappingFile());
+			if (taxonomy != null) {
+				importFromFile(getMappingFile());
+			}
 		}
 		if (accessionToGenes.containsKey(uniprotACC)) {
 			final Set<Gene> genes = accessionToGenes.get(uniprotACC);
@@ -141,6 +162,10 @@ public class UniprotGeneMapping {
 	}
 
 	private File getMappingFile() throws IOException {
+		// if taxonomy is null, this means that we cannot map genes
+		if (taxonomy == null || notFoundTaxonomies.contains(taxonomy)) {
+			return null;
+		}
 		final File mappingFolder = new File(uniprotPath.getAbsolutePath() + File.separator + "genemap");
 		final File[] listFiles = mappingFolder.listFiles();
 		if (listFiles != null) {
@@ -193,6 +218,7 @@ public class UniprotGeneMapping {
 
 			}
 		}
+		notFoundTaxonomies.add(taxonomy);
 		return null;
 	}
 
