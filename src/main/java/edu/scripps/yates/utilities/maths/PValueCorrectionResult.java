@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import gnu.trove.map.TObjectDoubleMap;
 import gnu.trove.map.hash.TObjectDoubleHashMap;
 
 public class PValueCorrectionResult<T> {
@@ -18,18 +19,16 @@ public class PValueCorrectionResult<T> {
 	}
 
 	/**
-	 * @param originalPValues
-	 *            the originalPValues to set
+	 * @param originalPValues the originalPValues to set
 	 */
 	public void setOriginalPValues(PValuesCollection<T> originalPValues) {
 		this.originalPValues = originalPValues;
 	}
 
 	/**
-	 * @param originalPValues
-	 *            the originalPValues to set
+	 * @param originalPValues the originalPValues to set
 	 */
-	public void setOriginalPValues(TObjectDoubleHashMap<T> originalPValues) {
+	public void setOriginalPValues(TObjectDoubleMap<T> originalPValues) {
 		setOriginalPValues(new PValuesCollection<T>(originalPValues));
 	}
 
@@ -41,16 +40,14 @@ public class PValueCorrectionResult<T> {
 	}
 
 	/**
-	 * @param correctedPValues
-	 *            the correctedPValues to set
+	 * @param correctedPValues the correctedPValues to set
 	 */
 	public void setCorrectedPValues(PValuesCollection<T> correctedPValues) {
 		this.correctedPValues = correctedPValues;
 	}
 
 	/**
-	 * @param correctedPValues
-	 *            the correctedPValues to set
+	 * @param correctedPValues the correctedPValues to set
 	 */
 	public void setCorrectedPValues(TObjectDoubleHashMap<T> pValues) {
 		setCorrectedPValues(new PValuesCollection<T>(pValues));

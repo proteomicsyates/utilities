@@ -5,13 +5,14 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import gnu.trove.map.TObjectDoubleMap;
 import gnu.trove.map.hash.TObjectDoubleHashMap;
 
 public class PValuesCollection<T> {
-	private final TObjectDoubleHashMap<T> pValues = new TObjectDoubleHashMap<T>();
+	private final TObjectDoubleMap<T> pValues = new TObjectDoubleHashMap<T>();
 	private List<T> sortedKeysByPValue;
 
-	public PValuesCollection(TObjectDoubleHashMap<T> pValues) {
+	public PValuesCollection(TObjectDoubleMap<T> pValues) {
 		this.pValues.putAll(pValues);
 		process();
 	}
@@ -51,7 +52,7 @@ public class PValuesCollection<T> {
 		}
 	}
 
-	public TObjectDoubleHashMap<T> getPValues() {
+	public TObjectDoubleMap<T> getPValues() {
 		return pValues;
 	}
 
