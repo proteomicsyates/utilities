@@ -110,7 +110,9 @@ public class TextFileIndex implements FileIndex<String> {
 		// if not ready, means that the index file has to be updated
 		if (status == Status.NOT_READY) {
 			indexMap.clear();
-			indexFile();
+			if (indexFile == null || !indexFile.exists() || indexFile.length() <= 0) {
+				indexFile();
+			}
 		}
 		// if index Map is empty, read the index file
 		if (indexMap.isEmpty()) {
@@ -133,8 +135,8 @@ public class TextFileIndex implements FileIndex<String> {
 	}
 
 	/**
-	 * Adds an item to the index. It will be written in the indexed file, and
-	 * the index file will be updated.
+	 * Adds an item to the index. It will be written in the indexed file, and the
+	 * index file will be updated.
 	 * 
 	 * @param item
 	 * @return
@@ -182,6 +184,13 @@ public class TextFileIndex implements FileIndex<String> {
 				ret.add(item);
 			}
 		}
+		return ret;
+	}
+
+	public List<String> getAllItemKeys() throws IOException {
+
+		List<String> ret = new ArrayList<String>();
+		ret.addAll(loadIndexFile().keySet());
 		return ret;
 	}
 
