@@ -76,6 +76,7 @@ public class ProgressCounter {
 	}
 
 	public void setProgress(long progress) {
+		previousPercentage = percentageToAssign;
 		count.setValue(progress);
 		startTimeWithFirstIncrement();
 
@@ -114,8 +115,8 @@ public class ProgressCounter {
 	 * Returns the progress string or empty string according to the
 	 * ProgressPrintingType. If the {@link ProgressPrintingType} is
 	 * PERCENTAGE_STEPS, then this function will only return the progress string
-	 * every time the percentage changes. The percentage changes according to
-	 * the number of decimals stated in the constructor.
+	 * every time the percentage changes. The percentage changes according to the
+	 * number of decimals stated in the constructor.
 	 * 
 	 * @return
 	 */

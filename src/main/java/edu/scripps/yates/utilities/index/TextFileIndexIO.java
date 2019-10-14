@@ -32,25 +32,22 @@ import gnu.trove.set.hash.THashSet;
  */
 public class TextFileIndexIO {
 	private static final Logger log = Logger.getLogger(TextFileIndexIO.class);
-	private int numEntries;
-	private final String beginToken;
-	private final String endToken;
-	private final File fileToIndex;
+	protected int numEntries;
+	protected final String beginToken;
+	protected final String endToken;
+	protected final File fileToIndex;
 
 	/**
-	 * Constructor of the indexer of text files. It takes, the path to the file,
-	 * and two strings specifying the start and end string tokens from which the
-	 * entries in the index are going to be taken.
+	 * Constructor of the indexer of text files. It takes, the path to the file, and
+	 * two strings specifying the start and end string tokens from which the entries
+	 * in the index are going to be taken.
 	 * 
-	 * @param path
-	 *            path to the file to index
+	 * @param path       path to the file to index
 	 * @param beginToken
-	 * @param endToken
-	 *            the string from which an indexed entry of the text file is
-	 *            starting
-	 * @throws IOException
-	 *             the string from which an indexed entry of the text file is
-	 *             ending
+	 * @param endToken   the string from which an indexed entry of the text file is
+	 *                   starting
+	 * @throws IOException the string from which an indexed entry of the text file
+	 *                     is ending
 	 */
 	public TextFileIndexIO(String path, String beginToken, String endToken) throws IOException {
 		this(new File(path), beginToken, endToken);
@@ -58,19 +55,16 @@ public class TextFileIndexIO {
 	}
 
 	/**
-	 * Constructor of the indexer of text files. It takes, the path to the file,
-	 * and two strings specifying the start and end string tokens from which the
-	 * entries in the index are going to be taken.
+	 * Constructor of the indexer of text files. It takes, the path to the file, and
+	 * two strings specifying the start and end string tokens from which the entries
+	 * in the index are going to be taken.
 	 * 
-	 * @param path
-	 *            path to the file to index
+	 * @param path       path to the file to index
 	 * @param beginToken
-	 * @param endToken
-	 *            the string from which an indexed entry of the text file is
-	 *            starting
-	 * @throws IOException
-	 *             the string from which an indexed entry of the text file is
-	 *             ending
+	 * @param endToken   the string from which an indexed entry of the text file is
+	 *                   starting
+	 * @throws IOException the string from which an indexed entry of the text file
+	 *                     is ending
 	 */
 	public TextFileIndexIO(File file, String beginToken, String endToken) throws IOException {
 		this.beginToken = beginToken;
@@ -81,10 +75,9 @@ public class TextFileIndexIO {
 
 	/**
 	 * Gets the keys to use in the index for each entry.<br>
-	 * In this case, the index will not have nothing to do with the entry
-	 * string, and it will be the number of entry, counted from 1.<br>
-	 * Override this function in order to index the entry by another custom
-	 * keys.
+	 * In this case, the index will not have nothing to do with the entry string,
+	 * and it will be the number of entry, counted from 1.<br>
+	 * Override this function in order to index the entry by another custom keys.
 	 * 
 	 * @param string
 	 * @return
@@ -133,6 +126,7 @@ public class TextFileIndexIO {
 							+ ") readed...");
 				}
 				if ((line.endsWith(endToken) && !"".equals(endToken)) || ("".equals(endToken) && "".equals(line))) {
+					System.out.println(sb.toString());
 					end = offset;
 					final Pair<Long, Long> pair = new Pair<Long, Long>(init, end);
 					final Set<String> keys = getKeys(sb.toString());
@@ -152,12 +146,11 @@ public class TextFileIndexIO {
 	}
 
 	/**
-	 * Adds a new item in the file to index and return the keys and the position
-	 * in which the item has been written
+	 * Adds a new item in the file to index and return the keys and the position in
+	 * which the item has been written
 	 * 
 	 * @param item
-	 * @return a map containing the keys and position in where the item was
-	 *         stored
+	 * @return a map containing the keys and position in where the item was stored
 	 * @throws IOException
 	 */
 	public Map<String, Pair<Long, Long>> addNewItem(String item, Set<String> keys) throws IOException {
