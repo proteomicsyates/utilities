@@ -323,4 +323,29 @@ public class UniprotEntryUtil {
 		return ret;
 	}
 
+	public static Integer getSequenceVersion(Entry entry) {
+		if (entry != null) {
+			if (entry.getSequence() != null) {
+				if (entry.getSequence().getVersion() > 0) {
+
+					return entry.getSequence().getVersion();
+				}
+			}
+		}
+		return null;
+	}
+
+	public static ProteinExistence getProteinExistence(Entry entry) {
+		if (entry.getProteinExistence() != null) {
+			if (entry.getProteinExistence().getType() != null) {
+				for (final ProteinExistence pe : ProteinExistence.values()) {
+					if (pe.getDescription().equalsIgnoreCase(entry.getProteinExistence().getType())) {
+						return pe;
+					}
+				}
+			}
+		}
+		return null;
+	}
+
 }
