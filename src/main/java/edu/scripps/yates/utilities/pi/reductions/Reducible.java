@@ -73,7 +73,6 @@ public class Reducible<E> {
 	public synchronized void set(E value) {
 		final int tid = UniqueThreadIdGenerator.getCurrentThreadId();
 		final E ret = threadValues.put(tid, value);
-		System.out.println("******\t" + tid + "\t" + threadValues.size() + "\t" + value.hashCode() + "\t" + ret);
 	}
 
 	/**
