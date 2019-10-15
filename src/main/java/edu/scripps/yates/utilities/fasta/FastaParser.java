@@ -74,7 +74,7 @@ public class FastaParser {
 	private static final Pattern UNIPROT_TR_ACC_TMP = Pattern.compile(".*tr\\|(\\S+)\\|\\S*\\s*.*");
 	private static final Pattern UNIPROT_SP_ACC_TMP2 = Pattern.compile(".*sp\\|\\S+\\|\\S*\\s(.*)");
 	private static final Pattern UNIPROT_TR_ACC_TMP2 = Pattern.compile(".*tr\\|\\S+\\|\\S*\\s(.*)");
-	private static final Pattern dashAndNumber = Pattern.compile("^(-[0-9]).*");
+	private static final Pattern dashAndNumber = Pattern.compile("^(-[0-9]+).*");
 	private static final Pattern startingByWord = Pattern.compile("^\\w+");
 	private static final Pattern endingByWord = Pattern.compile("\\w+$");
 	private static final Pattern untilSpace = Pattern.compile("^(\\S+)");
@@ -246,6 +246,7 @@ public class FastaParser {
 	 * @return never null.
 	 */
 	public static Accession getACC(String id) {
+
 		if (id == null) {
 			return new AccessionEx("", AccessionType.UNKNOWN);
 		}
