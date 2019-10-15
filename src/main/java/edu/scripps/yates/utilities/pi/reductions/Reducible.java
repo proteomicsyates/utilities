@@ -39,18 +39,18 @@ import edu.scripps.yates.utilities.pi.UniqueThreadIdGenerator;
  */
 public class Reducible<E> {
 
-	private Map<Integer, E> threadValues = new HashMap<Integer, E>();
+	private final Map<Integer, E> threadValues = new HashMap<Integer, E>();
 	private boolean alreadyReduced = false;
-	private ReentrantLock reductionLock = new ReentrantLock();
+	private final ReentrantLock reductionLock = new ReentrantLock();
 
 	private E initialValue = null;
 
 	private E reducedValue = null;
 
 	/**
-	 * A new <code>Reducible</code> without an initial value for any of the
-	 * threads. Therefore, each thread must call {@link #set(Object)} before
-	 * attempting to {@link #get()} its thread-local value.
+	 * A new <code>Reducible</code> without an initial value for any of the threads.
+	 * Therefore, each thread must call {@link #set(Object)} before attempting to
+	 * {@link #get()} its thread-local value.
 	 */
 	public Reducible() {
 	}
@@ -59,8 +59,7 @@ public class Reducible<E> {
 	 * Creates a <code>Reducible</code> with the specified initial value for all
 	 * threads.
 	 * 
-	 * @param initialValue
-	 *            The initial value to set for all threads.
+	 * @param initialValue The initial value to set for all threads.
 	 */
 	public Reducible(E initialValue) {
 		this.initialValue = initialValue;
@@ -69,28 +68,27 @@ public class Reducible<E> {
 	/**
 	 * Sets the thread-local value of the current thread to <code>value</code>.
 	 * 
-	 * @param value
-	 *            The value to set for the current thread.
+	 * @param value The value to set for the current thread.
 	 */
-	public void set(E value) {
-		int tid = UniqueThreadIdGenerator.getCurrentThreadId();
-		threadValues.put(tid, value);
+	public synchronized void set(E value) {
+		final int tid = UniqueThreadIdGenerator.getCurrentThreadId();
+		final E ret = threadValues.put(tid, value);
+		System.out.println("******\t" + tid + "\t" + threadValues.size() + "\t" + value.hashCode() + "\t" + ret);
 	}
 
 	/**
-	 * Returns the thread-local value for the current thread. This implies that
-	 * the user has either specified a default initial value (in the
-	 * constructor), and/or has already called {@link #set(Object)} for the
-	 * current thread.
+	 * Returns the thread-local value for the current thread. This implies that the
+	 * user has either specified a default initial value (in the constructor),
+	 * and/or has already called {@link #set(Object)} for the current thread.
 	 * 
 	 * @return The thread-local value for the current thread.
 	 * 
-	 * @throws RuntimeException
-	 *             If no initial value was supplied in the constructor and no
-	 *             value has been {@link #set(Object)} for the current thread.
+	 * @throws RuntimeException If no initial value was supplied in the constructor
+	 *                          and no value has been {@link #set(Object)} for the
+	 *                          current thread.
 	 */
 	public E get() {
-		int tid = UniqueThreadIdGenerator.getCurrentThreadId();
+		final int tid = UniqueThreadIdGenerator.getCurrentThreadId();
 		if (!threadValues.containsKey(tid)) {
 			if (initialValue == null)
 				throw new RuntimeException(
@@ -103,8 +101,8 @@ public class Reducible<E> {
 
 	/**
 	 * Returns the number of thread-local values currently stored. Note that the
-	 * initial value, if there is one, does not get included in this count. In
-	 * other words, this is the number of calls made by unique threads to
+	 * initial value, if there is one, does not get included in this count. In other
+	 * words, this is the number of calls made by unique threads to
 	 * {@link #set(Object)} .
 	 * 
 	 * @return The number of thread-local values currently stored.
@@ -114,22 +112,19 @@ public class Reducible<E> {
 	}
 
 	/**
-	 * Performs the specified reduction, as defined by the
-	 * <code>reduction</code> instance.
+	 * Performs the specified reduction, as defined by the <code>reduction</code>
+	 * instance.
 	 * <p>
 	 * This method should be called at the end when all thread-local values are
-	 * ready. Note that a reduction is only calculated once, therefore
-	 * subsequent calls to this method result in the pre-calculated value being
-	 * returned.
+	 * ready. Note that a reduction is only calculated once, therefore subsequent
+	 * calls to this method result in the pre-calculated value being returned.
 	 * 
-	 * @param reduction
-	 *            The reduction to perform.
+	 * @param reduction The reduction to perform.
 	 * @return The final reduced value after performing the reduction over all
 	 *         thread-local values.
-	 * @throws RuntimeException
-	 *             If attempting to perform a reduction but there are no values
-	 *             that have been set (either by specifying an initial value or
-	 *             using {@link #set(Object)}).
+	 * @throws RuntimeException If attempting to perform a reduction but there are
+	 *                          no values that have been set (either by specifying
+	 *                          an initial value or using {@link #set(Object)}).
 	 * 
 	 */
 	public E reduce(Reduction<E> reduction) {
@@ -140,8 +135,8 @@ public class Reducible<E> {
 			return reducedValue;
 		}
 
-		Integer[] threadIDs = threadValues.keySet().toArray(new Integer[] {});
-		int numThreads = threadIDs.length;
+		final Integer[] threadIDs = threadValues.keySet().toArray(new Integer[] {});
+		final int numThreads = threadIDs.length;
 
 		if (numThreads == 0) {
 
