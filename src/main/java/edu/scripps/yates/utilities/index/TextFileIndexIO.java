@@ -126,7 +126,6 @@ public class TextFileIndexIO {
 							+ ") readed...");
 				}
 				if ((line.endsWith(endToken) && !"".equals(endToken)) || ("".equals(endToken) && "".equals(line))) {
-					System.out.println(sb.toString());
 					end = offset;
 					final Pair<Long, Long> pair = new Pair<Long, Long>(init, end);
 					final Set<String> keys = getKeys(sb.toString());

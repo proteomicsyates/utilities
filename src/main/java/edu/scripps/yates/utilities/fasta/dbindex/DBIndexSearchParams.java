@@ -12,8 +12,6 @@ public interface DBIndexSearchParams {
 
 	String getDatabaseName();
 
-	String getFullIndexFileName();
-
 	int getMaxMissedCleavages();
 
 	double getMaxPrecursorMass();
@@ -35,28 +33,28 @@ public interface DBIndexSearchParams {
 	char[] getEnzymeArr();
 
 	/**
-	 * If true a mass of H2O + PROTON will be added to any sequence in the
-	 * indexed database. This is used for regular search engine analysis, but
-	 * not for crosslinker analyses. So then, for crosslinker analysis, this
-	 * method should return false.
+	 * If true a mass of H2O + PROTON will be added to any sequence in the indexed
+	 * database. This is used for regular search engine analysis, but not for
+	 * crosslinker analyses. So then, for crosslinker analysis, this method should
+	 * return false.
 	 *
 	 * @return
 	 */
 	boolean isH2OPlusProtonAdded();
 
 	/**
-	 * this is the factor by which each double mass will be multiplied to get
-	 * the key in the index.
+	 * this is the factor by which each double mass will be multiplied to get the
+	 * key in the index.
 	 *
 	 * @return
 	 */
 	int getMassGroupFactor();
 
 	/**
-	 * At least one of the aminoacids in this char array have to be in the
-	 * peptide sequence.<br>
-	 * This is useful for crosslinked peptides since we want to index peptides
-	 * with a certain potential crosslinked sites.
+	 * At least one of the aminoacids in this char array have to be in the peptide
+	 * sequence.<br>
+	 * This is useful for crosslinked peptides since we want to index peptides with
+	 * a certain potential crosslinked sites.
 	 *
 	 * @return
 	 */
@@ -93,4 +91,8 @@ public interface DBIndexSearchParams {
 	String getUniprotVersion();
 
 	String getDiscardDecoyRegexp();
+
+	String getFullIndexFileName(String sufix, Integer maxVariationsPerPeptide, boolean useUniprot,
+			String uniprotVersion, boolean usePhosphosite, String phosphoSiteSpecies);
+
 }
