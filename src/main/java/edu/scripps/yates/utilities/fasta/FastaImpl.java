@@ -1,9 +1,6 @@
 package edu.scripps.yates.utilities.fasta;
 
 import java.io.UnsupportedEncodingException;
-// import java.util.ArrayList;
-// import java.util.List;
-import java.util.regex.Pattern;
 
 public class FastaImpl implements Fasta {
 
@@ -15,7 +12,6 @@ public class FastaImpl implements Fasta {
 	private String accession = null;
 	private String sequestLikeAccession = null;
 	private double mPlusH = 0;
-	private static final Pattern pattern = Pattern.compile("(.*)\\d");
 	private final boolean proteoform;
 
 	public FastaImpl(String defline, String sequence, boolean isProteoform) {
@@ -93,8 +89,10 @@ public class FastaImpl implements Fasta {
 
 	@Override
 	public String getDefline() {
-
-		return defline.substring(1, defline.length());
+		if (defline.startsWith(">")) {
+			return defline.substring(1, defline.length());
+		}
+		return defline;
 	}
 
 	@Override
@@ -112,7 +110,7 @@ public class FastaImpl implements Fasta {
 	public String getAccession() {
 		if (accession == null) {
 			// System.out.println("defline: " + defline);
-			accession = Fasta.getAccession(defline.substring(1));
+			accession = FastaParser.getACC(getDefline()).getAccession();
 
 		}
 
