@@ -254,10 +254,14 @@ public class FastaParser {
 		// if starts by >, remove it
 		if (id.startsWith(">"))
 			id = id.substring(1);
-		// if starts by Reverse, take the word as the id
+		// if starts we find Reverse in the string before the first space (or everything
+		// if there is no space), take that
+		// word (everything until the space) as the id
 		final String reverse = REVERSE;
-		if (id.length() >= reverse.length() && id.substring(0, reverse.length()).equalsIgnoreCase(reverse)) {
-
+		final boolean reverseFitsInString = id.length() >= reverse.length();
+		final boolean idContainsSpace = id.contains(" ");
+		if ((reverseFitsInString && idContainsSpace && id.substring(0, id.indexOf(" ")).contains(reverse))
+				|| (reverseFitsInString && !idContainsSpace && id.contains(reverse))) {
 			final Matcher matcher = untilSpace.matcher(id);
 			if (matcher.find()) {
 				return new AccessionEx(matcher.group(0).trim(), AccessionType.UNKNOWN);
@@ -290,7 +294,7 @@ public class FastaParser {
 		}
 
 		// if contains an space, take the string before the space
-		if (id.contains(" ")) {
+		if (idContainsSpace) {
 			return new AccessionEx(id.substring(0, id.indexOf(" ")), AccessionType.UNKNOWN);
 		}
 		return new AccessionEx(id.trim(), AccessionType.UNKNOWN);
@@ -1287,6 +1291,7 @@ public class FastaParser {
 	}
 
 	public static boolean isReverse(String id) {
+
 		if (getACC(id).getAccession().contains("Reverse")) {
 			return true;
 		}
@@ -1409,6 +1414,27 @@ public class FastaParser {
 	public static boolean isProteoform(String acc) {
 		if (acc.contains(mutated) || acc.contains(conflict) || acc.contains(variant)) {
 			return true;
+		}
+		return false;
+	}
+
+	public static boolean isSwissProt(String fastaHeader) {
+		final String acc = getUniProtACC(fastaHeader);
+		if (acc == null) {
+			return false;
+		}
+		final Matcher matcherSP = UNIPROT_SP_ACC_TMP.matcher(fastaHeader);
+		final Matcher matcherTR = UNIPROT_TR_ACC_TMP.matcher(fastaHeader);
+		if (fastaHeader.contains("|")) {
+			if (matcherSP.find()) {
+				final String group = matcherSP.group(1);
+				if (!"".equals(group))
+					return true;
+			} else if (matcherTR.find()) {
+				final String group = matcherTR.group(1);
+				if (!"".equals(group))
+					return false;
+			}
 		}
 		return false;
 	}
