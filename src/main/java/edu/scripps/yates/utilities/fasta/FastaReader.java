@@ -26,7 +26,7 @@ public class FastaReader implements Parser {
 	public static final int DEFAULTSEQENCELENGTH = 1024;
 	protected final String fastaFileName;
 	private Integer numberFastas;
-	private Set<String> uniprotACCs;
+	protected Set<String> proteinACCs;
 
 	public FastaReader(String fastaFileName) {
 		this.fastaFileName = fastaFileName;
@@ -164,8 +164,8 @@ public class FastaReader implements Parser {
 	public static void main(String args[]) throws IOException {
 		/*
 		 * for (Iterator<Fasta> itr = FastaReader.getFastas(new
-		 * FileInputStream(args[0])); itr.hasNext(); ) { Fasta fasta =
-		 * itr.next(); String defline = fasta.getDefline(); if(defline.contains(
+		 * FileInputStream(args[0])); itr.hasNext(); ) { Fasta fasta = itr.next();
+		 * String defline = fasta.getDefline(); if(defline.contains(
 		 * "Escherichia coli")) { System.out.println(">" + defline);
 		 * System.out.println(fasta.getSequence()); } }
 		 */
@@ -198,13 +198,12 @@ public class FastaReader implements Parser {
 		System.out.println("Number of unique SEQUEST like accessions: " + sequestLikeAccs.size());
 
 		/*
-		 * for (Iterator itr = FastaReader.getFastas(new
-		 * FileInputStream(args[0])); itr.hasNext(); ) { Fasta fasta = (Fasta)
-		 * itr.next(); String defLine = fasta.getDefline(); String seq =
-		 * fasta.getSequence(); if(defLine.startsWith("Rever")) {
-		 * //System.out.println("Reversed: " + defLine); if(seq.endsWith("M")) {
-		 * seq = seq.substring(0, seq.length() -1); } } else {
-		 * if(seq.startsWith("M")) { seq = seq.substring(1, seq.length());
+		 * for (Iterator itr = FastaReader.getFastas(new FileInputStream(args[0]));
+		 * itr.hasNext(); ) { Fasta fasta = (Fasta) itr.next(); String defLine =
+		 * fasta.getDefline(); String seq = fasta.getSequence();
+		 * if(defLine.startsWith("Rever")) { //System.out.println("Reversed: " +
+		 * defLine); if(seq.endsWith("M")) { seq = seq.substring(0, seq.length() -1); }
+		 * } else { if(seq.startsWith("M")) { seq = seq.substring(1, seq.length());
 		 * 
 		 * } //System.out.println("Regular: " + defLine); }
 		 * 
@@ -213,27 +212,24 @@ public class FastaReader implements Parser {
 
 	}
 
-	public Set<String> getUniprotACCsFromFasta() throws IOException {
-		if (uniprotACCs == null || uniprotACCs.isEmpty()) {
-			uniprotACCs = new THashSet<String>();
+	public Set<String> getACCsFromFasta() throws IOException {
+		if (proteinACCs == null || proteinACCs.isEmpty()) {
+			proteinACCs = new THashSet<String>();
 			final DBLoader loader = new FASTADBLoader();
 			if (fastaFileName != null && loader.canReadFile(new File(fastaFileName))) {
 
 				Protein protein = null;
 				loader.load(fastaFileName);
 				while ((protein = loader.nextProtein()) != null) {
-					String accession = protein.getHeader().getAccession();
-					if (accession == null) {
-						accession = protein.getHeader().getAccessionOrRest();
-					}
-					final String uniprotAccession = FastaParser.getUniProtACC(accession);
-					if (uniprotAccession != null) {
-						uniprotACCs.add(uniprotAccession);
-					}
+					final String accession = FastaParser.getACC(protein.getHeader().getFullHeaderWithAddenda())
+							.getAccession();
+
+					proteinACCs.add(accession);
+
 				}
 			}
 		}
-		return uniprotACCs;
+		return proteinACCs;
 	}
 
 	@Override
