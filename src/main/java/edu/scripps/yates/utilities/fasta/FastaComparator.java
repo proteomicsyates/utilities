@@ -46,24 +46,24 @@ public class FastaComparator {
 	// }
 
 	public static void main(String[] args) throws IOException {
-		File fastaFile3 = new File(
+		final File fastaFile3 = new File(
 				"Z:\\share\\Salva\\data\\PINT projects\\DroHybrids\\UniProt_D_simulans_and_melanogaster_11-01-2014.fasta");
-		File fastaFile = new File(
+		final File fastaFile = new File(
 				"Z:\\share\\Salva\\data\\isotopologues\\databases\\D_simulans_canonical_and_isoform.fasta");
-		File fastaFile2 = new File(
+		final File fastaFile2 = new File(
 				"Z:\\share\\Salva\\data\\isotopologues\\databases\\NCBI_RefSeq_Melanogaster__07-01-2014_reversed.fasta");
-		File venndiagramFile = new File("Z:\\share\\Salva\\data\\isotopologues\\databases\\venn.png");
-		List<File> files = new ArrayList<File>();
+		final File venndiagramFile = new File("Z:\\share\\Salva\\data\\isotopologues\\databases\\venn.png");
+		final List<File> files = new ArrayList<File>();
 		// files.add(fastaFile);
 		// files.add(fastaFile2);
 		files.add(fastaFile3);
-		String[] species = { // "Drosophila virilis",
+		final String[] species = { // "Drosophila virilis",
 				"Drosophila melanogaster", "Drosophila simulans" };
 
-		FastaComparator fastaComparator = new FastaComparator(files, species, venndiagramFile, "Lys-C");
+		final FastaComparator fastaComparator = new FastaComparator(files, species, venndiagramFile, "Lys-C");
 		fastaComparator.analyzeIntersections();
 		fastaComparator.analyzeIntersectionsUsingVennData();
-		URL url = fastaComparator.getVennDiagramURL();
+		final URL url = fastaComparator.getVennDiagramURL();
 		System.out.println(url);
 	}
 
@@ -77,20 +77,20 @@ public class FastaComparator {
 
 		map = new THashMap<String, Set<String>>();
 
-		for (String specie : species) {
-			Set<String> set = new THashSet<String>();
+		for (final String specie : species) {
+			final Set<String> set = new THashSet<String>();
 			int numProteinsFromSpecie = 0;
-			for (File file : files) {
-				FASTADBLoader loader = new FASTADBLoader();
+			for (final File file : files) {
+				final FASTADBLoader loader = new FASTADBLoader();
 				loader.load(file.getAbsolutePath());
 
-				FASTAHeaderFilter filefilter = new FASTAHeaderFilter(specie);
+				final FASTAHeaderFilter filefilter = new FASTAHeaderFilter(specie);
 				Protein entry = loader.nextFilteredProtein(filefilter);
 				while (entry != null) {
-					if (!entry.getHeader().getFullHeaderWithAddenda().contains(DECOY_PREFIX)) {
+					if (!entry.getHeader().getRawHeader().contains(DECOY_PREFIX)) {
 						numProteinsFromSpecie++;
 						final Protein[] peptides = enzyme.cleave(entry, minPeptideLength, maxPeptideLength);
-						for (Protein peptide : peptides) {
+						for (final Protein peptide : peptides) {
 							final String sequence = peptide.getSequence().getSequence();
 							set.add(sequence);
 						}
@@ -107,17 +107,17 @@ public class FastaComparator {
 	public void analyzeIntersections() {
 		if (map.size() == 2) {
 			final Set<String> keySet = map.keySet();
-			List<String> species = new ArrayList<String>();
+			final List<String> species = new ArrayList<String>();
 			species.addAll(keySet);
 			Collections.sort(species);
-			Set<String> col1 = map.get(species.get(0));
-			Set<String> col2 = map.get(species.get(1));
-			Set<String> justIn1 = new THashSet<String>();
-			Set<String> justIn2 = new THashSet<String>();
-			Set<String> intersection = new THashSet<String>();
-			Set<String> union = new THashSet<String>();
+			final Set<String> col1 = map.get(species.get(0));
+			final Set<String> col2 = map.get(species.get(1));
+			final Set<String> justIn1 = new THashSet<String>();
+			final Set<String> justIn2 = new THashSet<String>();
+			final Set<String> intersection = new THashSet<String>();
+			final Set<String> union = new THashSet<String>();
 
-			for (String seq1 : col1) {
+			for (final String seq1 : col1) {
 				if (col2.contains(seq1)) {
 					intersection.add(seq1);
 				} else {
@@ -125,7 +125,7 @@ public class FastaComparator {
 				}
 				union.add(seq1);
 			}
-			for (String seq2 : col2) {
+			for (final String seq2 : col2) {
 				if (col1.contains(seq2)) {
 					intersection.add(seq2);
 				} else {
@@ -159,7 +159,7 @@ public class FastaComparator {
 		if (map.size() <= 3) {
 
 			final Set<String> keySet = map.keySet();
-			List<String> species = new ArrayList<String>();
+			final List<String> species = new ArrayList<String>();
 			species.addAll(keySet);
 			Collections.sort(species);
 			Set<String> col1 = null;
@@ -206,8 +206,8 @@ public class FastaComparator {
 	}
 
 	private String getFileNames(List<File> files2) {
-		StringBuilder sb = new StringBuilder();
-		for (File file : files2) {
+		final StringBuilder sb = new StringBuilder();
+		for (final File file : files2) {
 			if (!"".equals(sb.toString()))
 				sb.append(", ");
 			sb.append(file.getName());
@@ -216,8 +216,8 @@ public class FastaComparator {
 	}
 
 	private String getSpeciesNames(List<String> species) {
-		StringBuilder sb = new StringBuilder();
-		for (String specie : species) {
+		final StringBuilder sb = new StringBuilder();
+		for (final String specie : species) {
 			if (!"".equals(sb.toString()))
 				sb.append(" vs ");
 			sb.append(specie);
