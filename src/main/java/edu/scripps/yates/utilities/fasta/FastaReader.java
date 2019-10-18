@@ -221,8 +221,7 @@ public class FastaReader implements Parser {
 				Protein protein = null;
 				loader.load(fastaFileName);
 				while ((protein = loader.nextProtein()) != null) {
-					final String accession = FastaParser.getACC(protein.getHeader().getFullHeaderWithAddenda())
-							.getAccession();
+					final String accession = FastaParser.getACC(protein.getHeader().getRawHeader()).getAccession();
 
 					proteinACCs.add(accession);
 
