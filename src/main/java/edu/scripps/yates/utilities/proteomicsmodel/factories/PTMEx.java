@@ -10,6 +10,7 @@ import edu.scripps.yates.utilities.proteomicsmodel.PTMPosition;
 import edu.scripps.yates.utilities.proteomicsmodel.PTMSite;
 import gnu.trove.set.hash.THashSet;
 import uk.ac.ebi.pride.utilities.pridemod.ModReader;
+import uk.ac.ebi.pride.utilities.pridemod.model.Specificity;
 
 public class PTMEx implements PTM, Serializable {
 
@@ -17,7 +18,7 @@ public class PTMEx implements PTM, Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = -4442800986087569468L;
-	private final String name;
+	private String name;
 	private final double massShift;
 	private String cvId;
 	private List<PTMSite> ptmSites;
@@ -36,12 +37,35 @@ public class PTMEx implements PTM, Serializable {
 	}
 
 	public PTMEx(double massShift, String aa, int position, PTMPosition ptmPosition) {
-		final List<uk.ac.ebi.pride.utilities.pridemod.model.PTM> ptms = modReader.getPTMListByMonoDeltaMass(massShift,
-				PRECISION);
+
+		List<uk.ac.ebi.pride.utilities.pridemod.model.PTM> ptms = modReader.getPTMListByMonoDeltaMass(massShift,
+				PRECISION / 10.0);
+		if (ptms == null || ptms.isEmpty()) {
+			ptms = modReader.getPTMListByMonoDeltaMass(massShift, PRECISION);
+		}
+
 		if (ptms != null && !ptms.isEmpty()) {
-			name = ptms.get(0).getName();
-			cvId = ptms.get(0).getAccession();
+			for (final uk.ac.ebi.pride.utilities.pridemod.model.PTM ptm : ptms) {
+
+				if (ptm.getSpecificityCollection() != null && !ptm.getSpecificityCollection().isEmpty()) {
+					boolean specificityOK = false;
+					for (final Specificity specificity : ptm.getSpecificityCollection()) {
+						if (specificity.getName().name().equalsIgnoreCase(aa)) {
+							specificityOK = true;
+							break;
+						}
+					}
+					if (specificityOK) {
+						name = ptm.getName();
+						cvId = ptm.getAccession();
+						break;
+					}
+				}
+			}
 		} else {
+			name = UNKNOWN;
+		}
+		if (name == null) {
 			name = UNKNOWN;
 		}
 
