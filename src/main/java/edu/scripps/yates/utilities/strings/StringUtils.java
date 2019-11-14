@@ -26,16 +26,13 @@ public class StringUtils {
 	 *
 	 * @param text1
 	 * @param text2
-	 * @param ignoreCase
-	 *            the case will be ignored
-	 * @param performContains
-	 *            if true, it will return true if one String contains the other
-	 *            (see reverseComparison paremeter)
-	 * @param reverseComparison
-	 *            if false, the containing check only will return true if text1
-	 *            contains text2. If true, it will also return true if text2
-	 *            contains text1. This parameter will be ignored if
-	 *            performContains is false.
+	 * @param ignoreCase        the case will be ignored
+	 * @param performContains   if true, it will return true if one String contains
+	 *                          the other (see reverseComparison paremeter)
+	 * @param reverseComparison if false, the containing check only will return true
+	 *                          if text1 contains text2. If true, it will also
+	 *                          return true if text2 contains text1. This parameter
+	 *                          will be ignored if performContains is false.
 	 * @return
 	 */
 	public static boolean compareStrings(String text1, String text2, boolean ignoreCase, boolean performContains,
@@ -99,8 +96,8 @@ public class StringUtils {
 	}
 
 	/**
-	 * Gives a sorted list of positions in which some of the {@link Character}
-	 * in chars is found in the sourceString
+	 * Gives a sorted list of positions in which some of the {@link Character} in
+	 * chars is found in the sourceString
 	 * 
 	 * @param sourceString
 	 * @param quantifiedAAs
@@ -171,6 +168,23 @@ public class StringUtils {
 			sb.append(c);
 		}
 		return sb.toString();
+	}
+
+	public static char[] getCharArrayFromStringLetters(Collection<String> collection) {
+		if (collection == null) {
+			return null;
+		}
+		final char[] ret = new char[collection.size()];
+		int i = 0;
+		for (final String string : collection) {
+			if (string.length() > 1) {
+				throw new IllegalArgumentException(
+						"Element (index=" + i + ") in collection is not a letter '" + string + "'");
+			}
+			ret[i] = string.charAt(0);
+			i++;
+		}
+		return ret;
 	}
 
 	public static String getCommonBeginning(String string1, String string2) {
