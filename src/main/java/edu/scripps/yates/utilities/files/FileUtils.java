@@ -17,6 +17,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -454,4 +455,58 @@ public class FileUtils {
 			throws IOException {
 		separatedValuesToXLSX(csvFilePath, outputXlsFilePath, separator, "sheet1");
 	}
+
+	/**
+	 * Transposes a table and writes it in a file
+	 * 
+	 * @param fileToTranspose
+	 * @param fileToWrite
+	 * @throws IllegalArgumentException if the table has different number of columns
+	 *                                  in any row compared to the first one.
+	 */
+	public static void transposeTable(File fileToTranspose, File fileToWrite, String separator) throws IOException {
+		final List<List<String>> matrix = new ArrayList<List<String>>();
+		BufferedReader reader = null;
+		try {
+			reader = new BufferedReader(new FileReader(fileToTranspose));
+
+			String line;
+			int size = -1;
+			int numLine = 0;
+			while ((line = reader.readLine()) != null) {
+				numLine++;
+				final List<String> list = Arrays.asList(line.split(separator));
+				matrix.add(list);
+				if (size == -1) {
+					size = list.size();
+				} else {
+					if (size != list.size()) {
+						throw new IllegalArgumentException("Different number of columns in line number " + numLine + "("
+								+ list.size() + ") compared to columns in row 0 (" + size + ")");
+					}
+				}
+			}
+			log.debug("File readed with " + matrix.size() + " and lines of " + matrix.get(0).size() + " columns");
+		} finally {
+			if (reader != null) {
+				reader.close();
+			}
+		}
+
+		// write now
+		log.debug("Writting transposed table in file " + fileToWrite.getAbsolutePath());
+		final FileWriter fw = new FileWriter(fileToWrite);
+		for (int j = 0; j < matrix.get(0).size(); j++) {
+			for (int i = 0; i < matrix.size(); i++) {
+				fw.write(matrix.get(i).get(j));
+				if (i == matrix.size() - 1) {
+					fw.write("\n");
+				} else {
+					fw.write(separator);
+				}
+			}
+		}
+		fw.close();
+	}
+
 }
