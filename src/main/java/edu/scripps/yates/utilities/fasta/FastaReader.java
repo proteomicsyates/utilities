@@ -15,6 +15,7 @@ import java.util.logging.Logger;
 
 import com.compomics.dbtoolkit.io.implementations.FASTADBLoader;
 import com.compomics.dbtoolkit.io.interfaces.DBLoader;
+import com.compomics.util.protein.Header;
 import com.compomics.util.protein.Protein;
 
 import edu.scripps.yates.utilities.parsers.Parser;
@@ -221,7 +222,9 @@ public class FastaReader implements Parser {
 				Protein protein = null;
 				loader.load(fastaFileName);
 				while ((protein = loader.nextProtein()) != null) {
-					final String accession = FastaParser.getACC(protein.getHeader().getRawHeader()).getAccession();
+					final Header header = protein.getHeader();
+					final String rawHeader = header.getRawHeader();
+					final String accession = FastaParser.getACC(rawHeader).getAccession();
 
 					proteinACCs.add(accession);
 
