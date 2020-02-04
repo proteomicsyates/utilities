@@ -531,7 +531,7 @@ public class ModelUtils {
 					// it is c-term
 					position = position - 1;
 				}
-				final String ptmString = "(" + ptmFormatter.format(ptm.getMassShift()) + ")";
+				final String ptmString = "(" + getPtmFormatter().format(ptm.getMassShift()) + ")";
 				sb.append(sequence.substring(currentPosition - 1, position)).append(ptmString);
 				if (position < sequence.length() + 1) {
 					currentPosition = position + 1;
@@ -542,7 +542,28 @@ public class ModelUtils {
 		return sb.toString();
 	}
 
-	private static DecimalFormat ptmFormatter = new DecimalFormat("+#.###;-#.###");
+	public static int PTM_NUM_DECIMALS = 3;
+
+	/**
+	 * Call this before calling getPtmFormatter to set the number of decimals you
+	 * want to consider in the PTM mass shifts
+	 * 
+	 * @param num
+	 */
+	public static void setPTM_NUM_DECIMALS(int num) {
+		PTM_NUM_DECIMALS = num;
+	}
+
+	public static DecimalFormat getPtmFormatter() {
+
+		String decimals = "";
+		for (int i = 1; i <= PTM_NUM_DECIMALS; i++) {
+			decimals += "#";
+		}
+		final DecimalFormat formatter = new DecimalFormat("+#." + decimals + ";-#." + decimals);
+		return formatter;
+	}
+
 	private static Comparator<PTMSite> ptmSiteComparator;
 
 	private static PTM getPTM(PTMSite ptmSite, List<PTM> ptMs2) {
