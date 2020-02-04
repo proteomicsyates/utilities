@@ -426,7 +426,14 @@ public class FileUtils {
 				RowNum++;
 				final XSSFRow currentRow = sheet.createRow(RowNum);
 				for (int i = 0; i < str.length; i++) {
-					currentRow.createCell(i).setCellValue(str[i]);
+					try {
+						// try as number first
+						final double d = Double.valueOf(str[i]);
+						currentRow.createCell(i).setCellValue(d);
+					} catch (final NumberFormatException e) {
+						currentRow.createCell(i).setCellValue(str[i]);
+					}
+
 				}
 			}
 
