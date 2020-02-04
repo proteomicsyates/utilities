@@ -94,7 +94,10 @@ public class FastaParser {
 	/**
 	 * From a header like >sp|Q96PG8|BBC3B_HUMAN Bcl-2-binding component 3 OS=Homo
 	 * sapiens OX=9606 GN=BBC3 PE=2 SV=2 it returns BBC3B_HUMAN, which is the string
-	 * after the second '|' and before the first space
+	 * after the second '|' and before the first space<br>
+	 * From a header like >contaminant_BASI_MOUSE owl|P18572| BASIGIN PRECURSOR
+	 * (BASIC IMMUNOGLOBULIN SUPERFAMILY) (MEMBRANE... take everything after first
+	 * space if exists and if not, take everything
 	 * 
 	 * @param fastaHeader
 	 * @return
@@ -107,9 +110,54 @@ public class FastaParser {
 			if (!allPositionsOfSpace.isEmpty()) {
 				final int secondPipePosition = allPositionsOfPipe.get(1);
 				final int firstPositionOfSpace = allPositionsOfSpace.get(0);
-				final String name = fastaHeader.substring(secondPipePosition, firstPositionOfSpace);
-				return name;
+				try {
+					final String name = fastaHeader.substring(secondPipePosition, firstPositionOfSpace);
+					return name;
+				} catch (final Exception e) {
+					// it is the case described as second in the comments of the function
+					// so take everthing after the space
+					if (fastaHeader.indexOf(" ") >= 0) {
+						return fastaHeader.substring(fastaHeader.indexOf(" "));
+					} else {
+						return fastaHeader;
+					}
+				}
 			}
+		}
+		return null;
+	}
+
+	/**
+	 * Gets whatever is in between of sp| | or tr| | not checking whether that is a
+	 * uniprot format or not.<br>
+	 * This has been used because IP2 parses these accessions getting what is
+	 * between the two '|', and using this, it will be the same.
+	 * 
+	 * @param id
+	 * @return
+	 */
+	public static String getSPorTRAccession(String id) {
+		if (id != null && !"".equals(id)) {
+			if (id.length() > 600) {
+//				uniprotAccCache.put(id, null);
+				return null;
+			}
+
+			final Matcher matcherSP = UNIPROT_SP_ACC_TMP.matcher(id);
+			final Matcher matcherTR = UNIPROT_TR_ACC_TMP.matcher(id);
+			if (id.contains("|")) {
+				if (matcherSP.find()) {
+					final String group = matcherSP.group(1);
+					if (!"".equals(group))
+						id = group.trim();
+				} else if (matcherTR.find()) {
+					final String group = matcherTR.group(1);
+					if (!"".equals(group))
+						id = group.trim();
+				}
+				return id;
+			}
+
 		}
 		return null;
 	}
