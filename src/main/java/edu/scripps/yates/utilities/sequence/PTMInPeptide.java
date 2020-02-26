@@ -20,7 +20,8 @@ public class PTMInPeptide extends PositionInPeptide {
 
 	public String toStringExtended() {
 		if (deltaMass != null) {
-			return getProteinACC() + SEPARATOR + getAa() + getPosition() + formatter3Decimals.format(deltaMass);
+			final String string = getProteinACC() + SEPARATOR + getAa() + getPosition() + formatter3Decimals.format(deltaMass);
+			return string;
 		} else {
 			return super.toString();
 		}
