@@ -53,7 +53,11 @@ public abstract class AbstractPeptide implements Peptide {
 	private Map<Character, List<PositionInProtein>> positionsInProteinsByQuantifiedAA;
 	private Set<String> taxonomies;
 	private boolean ignoreTaxonomy;
-	private String key;
+	private final String key;
+
+	public AbstractPeptide(String key) {
+		this.key = key;
+	}
 
 	@Override
 	public Set<Score> getScores() {
@@ -686,7 +690,4 @@ public abstract class AbstractPeptide implements Peptide {
 		return key;
 	}
 
-	public void setKey(String key) {
-		this.key = key;
-	}
 }
