@@ -371,7 +371,7 @@ public abstract class AbstractPSM implements PSM {
 	}
 
 	public void setFullSequence(String fullSequence) {
-		this.fullSequence = fullSequence;
+		this.fullSequence = FastaParser.getSequenceInBetween(fullSequence);
 		sequence = FastaParser.cleanSequence(fullSequence);
 		afterSeq = FastaParser.getAfterSeq(fullSequence);
 		beforeSeq = FastaParser.getBeforeSeq(fullSequence);

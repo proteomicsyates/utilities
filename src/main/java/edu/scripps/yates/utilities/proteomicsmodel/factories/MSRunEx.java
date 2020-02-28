@@ -18,6 +18,7 @@ public class MSRunEx implements MSRun, Serializable {
 	private Date date;
 	private int dbID;
 	private Project project;
+	private int hashCode = -1;
 
 	public MSRunEx(String runID, String path) {
 		if (runID == null)
@@ -95,7 +96,10 @@ public class MSRunEx implements MSRun, Serializable {
 
 	@Override
 	public int hashCode() {
-		return HashCodeBuilder.reflectionHashCode(runID);
+		if (hashCode == -1) {
+			hashCode = HashCodeBuilder.reflectionHashCode(runID);
+		}
+		return hashCode;
 	}
 
 	@Override
