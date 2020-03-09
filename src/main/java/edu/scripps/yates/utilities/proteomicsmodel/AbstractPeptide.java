@@ -183,9 +183,6 @@ public abstract class AbstractPeptide implements Peptide {
 			if (proteins == null) {
 				proteins = new THashSet<Protein>();
 			}
-			if (protein.getAccession().equalsIgnoreCase("B2R7E7")) {
-				log.info(protein);
-			}
 			final boolean ret = proteins.add(protein);
 			if (recursively) {
 				protein.addPeptide(this, false);
