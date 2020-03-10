@@ -80,7 +80,13 @@ public class PTMAdapter implements edu.scripps.yates.utilities.pattern.Adapter<P
 
 	@Override
 	public PTM adapt() {
-		String name = "unknown";
+		String name = null;
+		if (massShift != null && Double.compare(0.0, massShift) != 0) {
+			name = PTMEx.formatter.format(massShift);
+		}
+		if (name == null) {
+			name = PTMEx.UNKNOWN;
+		}
 		if (prideModPTM != null) {
 			name = prideModPTM.getName();
 		}

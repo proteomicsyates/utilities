@@ -1,6 +1,7 @@
 package edu.scripps.yates.utilities.proteomicsmodel.factories;
 
 import java.io.Serializable;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -25,7 +26,8 @@ public class PTMEx implements PTM, Serializable {
 	private String residues;
 	private static final ModReader modReader = ModReader.getInstance();
 	public static final Double PRECISION = 0.001;
-	private static final String UNKNOWN = "Unknown";
+	public static final String UNKNOWN = "Unknown";
+	public static final DecimalFormat formatter = new DecimalFormat("#.###");
 
 	public PTMEx(String name, double massShift) {
 		this.name = name;
@@ -63,7 +65,9 @@ public class PTMEx implements PTM, Serializable {
 				}
 			}
 		} else {
-			name = UNKNOWN;
+			if (Double.compare(0.0, massShift) != 0) {
+				name = formatter.format(massShift);
+			}
 		}
 		if (name == null) {
 			name = UNKNOWN;
