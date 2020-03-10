@@ -1014,6 +1014,7 @@ public class FastaParser {
 	 * // LLLQQVSL(+80)PELPGEYSMK --> Map<8,+80>
 	 *
 	 * @param seq
+	 * @param isDeltaMass
 	 * @return a map with the positions and modifications.<br>
 	 *         Note that positions start by 1 in the sequence.
 	 */
