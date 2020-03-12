@@ -18,6 +18,7 @@ import edu.scripps.yates.utilities.grouping.GroupableProtein;
 import edu.scripps.yates.utilities.grouping.PeptideRelation;
 import edu.scripps.yates.utilities.proteomicsmodel.adapters.PTMAdapter;
 import edu.scripps.yates.utilities.proteomicsmodel.enums.AccessionType;
+import edu.scripps.yates.utilities.proteomicsmodel.utils.KeyUtils;
 import edu.scripps.yates.utilities.proteomicsmodel.utils.ModelUtils;
 import edu.scripps.yates.utilities.sequence.PTMInPeptide;
 import edu.scripps.yates.utilities.sequence.PTMInProtein;
@@ -774,6 +775,9 @@ public abstract class AbstractPSM implements PSM {
 
 	@Override
 	public final String getKey() {
+		if (key == null) {
+			key = KeyUtils.getInstance().getSpectrumKey(this, true);
+		}
 		return key;
 	}
 
