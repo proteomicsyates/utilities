@@ -78,6 +78,26 @@ public abstract class IdentificationsParser implements Parser {
 	protected boolean onlyReadParameters = false;
 	protected boolean onlyReadProteins;
 
+	// PEPTIDE KEY GROUPING SETTINGS
+	private boolean distinguishModifiedSequences = true;
+	private boolean chargeSensible = true;
+
+	public boolean isDistinguishModifiedSequences() {
+		return distinguishModifiedSequences;
+	}
+
+	public void setDistinguishModifiedSequences(boolean distinguishModifiedSequences) {
+		this.distinguishModifiedSequences = distinguishModifiedSequences;
+	}
+
+	public boolean isChargeSensible() {
+		return chargeSensible;
+	}
+
+	public void setChargeSensible(boolean chargeSensible) {
+		this.chargeSensible = chargeSensible;
+	}
+
 	public IdentificationsParser(URL u) throws IOException {
 		this(u.getFile(), u.openStream());
 	}
@@ -134,10 +154,6 @@ public abstract class IdentificationsParser implements Parser {
 	}
 
 	protected boolean addPSMToMaps(PSM psm) {
-		if (psm.getIdentifier()
-				.equals("Xi20180215_01_cNE_Uw1_0214LT_03_30C-42571-LLPPNSSSSSFSYQFSDLDSAAVDSDMYDLPK-4")) {
-			log.info("stop");
-		}
 		addPSMToMapByFullSequence(psm);
 
 		return addPTMToMapByPSMId(psm);
@@ -648,10 +664,6 @@ public abstract class IdentificationsParser implements Parser {
 			// proteins
 			final Set<String> psmIdsToDelete = new THashSet<String>();
 			for (final String psmID : psmTableByPSMID.keySet()) {
-				if ("Xi20180215_01_cNE_Uw1_0214LT_03_30C-42571-LLPPNSSSSSFSYQFSDLDSAAVDSDMYDLPK-4".equals(psmID)) {
-					final PSM psm = psmTableByPSMID.get(psmID);
-					log.info(psm);
-				}
 				if (psmTableByPSMID.get(psmID).getProteins().isEmpty()) {
 					psmIdsToDelete.add(psmID);
 				}
@@ -659,9 +671,6 @@ public abstract class IdentificationsParser implements Parser {
 			log.info("Removing  " + psmIdsToDelete.size() + " PSMs assigned to decoy discarded proteins");
 			for (final String psmID : psmIdsToDelete) {
 				final PSM psm = psmTableByPSMID.get(psmID);
-				if ("Xi20180215_01_cNE_Uw1_0214LT_03_30C-42571-LLPPNSSSSSFSYQFSDLDSAAVDSDMYDLPK-4".equals(psmID)) {
-					log.info(psm);
-				}
 				if (!psm.getProteins().isEmpty()) {
 					throw new IllegalArgumentException("This should not happen");
 				}

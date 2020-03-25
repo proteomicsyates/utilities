@@ -14,8 +14,9 @@ public class PSMEx extends AbstractPSM implements Serializable {
 
 	private final Logger log = Logger.getLogger(PSMEx.class);
 
-	public PSMEx(String psmID, String sequence, String fullSequence) {
-		super();
+	public PSMEx(String psmID, String sequence, String fullSequence, boolean distinguishModifiedSequence,
+			boolean chargeStateSensible) {
+		super(distinguishModifiedSequence, chargeStateSensible);
 		setKey(psmID);
 		setIdentifier(psmID);
 		if (sequence != null) {

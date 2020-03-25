@@ -16,8 +16,29 @@ public class KeyUtils {
 
 	}
 
-	public String getSequenceChargeKey(PSM psm, boolean chargeStateSensible) {
-		final String seq = FastaParser.cleanSequence(psm.getFullSequence());
+//	/**
+//	 * Gets sequence key using charge or not, but not distinguishing PTMs on the
+//	 * sequence
+//	 * 
+//	 * @param psm
+//	 * @param chargeStateSensible
+//	 * @return
+//	 */
+	// DISABLED TO ALWAYS CONSIDER CHARGE AND MODIFIED SEQUENCE
+//	public String getSequenceChargeKey(PSM psm, boolean chargeStateSensible) {
+//		return getSequenceChargeKey(psm, false, chargeStateSensible);
+//	}
+
+	public String getSequenceChargeKey(PSM psm, boolean distinguishModifiedPeptides, boolean chargeStateSensible) {
+
+		String seq = null;
+
+		if (distinguishModifiedPeptides) {
+			seq = psm.getFullSequence();
+		} else {
+			seq = FastaParser.cleanSequence(psm.getFullSequence());
+
+		}
 		if (chargeStateSensible) {
 			return seq + "-" + psm.getChargeState();
 		} else {
@@ -51,16 +72,30 @@ public class KeyUtils {
 	}
 
 	/**
-	 *
+	 * Gets spectrum key with distinguishModifiedSequences=true
+	 * 
 	 * @param psm
 	 * @param chargeSensible
-	 *            if true, then, the charge will be considered for
-	 *            differentiating peptides with different charge states. If
-	 *            false, peptides with different charge states will have the
-	 *            same key
 	 * @return
 	 */
-	public String getSpectrumKey(PSM psm, boolean chargeSensible) {
+	// DISABLED TO ALWAYS CONSIDER THE CHARGE AND THE MODIFIED SEQUENCE
+//	public String getSpectrumKey(PSM psm, boolean chargeSensible) {
+//		return getSpectrumKey(psm, chargeSensible, true);
+//
+//	}
+
+	/**
+	 *
+	 * @param psm
+	 * @param chargeSensible               if true, then, the charge will be
+	 *                                     considered for differentiating peptides
+	 *                                     with different charge states. If false,
+	 *                                     peptides with different charge states
+	 *                                     will have the same key
+	 * @param distinguishModifiedSequences
+	 * @return
+	 */
+	public String getSpectrumKey(PSM psm, boolean distinguishModifiedSequences, boolean chargeSensible) {
 
 		final StringBuilder sb = new StringBuilder();
 		if (psm.getScanNumber() != null) {
@@ -69,8 +104,14 @@ public class KeyUtils {
 		if (!"".equals(sb.toString())) {
 			sb.append("-");
 		}
-		if (psm.getFullSequence() != null) {
-			sb.append(psm.getFullSequence());
+		if (distinguishModifiedSequences) {
+			if (psm.getFullSequence() != null) {
+				sb.append(psm.getFullSequence());
+			}
+		} else {
+			if (psm.getSequence() != null) {
+				sb.append(psm.getSequence());
+			}
 		}
 
 		if (chargeSensible) {
@@ -128,13 +169,14 @@ public class KeyUtils {
 		return key;
 	}
 
-	public String getSequenceKey(PSM quantPSM, boolean distinguishModifiedSequence) {
-		if (distinguishModifiedSequence) {
-			return quantPSM.getFullSequence();
-		} else {
-			return FastaParser.cleanSequence(quantPSM.getSequence());
-		}
-	}
+	// DISABLED BECAUSE WE NEED TO CONSIDER THE CHARGE
+//	public String getSequenceKey(PSM quantPSM, boolean distinguishModifiedSequence) {
+//		if (distinguishModifiedSequence) {
+//			return quantPSM.getFullSequence();
+//		} else {
+//			return FastaParser.cleanSequence(quantPSM.getSequence());
+//		}
+//	}
 
 	public static KeyUtils getInstance() {
 		if (instance == null) {

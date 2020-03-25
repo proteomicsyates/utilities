@@ -68,6 +68,13 @@ public abstract class AbstractPSM implements PSM {
 	private boolean ignoreTaxonomy;
 	private Map<Character, List<PositionInProtein>> positionsInProteinsByQuantifiedAA;
 	private String key;
+	private final boolean distinguishModifiedSequence;
+	private final boolean chargeStateSensible;
+
+	protected AbstractPSM(boolean distinguishModifiedSequence, boolean chargeStateSensible) {
+		this.distinguishModifiedSequence = distinguishModifiedSequence;
+		this.chargeStateSensible = chargeStateSensible;
+	}
 
 	@Override
 	public Set<Score> getScores() {
@@ -776,12 +783,20 @@ public abstract class AbstractPSM implements PSM {
 	@Override
 	public final String getKey() {
 		if (key == null) {
-			key = KeyUtils.getInstance().getSpectrumKey(this, true);
+			key = KeyUtils.getInstance().getSpectrumKey(this, isDistinguishModifiedSequence(), isChargeStateSensible());
 		}
 		return key;
 	}
 
 	public void setKey(String key) {
 		this.key = key;
+	}
+
+	public boolean isDistinguishModifiedSequence() {
+		return distinguishModifiedSequence;
+	}
+
+	public boolean isChargeStateSensible() {
+		return chargeStateSensible;
 	}
 }

@@ -2,7 +2,8 @@ package edu.scripps.yates.utilities.proteomicsmodel.enums;
 
 public enum AmountType {
 
-	INTENSITY, NORMALIZED_INTENSITY, AREA, XIC, SPC, NSAF, dNSAF, NSAF_NORM, EMPAI, EMPAI_COV, OTHER, REGRESSION_FACTOR;
+	INTENSITY, NORMALIZED_INTENSITY, AREA, XIC, SPC, NSAF, dNSAF, NSAF_NORM, EMPAI, EMPAI_COV, OTHER, REGRESSION_FACTOR,
+	CORRIONINJECTION_INTENSITY;
 
 	public static AmountType translateStringToAmountType(String amountTypeString) {
 

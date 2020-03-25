@@ -521,24 +521,28 @@ public class ModelUtils {
 
 		final List<PTMSite> sortedPTMSites = getAllPTMSitesSorted(ptms);
 		int currentPosition = 1;
-		for (final PTMSite ptmSite : sortedPTMSites) {
-			final PTM ptm = getPTM(ptmSite, ptms);
-			if (ptm == null) {
-				log.error("This cannot happen");
-			} else {
-				int position = ptmSite.getPosition();
-				if (position == sequence.length() + 1) {
-					// it is c-term
-					position = position - 1;
-				}
-				final String ptmString = "(" + getPtmFormatter().format(ptm.getMassShift()) + ")";
-				sb.append(sequence.substring(currentPosition - 1, position)).append(ptmString);
-				if (position < sequence.length() + 1) {
-					currentPosition = position + 1;
+		try {
+			for (final PTMSite ptmSite : sortedPTMSites) {
+				final PTM ptm = getPTM(ptmSite, ptms);
+				if (ptm == null) {
+					log.error("This cannot happen");
+				} else {
+					int position = ptmSite.getPosition();
+					if (position == sequence.length() + 1) {
+						// it is c-term
+						position = position - 1;
+					}
+					final String ptmString = "(" + getPtmFormatter().format(ptm.getMassShift()) + ")";
+					sb.append(sequence.substring(currentPosition - 1, position)).append(ptmString);
+					if (position < sequence.length() + 1) {
+						currentPosition = position + 1;
+					}
 				}
 			}
+			sb.append(sequence.substring(currentPosition - 1));
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		sb.append(sequence.substring(currentPosition - 1));
 		return sb.toString();
 	}
 

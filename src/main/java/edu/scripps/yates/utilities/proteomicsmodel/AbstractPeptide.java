@@ -54,6 +54,8 @@ public abstract class AbstractPeptide implements Peptide {
 	private Set<String> taxonomies;
 	private boolean ignoreTaxonomy;
 	private final String key;
+	private boolean distinguishModifiedSequence;
+	private boolean chargeSensible;
 
 	public AbstractPeptide(String key) {
 		this.key = key;
@@ -359,6 +361,10 @@ public abstract class AbstractPeptide implements Peptide {
 				}
 				final boolean ret = ptms.add(newPtm);
 				if (ret) {
+					// add it to the PSMs too
+					for (PSM psm : getPSMs()) {
+						psm.addPTM(newPtm);
+					}
 					fullSequence = null;
 				}
 				return ret;
@@ -685,6 +691,22 @@ public abstract class AbstractPeptide implements Peptide {
 	@Override
 	public final String getKey() {
 		return key;
+	}
+
+	public void setDistinguishModifiedSequence(boolean distinguishModifiedSequence) {
+		this.distinguishModifiedSequence = distinguishModifiedSequence;
+	}
+
+	public void setChargeSensible(boolean chargeSensible) {
+		this.chargeSensible = chargeSensible;
+	}
+
+	public boolean isDistinguishModifiedSequence() {
+		return distinguishModifiedSequence;
+	}
+
+	public boolean isChargeSensible() {
+		return chargeSensible;
 	}
 
 }
