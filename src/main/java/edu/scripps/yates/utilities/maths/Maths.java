@@ -364,6 +364,13 @@ public class Maths {
 	}
 
 	/**
+	 * Returns the sum of all values in the {@link TDoubleList}
+	 */
+	public static double sum(TDoubleList a) {
+		return sum(a.toArray());
+	}
+
+	/**
 	 * Returns the sum of all values in the array a[].
 	 */
 	public static double sum(double[] a) {
@@ -471,12 +478,25 @@ public class Maths {
 	 * the standard deviation divided by the squared root of the size of the sample
 	 * 
 	 * @param arr
-	 * @param n
 	 * @return
 	 */
 	public static double sem(double arr[]) {
+		if (arr.length == 0) {
+			return 0.0;
+		}
 		// Formula to find sample error.
 		return stddev(arr) / Math.sqrt(1.0 * arr.length);
+	}
+
+	/**
+	 * Function to calculate sample error or Standard Error of Measurement, that is
+	 * the standard deviation divided by the squared root of the size of the sample
+	 * 
+	 * @param values
+	 * @return
+	 */
+	public static double sem(TDoubleList values) {
+		return sem(values.toArray());
 	}
 
 	/**
