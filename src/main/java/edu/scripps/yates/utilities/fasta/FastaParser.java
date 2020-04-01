@@ -317,15 +317,17 @@ public class FastaParser {
 				return new AccessionEx(id.trim(), AccessionType.UNKNOWN);
 			}
 		}
-		final String contaminant = CONTAMINANT;
-		if (id.length() >= contaminant.length()
-				&& id.substring(0, contaminant.length()).equalsIgnoreCase(contaminant)) {
+		if (id.length() >= CONTAMINANT.length()) {
+			if (id.toLowerCase().startsWith(CONTAMINANT.toLowerCase())
+					|| id.toLowerCase().startsWith("tr|" + CONTAMINANT.toLowerCase())
+					|| id.toLowerCase().startsWith("sp|" + CONTAMINANT.toLowerCase())) {
 
-			final Matcher matcher = untilSpace.matcher(id);
-			if (matcher.find()) {
-				return new AccessionEx(matcher.group(0).trim(), AccessionType.UNKNOWN);
-			} else {
-				return new AccessionEx(id.trim(), AccessionType.UNKNOWN);
+				final Matcher matcher = untilSpace.matcher(id);
+				if (matcher.find()) {
+					return new AccessionEx(matcher.group(0).trim(), AccessionType.UNKNOWN);
+				} else {
+					return new AccessionEx(id.trim(), AccessionType.UNKNOWN);
+				}
 			}
 		}
 		final String uniProtACC = getUniProtACC(id);
