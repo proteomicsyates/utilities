@@ -348,4 +348,47 @@ public class UniprotEntryUtil {
 		return null;
 	}
 
+	public static String getFullFastaHeader(Entry entry) {
+
+		final String description = UniprotEntryUtil.getProteinDescription(entry);
+		final String primaryAcc = UniprotEntryUtil.getPrimaryAccession(entry);
+
+		final List<String> names = UniprotEntryUtil.getNames(entry);
+		String name = null;
+		if (names == null || names.isEmpty()) {
+			name = description;
+		} else {
+			name = names.get(0);
+		}
+		String sp = "sp";
+		if (!UniprotEntryUtil.isSwissProt(entry)) {
+			sp = "tr";
+		}
+		String defline = ">" + sp + "|" + primaryAcc + "|" + name + " " + description;
+		if (FastaParser.isReverse(primaryAcc)) {
+			defline = ">" + primaryAcc + " " + description;
+		}
+		final List<Pair<String, String>> geneNames = UniprotEntryUtil.getGeneName(entry, true, true);
+		if (geneNames != null && !geneNames.isEmpty()) {
+			defline += " GN=" + geneNames.get(0).getFirstelement();
+		}
+		final String taxonomy = UniprotEntryUtil.getTaxonomyName(entry);
+		if (taxonomy != null) {
+			defline += " OS=" + taxonomy;
+		}
+		final String taxID = UniprotEntryUtil.getTaxonomyNCBIID(entry);
+		if (taxonomy != null) {
+			defline += " OX=" + taxID;
+		}
+		final Integer sequenceVersion = UniprotEntryUtil.getSequenceVersion(entry);
+		if (sequenceVersion != null) {
+			defline += " SV=" + sequenceVersion;
+		}
+		final ProteinExistence pe = UniprotEntryUtil.getProteinExistence(entry);
+		if (pe != null) {
+			defline += " PE=" + pe.getNum();
+		}
+		return defline;
+	}
+
 }
