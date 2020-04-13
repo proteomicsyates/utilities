@@ -16,7 +16,8 @@ public class PositionInPeptide extends PositionInProtein {
 
 	public PositionInPeptide(int position, char aa, String peptideSequence) {
 		super(position, aa, peptideSequence);
-		if (position <= 0 || position > peptideSequence.length()) {
+		// we allow position 0 and length+1 to refer to n-term and c-term respectivelly
+		if (position < 0 || position > peptideSequence.length() + 1) {
 			throw new IllegalArgumentException(
 					"Position " + position + " cannot belong to peptide sequence " + peptideSequence);
 		}
