@@ -32,6 +32,13 @@ import java.util.zip.ZipFile;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.openxml4j.opc.OPCPackage;
+import org.apache.poi.openxml4j.opc.PackageAccess;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.DateUtil;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -461,6 +468,142 @@ public class FileUtils {
 	public static void separatedValuesToXLSX(String csvFilePath, String outputXlsFilePath, String separator)
 			throws IOException {
 		separatedValuesToXLSX(csvFilePath, outputXlsFilePath, separator, "sheet1");
+	}
+
+	public static List<String> readLinesFromXLSX(String excelFile, String cellSeparator, Integer sheetIndex)
+			throws FileNotFoundException, IOException, InvalidFormatException {
+		return readLinesFromXLSX(new File(excelFile), cellSeparator, sheetIndex);
+	}
+
+	public static List<String> readLinesFromXLSX(String excelFile, String cellSeparator)
+			throws FileNotFoundException, IOException, InvalidFormatException {
+		return readLinesFromXLSX(excelFile, cellSeparator, 0);
+	}
+
+	/**
+	 * Tells whether a file is an Excel file by trying to open it with <br>
+	 * <code>OPCPackage pkg = OPCPackage.open(file,PackageAccess.READ)</code>
+	 * 
+	 * @param potentialExcelFile
+	 * @return
+	 */
+	public static boolean isExcelFile(File potentialExcelFile) {
+		try {
+			final OPCPackage pkg = OPCPackage.open(potentialExcelFile.getAbsolutePath(), PackageAccess.READ);
+			pkg.revert();
+			return true;
+		} catch (final Exception e) {
+			return false;
+		}
+	}
+
+	/**
+	 * Returns a list of string in which each string represents the values of the
+	 * cells of a row, separated by a cellSeparator
+	 * 
+	 * @param excelFile
+	 * @param cellSeparator
+	 * @param sheetIndex
+	 * @return null if it is not a excel file. Empty list if there is no data in the
+	 *         excel file. a list if there is data
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 * @throws InvalidFormatException
+	 */
+	public static List<String> readLinesFromXLSX(File excelFile, String cellSeparator, Integer sheetIndex)
+			throws FileNotFoundException, IOException {
+		final List<String> lines = new ArrayList<String>();
+
+		if (!isExcelFile(excelFile)) {
+			return null;
+		}
+		OPCPackage pkg = null;
+		try {
+
+			pkg = OPCPackage.open(excelFile.getAbsolutePath(), PackageAccess.READ);
+
+			final XSSFWorkbook workBook = new XSSFWorkbook(pkg);
+			int index = 0;
+			if (sheetIndex != null && sheetIndex >= 0) {
+				index = sheetIndex;
+			}
+			int rowIndex = 0;
+			String rowValues = getStringValuesFromRow(workBook, index, rowIndex, cellSeparator);
+			while (!rowValues.isEmpty()) {
+				lines.add(rowValues);
+				rowIndex++;
+				rowValues = getStringValuesFromRow(workBook, index, rowIndex, cellSeparator);
+			}
+			return lines;
+		} catch (final InvalidFormatException e) {
+			throw new IOException(e);
+		} finally {
+			if (pkg != null) {
+				// close without saving changes
+				pkg.revert();
+			}
+		}
+	}
+
+	/**
+	 * Gets a string with the values of the row, separated by a provided separator
+	 * 
+	 * @param wb
+	 * @param sheetIndex
+	 * @param rowIndex
+	 * @param cellSeparator
+	 * @return
+	 * @throws IOException
+	 */
+	public static String getStringValuesFromRow(XSSFWorkbook wb, int sheetIndex, int rowIndex, String cellSeparator)
+			throws IOException {
+		final StringBuilder sb = new StringBuilder();
+		final Sheet sheet = wb.getSheetAt(sheetIndex);
+		final Row row = sheet.getRow(rowIndex);
+		if (row != null) {
+			final int lastCellNumber = row.getLastCellNum();
+			for (int i = 0; i < lastCellNumber; i++) {
+				if (!"".equals(sb.toString())) {
+					sb.append(cellSeparator);
+				}
+				try {
+					final Cell cell = row.getCell(i, Row.RETURN_NULL_AND_BLANK);
+					if (cell != null) {
+						switch (cell.getCellType()) {
+						case Cell.CELL_TYPE_STRING:
+						case Cell.CELL_TYPE_BLANK:
+							sb.append(cell.getStringCellValue());
+							break;
+						case Cell.CELL_TYPE_NUMERIC:
+							if (DateUtil.isCellDateFormatted(cell)) {
+								sb.append(cell.getDateCellValue().toString());
+							} else {
+								sb.append(String.valueOf(cell.getNumericCellValue()));
+							}
+							break;
+						case Cell.CELL_TYPE_FORMULA:
+							sb.append("" + cell.getNumericCellValue());
+							break;
+						case Cell.CELL_TYPE_BOOLEAN:
+							sb.append(String.valueOf(cell.getBooleanCellValue()));
+							break;
+						case Cell.CELL_TYPE_ERROR:
+							sb.append("");
+						default:
+							sb.append("");
+						}
+					} else {
+						sb.append("");
+					}
+				} catch (final Exception e) {
+					sb.append("");
+				}
+
+			}
+
+		}
+
+		return sb.toString();
 	}
 
 	/**
