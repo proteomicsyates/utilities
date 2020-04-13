@@ -362,7 +362,7 @@ public abstract class AbstractPeptide implements Peptide {
 				final boolean ret = ptms.add(newPtm);
 				if (ret) {
 					// add it to the PSMs too
-					for (PSM psm : getPSMs()) {
+					for (final PSM psm : getPSMs()) {
 						psm.addPTM(newPtm);
 					}
 					fullSequence = null;
@@ -458,12 +458,20 @@ public abstract class AbstractPeptide implements Peptide {
 	 */
 	@Override
 	public List<PTMInPeptide> getPTMsInPeptide() {
+
 		if (ptmsInPeptide == null) {
 			ptmsInPeptide = new ArrayList<PTMInPeptide>();
+
 			final List<StringPosition> tmp = FastaParser.getInside(getFullSequence());
 			for (final StringPosition stringPosition : tmp) {
 				final int position = stringPosition.position;
-				final char aa = getSequence().charAt(position - 1);
+				char aa = 0;
+				// it can be 0 when it is n-terminal or length +1 when it is on c-term
+				if (position > 0 && position <= getSequence().length()) {
+					aa = getSequence().charAt(position - 1);
+				} else {
+					log.debug("Modification at position " + position + ": " + getFullSequence());
+				}
 				Double deltaMass = null;
 				try {
 					deltaMass = Double.valueOf(stringPosition.string);
@@ -474,6 +482,7 @@ public abstract class AbstractPeptide implements Peptide {
 				ptmsInPeptide.add(ptm);
 			}
 		}
+
 		return ptmsInPeptide;
 	}
 
