@@ -470,7 +470,7 @@ public abstract class AbstractPeptide implements Peptide {
 				if (position > 0 && position <= getSequence().length()) {
 					aa = getSequence().charAt(position - 1);
 				} else {
-					log.debug("Modification at position " + position + ": " + getFullSequence());
+//					log.debug("Modification at position " + position + ": " + getFullSequence());
 				}
 				Double deltaMass = null;
 				try {
