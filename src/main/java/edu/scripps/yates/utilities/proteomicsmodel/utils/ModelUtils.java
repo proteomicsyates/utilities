@@ -477,7 +477,7 @@ public class ModelUtils {
 				final Double massShift = ptm.getMassShift();
 				if (massShift != null) {
 					sb.append("(");
-					sb.append(massShift);
+					sb.append(getPtmFormatter().format(massShift));
 					sb.append(")");
 				}
 			}
@@ -489,7 +489,7 @@ public class ModelUtils {
 					final Double massShift = ptm.getMassShift();
 					if (massShift != null) {
 						sb.append("(");
-						sb.append(massShift);
+						sb.append(getPtmFormatter().format(massShift));
 						sb.append(")");
 					}
 
@@ -540,7 +540,7 @@ public class ModelUtils {
 				}
 			}
 			sb.append(sequence.substring(currentPosition - 1));
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			e.printStackTrace();
 		}
 		return sb.toString();
