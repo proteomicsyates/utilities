@@ -10,7 +10,7 @@ public class PropertiesUtil {
 	private static final String PROPERTIES_FILE = "proteindb.properties";
 
 	public static Properties getProperties() throws Exception {
-		ClassLoader cl = PropertiesUtil.class.getClassLoader();
+		final ClassLoader cl = PropertiesUtil.class.getClassLoader();
 		InputStream is;
 
 		is = cl.getResourceAsStream(PROPERTIES_FILE);
@@ -25,10 +25,11 @@ public class PropertiesUtil {
 		if (is == null) {
 			throw new Exception("Input stream is null");
 		}
-		Properties prop = new Properties();
+		final Properties prop = new Properties();
 		try {
 			prop.load(is);
-		} catch (IOException e) {
+			is.close();
+		} catch (final IOException e) {
 			e.printStackTrace();
 			throw new IllegalArgumentException(e);
 		}
@@ -46,7 +47,7 @@ public class PropertiesUtil {
 	public static String getPropertyValue(String propertyName) {
 		try {
 			return getProperties().getProperty(propertyName);
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			e.printStackTrace();
 		}
 		return null;
