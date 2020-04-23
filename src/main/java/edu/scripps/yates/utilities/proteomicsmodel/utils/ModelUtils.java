@@ -369,19 +369,21 @@ public class ModelUtils {
 		return list;
 	}
 
-	public static Map<String, Set<PSM>> getPSMMapBySequence(Collection<PSM> psms) {
+	public static Map<String, Set<PSM>> getPSMMapBySequence(Collection<PSM> psms, boolean chargeStateSensible,
+			boolean ptmSensible) {
 		final Map<String, Set<PSM>> ret = new THashMap<String, Set<PSM>>();
 		if (psms != null) {
 			for (final PSM psm : psms) {
 				if (psm == null)
 					continue;
-				final String cleanSequence = FastaParser.cleanSequence(psm.getSequence());
-				if (ret.containsKey(cleanSequence)) {
-					ret.get(cleanSequence).add(psm);
+				final String key = KeyUtils.getInstance().getSequenceChargeKey(psm, ptmSensible,
+						chargeStateSensible);
+				if (ret.containsKey(key)) {
+					ret.get(key).add(psm);
 				} else {
 					final Set<PSM> set = new THashSet<PSM>();
 					set.add(psm);
-					ret.put(cleanSequence, set);
+					ret.put(key, set);
 				}
 			}
 		}
