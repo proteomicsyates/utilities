@@ -8,6 +8,7 @@ import edu.scripps.yates.utilities.fasta.dbindex.IndexedProtein;
 import edu.scripps.yates.utilities.grouping.GroupableProtein;
 import edu.scripps.yates.utilities.grouping.ProteinGroup;
 import edu.scripps.yates.utilities.proteomicsmodel.PSM;
+import edu.scripps.yates.utilities.proteomicsmodel.Peptide;
 
 public class KeyUtils {
 	private static KeyUtils instance;
@@ -41,6 +42,28 @@ public class KeyUtils {
 		}
 		if (chargeStateSensible) {
 			return seq + "-" + psm.getChargeState();
+		} else {
+			return seq;
+		}
+	}
+
+	public String getSequenceChargeKey(Peptide peptide, boolean distinguishModifiedPeptides,
+			boolean chargeStateSensible) {
+
+		String seq = null;
+
+		if (distinguishModifiedPeptides) {
+			seq = peptide.getFullSequence();
+		} else {
+			seq = FastaParser.cleanSequence(peptide.getFullSequence());
+
+		}
+		if (chargeStateSensible) {
+			if (peptide.getPSMs() != null && !peptide.getPSMs().isEmpty()) {
+				return seq + "-" + peptide.getPSMs().get(0).getChargeState();
+			}
+			// no charge
+			return seq;
 		} else {
 			return seq;
 		}
