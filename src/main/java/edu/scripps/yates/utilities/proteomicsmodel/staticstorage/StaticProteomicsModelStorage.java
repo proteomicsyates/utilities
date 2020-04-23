@@ -109,7 +109,12 @@ public class StaticProteomicsModelStorage {
 	}
 
 	public static void addPeptide(Peptide peptide, MSRun msRun, String conditionID, String peptideKey) {
-		addPeptide(peptide, msRun.getRunId(), conditionID, peptideKey);
+		if (msRun != null) {
+			addPeptide(peptide, msRun.getRunId(), conditionID, peptideKey);
+		} else {
+			final String runID = null;
+			addPeptide(peptide, runID, conditionID, peptideKey);
+		}
 	}
 
 	public static void addPeptide(Peptide peptide, Collection<MSRun> msRuns, String conditionID,
@@ -217,7 +222,12 @@ public class StaticProteomicsModelStorage {
 	}
 
 	public static boolean containsPeptide(MSRun msRun, String conditionID, String key) {
-		return containsPeptide(msRun.getRunId(), conditionID, key);
+		if (msRun != null) {
+			return containsPeptide(msRun.getRunId(), conditionID, key);
+		} else {
+			final String runID = null;
+			return containsPeptide(runID, conditionID, key);
+		}
 	}
 
 	public static boolean containsPeptide(Collection<MSRun> msRuns, String conditionID, String key) {
@@ -321,10 +331,10 @@ public class StaticProteomicsModelStorage {
 		return getPeptide(msRunID, conditionID, -1, sequence);
 	}
 
-	public static Set<Peptide> getPeptide(String conditionID, String sequence, Collection<MSRun> msRuns) {
+	public static Set<Peptide> getPeptide(String conditionID, String key, Collection<MSRun> msRuns) {
 		final Set<Peptide> ret = new THashSet<Peptide>();
 		for (final MSRun msRun : msRuns) {
-			final Set<Peptide> ret2 = getPeptide(msRun, conditionID, sequence);
+			final Set<Peptide> ret2 = getPeptide(msRun, conditionID, key);
 			if (ret2 != null) {
 				ret.addAll(ret2);
 			}
@@ -332,12 +342,17 @@ public class StaticProteomicsModelStorage {
 		return ret;
 	}
 
-	public static Set<Peptide> getPeptide(MSRun msRun, String conditionID, String sequence) {
-		return getPeptide(msRun.getRunId(), conditionID, sequence);
+	public static Set<Peptide> getPeptide(MSRun msRun, String conditionID, String key) {
+		if (msRun != null) {
+			return getPeptide(msRun.getRunId(), conditionID, key);
+		} else {
+			final String runID = null;
+			return getPeptide(runID, conditionID, key);
+		}
 	}
 
-	public static Peptide getSinglePeptide(Collection<MSRun> msRuns, String conditionID, String sequence) {
-		final Set<Peptide> peptides = getPeptide(conditionID, sequence, msRuns);
+	public static Peptide getSinglePeptide(Collection<MSRun> msRuns, String conditionID, String key) {
+		final Set<Peptide> peptides = getPeptide(conditionID, key, msRuns);
 		if (peptides == null || peptides.isEmpty()) {
 			return null;
 		}
