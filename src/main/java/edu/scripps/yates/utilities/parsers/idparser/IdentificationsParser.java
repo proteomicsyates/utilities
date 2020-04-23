@@ -81,6 +81,7 @@ public abstract class IdentificationsParser implements Parser {
 	// PEPTIDE KEY GROUPING SETTINGS
 	private boolean distinguishModifiedSequences = true;
 	private boolean chargeSensible = true;
+	private boolean separatePeptidesByMSRun = false;
 
 	public boolean isDistinguishModifiedSequences() {
 		return distinguishModifiedSequences;
@@ -90,8 +91,16 @@ public abstract class IdentificationsParser implements Parser {
 		this.distinguishModifiedSequences = distinguishModifiedSequences;
 	}
 
+	public void setSeparatePeptidesByMSRun(boolean separatePeptidesByMSRun) {
+		this.separatePeptidesByMSRun = separatePeptidesByMSRun;
+	}
+
 	public boolean isChargeSensible() {
 		return chargeSensible;
+	}
+
+	public boolean isSeparatePeptidesByMSRun() {
+		return separatePeptidesByMSRun;
 	}
 
 	public void setChargeSensible(boolean chargeSensible) {
