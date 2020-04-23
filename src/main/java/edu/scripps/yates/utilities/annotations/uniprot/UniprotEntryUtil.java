@@ -11,6 +11,7 @@ import edu.scripps.yates.utilities.annotations.uniprot.xml.EvidencedStringType;
 import edu.scripps.yates.utilities.annotations.uniprot.xml.GeneNameType;
 import edu.scripps.yates.utilities.annotations.uniprot.xml.GeneType;
 import edu.scripps.yates.utilities.annotations.uniprot.xml.IsoformType;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.KeywordType;
 import edu.scripps.yates.utilities.annotations.uniprot.xml.PropertyType;
 import edu.scripps.yates.utilities.annotations.uniprot.xml.ProteinType.AlternativeName;
 import edu.scripps.yates.utilities.annotations.uniprot.xml.ProteinType.SubmittedName;
@@ -389,6 +390,53 @@ public class UniprotEntryUtil {
 			defline += " PE=" + pe.getNum();
 		}
 		return defline;
+	}
+
+	/**
+	 * Gets keywords into pairs key-value in which key is the id and the value is
+	 * the value
+	 * 
+	 * @param entry
+	 * @return
+	 */
+	public static List<Pair<String, String>> getKeyWords(Entry entry) {
+		final List<Pair<String, String>> ret = new ArrayList<Pair<String, String>>();
+		if (entry.getKeyword() != null) {
+			for (final KeywordType key : entry.getKeyword()) {
+				final String id = key.getId();
+				final String value = key.getValue();
+				ret.add(new Pair<String, String>(id, value));
+			}
+		}
+		return ret;
+	}
+
+	/**
+	 * Looks into the dbReferences of type GO and looks for the ones that have in
+	 * its value of the term name the provided name. If so, a string with the GO ID
+	 * and the term name separated by a "=" is returned in a list
+	 * 
+	 * @param entry
+	 * @param name
+	 * @return
+	 */
+	public static List<String> getGeneOntologyContainingName(Entry entry, String name) {
+		final List<String> ret = new ArrayList<String>();
+		if (entry.getDbReference() != null) {
+			for (final DbReferenceType dbReference : entry.getDbReference()) {
+				if (dbReference.getType().equals("GO") && dbReference.getProperty() != null) {
+					final List<PropertyType> properties = dbReference.getProperty();
+					for (final PropertyType property : properties) {
+						if ("term".equals(property.getType())) {
+							if (property.getValue().toLowerCase().contains(name.toLowerCase())) {
+								ret.add(dbReference.getId() + "=" + property.getValue());
+							}
+						}
+					}
+				}
+			}
+		}
+		return ret;
 	}
 
 }
