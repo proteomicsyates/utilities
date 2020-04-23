@@ -85,7 +85,8 @@ public class StringUtils {
 
 	/**
 	 * Search the targetString in the source string and returns the positions
-	 * (starting by 1) in which the targetString appears in the sourceString
+	 * (starting by 1) in which the targetString appears in the sourceString.<br>
+	 * If it is not found, it returns an empty TIntArrayList
 	 *
 	 * @param sourceString
 	 * @param targetString
