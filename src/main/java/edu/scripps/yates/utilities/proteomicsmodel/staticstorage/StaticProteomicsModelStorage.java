@@ -7,13 +7,13 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import edu.scripps.yates.utilities.fasta.FastaParser;
 import edu.scripps.yates.utilities.proteomicsmodel.Accession;
 import edu.scripps.yates.utilities.proteomicsmodel.Condition;
 import edu.scripps.yates.utilities.proteomicsmodel.MSRun;
 import edu.scripps.yates.utilities.proteomicsmodel.PSM;
 import edu.scripps.yates.utilities.proteomicsmodel.Peptide;
 import edu.scripps.yates.utilities.proteomicsmodel.Protein;
+import edu.scripps.yates.utilities.proteomicsmodel.utils.KeyUtils;
 import edu.scripps.yates.utilities.staticstorage.ItemStorage;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
@@ -94,30 +94,65 @@ public class StaticProteomicsModelStorage {
 		}
 	}
 
-	public static void addPeptide(Peptide peptide, String msRunID, String conditionID) {
-		addPeptide(peptide, msRunID, conditionID, -1);
+	public static void addPeptide(Peptide peptide, String msRunID, String conditionID,
+			boolean distinguishModifiedPeptides, boolean chargeStateSensible) {
+		addPeptide(peptide, msRunID, conditionID, -1, distinguishModifiedPeptides, chargeStateSensible);
 	}
 
-	public static void addPeptide(Peptide peptide, MSRun msRun, String conditionID) {
-		addPeptide(peptide, msRun.getRunId(), conditionID);
+	public static void addPeptide(Peptide peptide, String msRunID, String conditionID, String peptideKey) {
+		addPeptide(peptide, msRunID, conditionID, -1, peptideKey);
 	}
 
-	public static void addPeptide(Peptide peptide, Collection<MSRun> msRuns, String conditionID) {
-		addPeptide(peptide, msRuns, conditionID, -1);
+	public static void addPeptide(Peptide peptide, MSRun msRun, String conditionID, boolean distinguishModifiedPeptides,
+			boolean chargeStateSensible) {
+		addPeptide(peptide, msRun.getRunId(), conditionID, distinguishModifiedPeptides, chargeStateSensible);
 	}
 
-	public static void addPeptide(Peptide peptide, Collection<MSRun> msRuns, String conditionID, int excelRowIndex) {
+	public static void addPeptide(Peptide peptide, MSRun msRun, String conditionID, String peptideKey) {
+		addPeptide(peptide, msRun.getRunId(), conditionID, peptideKey);
+	}
+
+	public static void addPeptide(Peptide peptide, Collection<MSRun> msRuns, String conditionID,
+			boolean distinguishModifiedPeptides, boolean chargeStateSensible) {
+		addPeptide(peptide, msRuns, conditionID, -1, distinguishModifiedPeptides, chargeStateSensible);
+	}
+
+	public static void addPeptide(Peptide peptide, Collection<MSRun> msRuns, String conditionID, String peptideKey) {
+		addPeptide(peptide, msRuns, conditionID, -1, peptideKey);
+	}
+
+	public static void addPeptide(Peptide peptide, Collection<MSRun> msRuns, String conditionID, int excelRowIndex,
+			boolean distinguishModifiedPeptides, boolean chargeStateSensible) {
 		for (final MSRun msRun2 : msRuns) {
-			addPeptide(peptide, msRun2.getRunId(), conditionID, excelRowIndex);
+			addPeptide(peptide, msRun2.getRunId(), conditionID, excelRowIndex, distinguishModifiedPeptides,
+					chargeStateSensible);
 		}
 	}
 
-	public static void addPeptide(Peptide peptide, String msRunID, String conditionID, int excelRowIndex) {
+	public static void addPeptide(Peptide peptide, Collection<MSRun> msRuns, String conditionID, int excelRowIndex,
+			String peptideKey) {
+		for (final MSRun msRun2 : msRuns) {
+			addPeptide(peptide, msRun2.getRunId(), conditionID, excelRowIndex, peptideKey);
+		}
+	}
+
+	public static void addPeptide(Peptide peptide, String msRunID, String conditionID, int excelRowIndex,
+			String peptideKey) {
 		if (conditionID == null) {
 			// log.info("condition is null for peptide");
 		}
-		peptideStorage.add(peptide, msRunID, conditionID, excelRowIndex,
-				FastaParser.getSequenceInBetween(peptide.getFullSequence()));
+
+		peptideStorage.add(peptide, msRunID, conditionID, excelRowIndex, peptideKey);
+	}
+
+	public static void addPeptide(Peptide peptide, String msRunID, String conditionID, int excelRowIndex,
+			boolean distinguishModifiedPeptides, boolean chargeStateSensible) {
+		if (conditionID == null) {
+			// log.info("condition is null for peptide");
+		}
+		final String key = KeyUtils.getInstance().getSequenceChargeKey(peptide, distinguishModifiedPeptides,
+				chargeStateSensible);
+		peptideStorage.add(peptide, msRunID, conditionID, excelRowIndex, key);
 	}
 
 	public static void addPSM(PSM psm, String runID, String conditionID) {
@@ -177,17 +212,17 @@ public class StaticProteomicsModelStorage {
 		return psmStorage.contains(msRun, conditionID, excelRowIndex, psmId2);
 	}
 
-	public static boolean containsPeptide(String msRunID, String conditionID, String sequence) {
-		return containsPeptide(msRunID, conditionID, -1, sequence);
+	public static boolean containsPeptide(String msRunID, String conditionID, String key) {
+		return containsPeptide(msRunID, conditionID, -1, key);
 	}
 
-	public static boolean containsPeptide(MSRun msRun, String conditionID, String sequence) {
-		return containsPeptide(msRun.getRunId(), conditionID, sequence);
+	public static boolean containsPeptide(MSRun msRun, String conditionID, String key) {
+		return containsPeptide(msRun.getRunId(), conditionID, key);
 	}
 
-	public static boolean containsPeptide(Collection<MSRun> msRuns, String conditionID, String sequence) {
+	public static boolean containsPeptide(Collection<MSRun> msRuns, String conditionID, String key) {
 		for (final MSRun msRun2 : msRuns) {
-			final boolean b = containsPeptide(msRun2, conditionID, sequence);
+			final boolean b = containsPeptide(msRun2, conditionID, key);
 			if (b) {
 				return b;
 			}
@@ -195,12 +230,12 @@ public class StaticProteomicsModelStorage {
 		return false;
 	}
 
-	public static boolean containsPeptide(String msRunID, String conditionID, int excelRowIndex, String sequence) {
-		return peptideStorage.contains(msRunID, conditionID, excelRowIndex, sequence);
+	public static boolean containsPeptide(String msRunID, String conditionID, int excelRowIndex, String key) {
+		return peptideStorage.contains(msRunID, conditionID, excelRowIndex, key);
 	}
 
-	public static boolean containsPeptide(MSRun msRun, String conditionID, int excelRowIndex, String sequence) {
-		return containsPeptide(msRun.getRunId(), conditionID, excelRowIndex, sequence);
+	public static boolean containsPeptide(MSRun msRun, String conditionID, int excelRowIndex, String key) {
+		return containsPeptide(msRun.getRunId(), conditionID, excelRowIndex, key);
 	}
 
 	public static Set<Protein> getProtein(String conditionID, String accession, Collection<MSRun> msRuns) {
@@ -312,6 +347,17 @@ public class StaticProteomicsModelStorage {
 		return peptides.iterator().next();
 	}
 
+	public static Peptide getSinglePeptide(String msRunID, String conditionID, String sequence) {
+		final Set<Peptide> peptides = getPeptide(msRunID, conditionID, sequence);
+		if (peptides == null || peptides.isEmpty()) {
+			return null;
+		}
+		if (peptides.size() > 1) {
+			log.warn("Retrieved peptides are multiple!");
+		}
+		return peptides.iterator().next();
+	}
+
 	public static Peptide getSinglePeptide(MSRun msRun, String conditionID, String sequence) {
 		final Set<Peptide> peptides = getPeptide(msRun, conditionID, sequence);
 		if (peptides == null || peptides.isEmpty()) {
@@ -372,9 +418,16 @@ public class StaticProteomicsModelStorage {
 		}
 	}
 
-	public static void addPeptide(Peptide peptide, List<String> msRunIDs, String conditionID) {
+	public static void addPeptide(Peptide peptide, List<String> msRunIDs, String conditionID, String peptideKey) {
 		for (final String msRunID : msRunIDs) {
-			addPeptide(peptide, msRunID, conditionID, -1);
+			addPeptide(peptide, msRunID, conditionID, -1, peptideKey);
+		}
+	}
+
+	public static void addPeptide(Peptide peptide, List<String> msRunIDs, String conditionID,
+			boolean distinguishModifiedPeptides, boolean chargeStateSensible) {
+		for (final String msRunID : msRunIDs) {
+			addPeptide(peptide, msRunID, conditionID, -1, distinguishModifiedPeptides, chargeStateSensible);
 		}
 	}
 }
