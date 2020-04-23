@@ -15,8 +15,14 @@ public class PeptideEx extends AbstractPeptide implements Serializable {
 
 	private static Logger log = Logger.getLogger(PeptideEx.class);
 
-	public PeptideEx(String fullSequence) {
-		super(fullSequence);
+	/**
+	 * 
+	 * @param fullSequence
+	 * @param key          the key used to store the peptide (can be charge-state
+	 *                     sensible and/or PTM sensible)
+	 */
+	public PeptideEx(String fullSequence, String key) {
+		super(key);
 		setFullSequence(fullSequence);
 
 	}
