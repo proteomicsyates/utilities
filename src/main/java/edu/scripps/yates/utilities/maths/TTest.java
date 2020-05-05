@@ -120,9 +120,9 @@ public class TTest {
 
 	/**
 	 * Test if the arrays x and y have significantly different means. The data
-	 * arrays are assumed to be drawn from populations with unequal variances.
-	 * Small values of p-value indicate that the two arrays have significantly
-	 * different means.
+	 * arrays are assumed to be drawn from populations with unequal variances. Small
+	 * values of p-value indicate that the two arrays have significantly different
+	 * means.
 	 */
 	public static TTest test(double[] x, double[] y) {
 		return test(x, y, false);
@@ -130,24 +130,22 @@ public class TTest {
 
 	/**
 	 * Test if the arrays x and y have significantly different means. The data
-	 * arrays are assumed to be drawn from populations with unequal variances.
-	 * Small values of p-value indicate that the two arrays have significantly
-	 * different means.
+	 * arrays are assumed to be drawn from populations with unequal variances. Small
+	 * values of p-value indicate that the two arrays have significantly different
+	 * means.
 	 */
 	public static TTest test(double mu1, double var1, int n1, double mu2, double var2, int n2) {
 		return test(mu1, var1, n1, mu2, var2, n2, false);
 	}
 
 	/**
-	 * Test if the arrays x and y have significantly different means. Small
-	 * values of p-value indicate that the two arrays have significantly
-	 * different means.
+	 * Test if the arrays x and y have significantly different means. Small values
+	 * of p-value indicate that the two arrays have significantly different means.
 	 * 
-	 * @param equalVariance
-	 *            true if the data arrays are assumed to be drawn from
-	 *            populations with the same true variance. Otherwise, The data
-	 *            arrays are allowed to be drawn from populations with unequal
-	 *            variances.
+	 * @param equalVariance true if the data arrays are assumed to be drawn from
+	 *                      populations with the same true variance. Otherwise, The
+	 *                      data arrays are allowed to be drawn from populations
+	 *                      with unequal variances.
 	 */
 	public static TTest test(double[] x, double[] y, boolean equalVariance) {
 
@@ -165,20 +163,17 @@ public class TTest {
 	}
 
 	/**
-	 * Test if the arrays x and y have significantly different means. Small
-	 * values of p-value indicate that the two arrays have significantly
-	 * different means.
+	 * Test if the arrays x and y have significantly different means. Small values
+	 * of p-value indicate that the two arrays have significantly different means.
 	 * 
-	 * @param equalVariance
-	 *            true if the data arrays are assumed to be drawn from
-	 *            populations with the same true variance. Otherwise, The data
-	 *            arrays are allowed to be drawn from populations with unequal
-	 *            variances.
+	 * @param equalVariance true if the data arrays are assumed to be drawn from
+	 *                      populations with the same true variance. Otherwise, The
+	 *                      data arrays are allowed to be drawn from populations
+	 *                      with unequal variances.
 	 */
 	public static TTest test(double mu1, double var1, int n1, double mu2, double var2, int n2, boolean equalVariance) {
+		final double df = calculateDF(mu1, var1, n1, mu2, var2, n2, equalVariance);
 		if (equalVariance) {
-
-			final int df = n1 + n2 - 2;
 
 			final double svar = ((n1 - 1) * var1 + (n2 - 1) * var2) / df;
 
@@ -188,9 +183,6 @@ public class TTest {
 			return new TTest(t, df, p);
 		} else {
 
-			final double df = Math.sqr(var1 / n1 + var2 / n2)
-					/ (Math.sqr(var1 / n1) / (n1 - 1) + Math.sqr(var2 / n2) / (n2 - 1));
-
 			final double t = (mu1 - mu2) / Math.sqrt(var1 / n1 + var2 / n2);
 			final double p = Beta.regularizedIncompleteBetaFunction(0.5 * df, 0.5, df / (df + t * t));
 
@@ -198,10 +190,22 @@ public class TTest {
 		}
 	}
 
+	public static double calculateDF(double mu1, double var1, int n1, double mu2, double var2, int n2,
+			boolean equalVariance) {
+		if (equalVariance) {
+			final double df = n1 + n2 - 2;
+			return df;
+		} else {
+			final double df = Math.sqr(var1 / n1 + var2 / n2)
+					/ (Math.sqr(var1 / n1) / (n1 - 1) + Math.sqr(var2 / n2) / (n2 - 1));
+			return df;
+		}
+	}
+
 	/**
-	 * Given the paired arrays x and y, test if they have significantly
-	 * different means. Small values of p-value indicate that the two arrays
-	 * have significantly different means.
+	 * Given the paired arrays x and y, test if they have significantly different
+	 * means. Small values of p-value indicate that the two arrays have
+	 * significantly different means.
 	 */
 	public static TTest pairedTest(double[] x, double[] y) {
 		if (x.length != y.length) {
@@ -231,15 +235,13 @@ public class TTest {
 	}
 
 	/**
-	 * Test whether the Pearson correlation coefficient, the slope of a
-	 * regression line, differs significantly from 0. Small values of p-value
-	 * indicate a significant correlation.
+	 * Test whether the Pearson correlation coefficient, the slope of a regression
+	 * line, differs significantly from 0. Small values of p-value indicate a
+	 * significant correlation.
 	 * 
-	 * @param r
-	 *            the Pearson correlation coefficient.
-	 * @param df
-	 *            the degree of freedom. df = n - 2, where n is the number of
-	 *            samples used in the calculation of r.
+	 * @param r  the Pearson correlation coefficient.
+	 * @param df the degree of freedom. df = n - 2, where n is the number of samples
+	 *           used in the calculation of r.
 	 */
 	public static TTest test(double r, int df) {
 		final double TINY = 1.0e-20;
@@ -249,4 +251,24 @@ public class TTest {
 
 		return new TTest(t, df, p);
 	}
+
+	/**
+	 * depending on pvalue, prints '*' if <0.05, '**' if <0.01 and '***' if <0.001
+	 * 
+	 * @return
+	 */
+	public String printSignificanceAsterisks() {
+		final StringBuilder sb = new StringBuilder();
+		if (pvalue < 0.05) {
+			sb.append("*");
+		}
+		if (pvalue < 0.01) {
+			sb.append("*");
+		}
+		if (pvalue < 0.001) {
+			sb.append("*");
+		}
+		return sb.toString();
+	}
+
 }
