@@ -16,8 +16,7 @@ public class AmountEx implements Amount, Serializable {
 	 */
 	private static final long serialVersionUID = -6291033827811837759L;
 	/**
-	 * can be null and in that case, it means that it was discarded for any
-	 * reason.
+	 * can be null and in that case, it means that it was discarded for any reason.
 	 */
 	private final double value;
 	private final AmountType amountType;
@@ -36,10 +35,10 @@ public class AmountEx implements Amount, Serializable {
 	/**
 	 * Constructor for a {@link Amount} coming from the combination of a
 	 * {@link Collection} of other {@link Amount}.<br>
-	 * The {@link Condition} associated with these {@link Amount} must be the
-	 * same for all of them.<br>
-	 * The {@link Protein} referenced by these {@link Amount} must be the same
-	 * for all of them.
+	 * The {@link Condition} associated with these {@link Amount} must be the same
+	 * for all of them.<br>
+	 * The {@link Protein} referenced by these {@link Amount} must be the same for
+	 * all of them.
 	 *
 	 * @param value
 	 * @param amountType
@@ -77,10 +76,15 @@ public class AmountEx implements Amount, Serializable {
 	@Override
 	public String toString() {
 		String string = "AmountEx [value=" + value + ", amountType=" + amountType;
-		if (combinationType != null)
+		if (combinationType != null) {
 			string += ", combinationType=" + combinationType + " ";
-		if (singleton != null)
+		}
+		if (singleton != null) {
 			string += ", singleton=" + singleton + " ";
+		}
+		if (condition != null) {
+			string += ", condition=" + condition.getName() + " ";
+		}
 		string += "]";
 		return string;
 	}
@@ -91,8 +95,7 @@ public class AmountEx implements Amount, Serializable {
 	}
 
 	/**
-	 * @param combinationType
-	 *            the combinationType to set
+	 * @param combinationType the combinationType to set
 	 */
 	public void setCombinationType(CombinationType combinationType) {
 		this.combinationType = combinationType;
@@ -116,8 +119,7 @@ public class AmountEx implements Amount, Serializable {
 	}
 
 	/**
-	 * @param singleton
-	 *            the singleton to set
+	 * @param singleton the singleton to set
 	 */
 	public void setSingleton(Boolean singleton) {
 		this.singleton = singleton;
@@ -131,8 +133,7 @@ public class AmountEx implements Amount, Serializable {
 	}
 
 	/**
-	 * @param manualSpc
-	 *            the manualSpc to set
+	 * @param manualSpc the manualSpc to set
 	 */
 	public void setManualSpc(Boolean manualSpc) {
 		this.manualSpc = manualSpc;
