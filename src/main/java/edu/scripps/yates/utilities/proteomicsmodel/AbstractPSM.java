@@ -121,6 +121,7 @@ public abstract class AbstractPSM implements PSM {
 		if (amounts == null) {
 			amounts = new THashSet<Amount>();
 		}
+		addCondition(amount.getCondition());
 		return amounts.add(amount);
 	}
 
@@ -137,7 +138,10 @@ public abstract class AbstractPSM implements PSM {
 		if (conditions == null) {
 			conditions = new THashSet<Condition>();
 		}
-		return conditions.add(condition);
+		if (condition != null) {
+			return conditions.add(condition);
+		}
+		return false;
 	}
 
 	@Override

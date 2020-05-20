@@ -106,6 +106,7 @@ public abstract class AbstractPeptide implements Peptide {
 		if (amounts == null) {
 			amounts = new THashSet<Amount>();
 		}
+		addCondition(amount.getCondition());
 		return amounts.add(amount);
 	}
 
@@ -122,7 +123,12 @@ public abstract class AbstractPeptide implements Peptide {
 		if (conditions == null) {
 			conditions = new THashSet<Condition>();
 		}
-		return conditions.add(condition);
+		if (condition != null) {
+			// add to its psms
+			getPSMs().stream().forEach(psm -> psm.addCondition(condition));
+			return conditions.add(condition);
+		}
+		return false;
 	}
 
 	@Override

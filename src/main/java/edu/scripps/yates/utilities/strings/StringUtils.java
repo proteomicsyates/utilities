@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import gnu.trove.TIntCollection;
+import gnu.trove.list.TIntList;
 import gnu.trove.list.array.TIntArrayList;
 
 /**
@@ -141,6 +143,26 @@ public class StringUtils {
 		list.addAll(collection);
 		Collections.sort(list);
 		for (final String c : list) {
+			if (!"".equals(sb.toString())) {
+				sb.append(separator);
+			}
+			sb.append(c);
+		}
+		return sb.toString();
+	}
+
+	public static String getSortedSeparatedValueString(TIntCollection collection, String separator) {
+		final StringBuilder sb = new StringBuilder();
+		TIntList list = null;
+		if (collection instanceof TIntList) {
+			list = (TIntList) collection;
+		} else {
+			list = new TIntArrayList();
+			list.addAll(collection);
+		}
+
+		list.sort();
+		for (final int c : list.toArray()) {
 			if (!"".equals(sb.toString())) {
 				sb.append(separator);
 			}
