@@ -124,8 +124,6 @@ public abstract class AbstractPeptide implements Peptide {
 			conditions = new THashSet<Condition>();
 		}
 		if (condition != null) {
-			// add to its psms
-			getPSMs().stream().forEach(psm -> psm.addCondition(condition));
 			return conditions.add(condition);
 		}
 		return false;
