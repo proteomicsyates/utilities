@@ -26,8 +26,7 @@ public class NWResult implements Serializable {
 	}
 
 	/**
-	 * @param finalAlignmentScore
-	 *            the finalAlignmentScore to set
+	 * @param finalAlignmentScore the finalAlignmentScore to set
 	 */
 	public void setFinalAlignmentScore(int finalAlignmentScore) {
 		this.finalAlignmentScore = finalAlignmentScore;
@@ -41,8 +40,7 @@ public class NWResult implements Serializable {
 	}
 
 	/**
-	 * @param seq1
-	 *            the seq1 to set
+	 * @param seq1 the seq1 to set
 	 */
 	public void setSeq1(String seq1) {
 		this.seq1 = seq1;
@@ -56,8 +54,7 @@ public class NWResult implements Serializable {
 	}
 
 	/**
-	 * @param seq2
-	 *            the seq2 to set
+	 * @param seq2 the seq2 to set
 	 */
 	public void setSeq2(String seq2) {
 		this.seq2 = seq2;
@@ -71,8 +68,7 @@ public class NWResult implements Serializable {
 	}
 
 	/**
-	 * @param alignmentLength
-	 *            the alignmentLength to set
+	 * @param alignmentLength the alignmentLength to set
 	 */
 	public void setAlignmentLength(int alignmentLength) {
 		this.alignmentLength = alignmentLength;
@@ -86,8 +82,7 @@ public class NWResult implements Serializable {
 	}
 
 	/**
-	 * @param identicalLength
-	 *            the identicalLength to set
+	 * @param identicalLength the identicalLength to set
 	 */
 	public void setIdenticalLength(int identicalLength) {
 		this.identicalLength = identicalLength;
@@ -109,8 +104,7 @@ public class NWResult implements Serializable {
 	}
 
 	/**
-	 * @param alignmentString
-	 *            the alignmentString to set
+	 * @param alignmentString the alignmentString to set
 	 */
 	public void setAlignmentString(String alignmentString) {
 		this.alignmentString = alignmentString;
@@ -118,6 +112,7 @@ public class NWResult implements Serializable {
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
@@ -160,11 +155,11 @@ public class NWResult implements Serializable {
 
 	}
 
-	private String getAlignedSequence2() {
+	public String getAlignedSequence2() {
 		return getAlignmentString().split("\n")[2];
 	}
 
-	private String getAlignedSequence1() {
+	public String getAlignedSequence1() {
 		return getAlignmentString().split("\n")[0];
 	}
 
