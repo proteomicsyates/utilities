@@ -20,6 +20,24 @@ public class PropertiesUtil {
 		return getProperties(is);
 	}
 
+	public static Properties getProperties(String classPathFileName) {
+		final ClassLoader cl = PropertiesUtil.class.getClassLoader();
+		InputStream is;
+
+		is = cl.getResourceAsStream(classPathFileName);
+		if (is == null)
+			throw new IllegalArgumentException(classPathFileName + " file not found");
+
+		final Properties prop = new Properties();
+		try {
+			prop.load(is);
+		} catch (final IOException e) {
+			e.printStackTrace();
+			throw new IllegalArgumentException(e);
+		}
+		return prop;
+	}
+
 	public static Properties getProperties(InputStream is) throws Exception {
 
 		if (is == null) {
