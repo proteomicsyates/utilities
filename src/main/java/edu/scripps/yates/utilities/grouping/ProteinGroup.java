@@ -60,8 +60,10 @@ public class ProteinGroup extends ArrayList<GroupableProtein> {
 			}
 			ret = ret + accession;
 		}
-
-		key = ret + "[" + evidence.toString() + "]";
+		key = ret;
+		if (evidence != null) {
+			key += "[" + evidence.toString() + "]";
+		}
 		return key;
 	}
 
@@ -80,8 +82,12 @@ public class ProteinGroup extends ArrayList<GroupableProtein> {
 		for (final GroupablePeptide groupablePSM : psMs) {
 			seqs.add(groupablePSM.getSequence());
 		}
-		sb.append("Group: " + getEvidence().name() + " - " + shareOrContain + " " + psMs.size() + " PSMs ("
-				+ seqs.size() + " different sequences)\n");
+		String evidenceString = "";
+		if (getEvidence() != null) {
+			evidenceString = getEvidence().name() + " - ";
+		}
+		sb.append("Group: " + evidenceString + shareOrContain + " " + psMs.size() + " PSMs (" + seqs.size()
+				+ " different sequences)\n");
 		int memberGroup = 1;
 		for (final GroupableProtein protein : this) {
 			final StringBuilder sb2 = new StringBuilder();
@@ -138,9 +144,8 @@ public class ProteinGroup extends ArrayList<GroupableProtein> {
 	}
 
 	/**
-	 * This method will determine how comparisons are made between
-	 * proteinGroups! In this case, two groups are equals if share at least one
-	 * protein.
+	 * This method will determine how comparisons are made between proteinGroups! In
+	 * this case, two groups are equals if share at least one protein.
 	 */
 	public boolean shareOneProtein(Object object) {
 		if (object instanceof ProteinGroup) {
@@ -163,13 +168,13 @@ public class ProteinGroup extends ArrayList<GroupableProtein> {
 	}
 
 	/*
-	 * public int updateMinimum() { } List<ProteinGroup> getRecursive(
-	 * ProteinGroup group, Iterator<Protein> it ) { List<ProteinGroup> res = new
-	 * ArrayList<ProteinGroup>(); if( group == null ) group = new
-	 * ProteinGroup(); res.add(group); if( !it.hasNext() ) return res;
-	 * ProteinGroup group2 = (ProteinGroup)group.clone(); group2.add(it.next());
-	 * res.addAll(getRecursive(group, it)); res.addAll(getRecursive(group2,
-	 * it)); return res; }
+	 * public int updateMinimum() { } List<ProteinGroup> getRecursive( ProteinGroup
+	 * group, Iterator<Protein> it ) { List<ProteinGroup> res = new
+	 * ArrayList<ProteinGroup>(); if( group == null ) group = new ProteinGroup();
+	 * res.add(group); if( !it.hasNext() ) return res; ProteinGroup group2 =
+	 * (ProteinGroup)group.clone(); group2.add(it.next());
+	 * res.addAll(getRecursive(group, it)); res.addAll(getRecursive(group2, it));
+	 * return res; }
 	 */
 
 	public List<String> getAccessions() {
