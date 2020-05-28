@@ -187,6 +187,7 @@ public class AutomaticGUICreator extends JFrame {
 						public void run() {
 							final ComponentEnableStateKeeper keeper = new ComponentEnableStateKeeper();
 							keeper.addInvariableComponent(status);
+							keeper.addInvariableComponent(status.getParent());
 							try {
 								keeper.keepEnableStates(AutomaticGUICreator.this);
 								keeper.disable(AutomaticGUICreator.this);
