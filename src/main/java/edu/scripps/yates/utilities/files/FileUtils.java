@@ -247,22 +247,28 @@ public class FileUtils {
 
 	public static List<String> readColumnFromTextFile(File inputFile, final String separator, int columnIndex,
 			int skipFirstLines) throws IOException {
-		Stream<String> lines = null;
+		List<String> lines = null;
 		try {
-			lines = Files.lines(Paths.get(inputFile.getAbsolutePath()), Charset.defaultCharset());
+			lines = Files.readAllLines(Paths.get(inputFile.getAbsolutePath()), Charset.defaultCharset());
+			final List<String> ret = new ArrayList<String>();
+			int numLine = 0;
+			for (final String line : lines) {
+				numLine++;
+				if (numLine <= skipFirstLines) {
+					continue;
+				}
+				final String[] split = line.split(separator);
+				if (split.length > columnIndex) {
+					ret.add(split[columnIndex]);
+				} else {
+					ret.add(null);
+				}
+			}
 
-			lines = lines.skip(skipFirstLines);
-
-			final List<String> collect = lines.map(line -> line.split(separator)[columnIndex])
-					.collect(Collectors.toList());
-			return collect;
+			return ret;
 		} catch (final IndexOutOfBoundsException e) {
 			log.error(e);
 			return null;
-		} finally {
-			if (lines != null) {
-				lines.close();
-			}
 		}
 	}
 
