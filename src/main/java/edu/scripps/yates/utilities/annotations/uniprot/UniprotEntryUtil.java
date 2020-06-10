@@ -2,6 +2,7 @@ package edu.scripps.yates.utilities.annotations.uniprot;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import edu.scripps.yates.utilities.annotations.uniprot.xml.CommentType;
@@ -19,6 +20,7 @@ import edu.scripps.yates.utilities.annotations.uniprot.xml.SubcellularLocationTy
 import edu.scripps.yates.utilities.annotations.uniprot.xml.Uniprot;
 import edu.scripps.yates.utilities.fasta.FastaParser;
 import edu.scripps.yates.utilities.util.Pair;
+import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
 
 public class UniprotEntryUtil {
@@ -44,16 +46,39 @@ public class UniprotEntryUtil {
 	private static final String ENSEMBL = "Ensembl";
 	private static final String GENE_ID = "gene ID";
 
-	public static Set<String> getENSGIDs(Entry entry) {
-		final Set<String> ret = new THashSet<String>();
+	/**
+	 * Gets a map, of ENSGID identifiers from an uniprot entry. They key of the
+	 * entry is the uniprot Accession. An entry can have multiple uniprot ids
+	 * (including isoforms), so sometimes, for each isoform, we have a different
+	 * ensgid
+	 * 
+	 * @param entry
+	 * @return
+	 */
+	public static Map<String, Set<String>> getENSGIDs(Entry entry) {
+		final Map<String, Set<String>> ret = new THashMap<String, Set<String>>();
 		if (entry != null) {
 			if (entry.getDbReference() != null) {
 				for (final DbReferenceType dbReference : entry.getDbReference()) {
 					if (ENSEMBL.equals(dbReference.getType())) {
 						if (dbReference.getProperty() != null) {
+							String acc = UniprotEntryUtil.getPrimaryAccession(entry);
+							if (dbReference.getMolecule() != null) {
+								acc = dbReference.getMolecule().getId();
+							}
 							for (final PropertyType property : dbReference.getProperty()) {
 								if (GENE_ID.equals(property.getType())) {
-									ret.add(property.getValue());
+									if (!ret.containsKey(acc)) {
+										ret.put(acc, new THashSet<String>());
+									}
+									ret.get(acc).add(property.getValue());
+									if ("1".equals(FastaParser.getIsoformVersion(acc))) {
+										final String noIsoformACC = FastaParser.getNoIsoformAccession(acc);
+										if (!ret.containsKey(noIsoformACC)) {
+											ret.put(noIsoformACC, new THashSet<String>());
+										}
+										ret.get(noIsoformACC).add(property.getValue());
+									}
 								}
 							}
 						}
@@ -433,6 +458,20 @@ public class UniprotEntryUtil {
 							}
 						}
 					}
+				}
+			}
+		}
+		return ret;
+	}
+
+	public static Set<String> getDBReferenceIDsByType(Entry entry, String dbReferenceType) {
+		final Set<String> ret = new THashSet<String>();
+		if (entry.getDbReference() != null) {
+			for (final DbReferenceType dbReference : entry.getDbReference()) {
+				if (dbReference.getType().equals(dbReferenceType) && dbReference.getId() != null) {
+
+					ret.add(dbReference.getId());
+
 				}
 			}
 		}
