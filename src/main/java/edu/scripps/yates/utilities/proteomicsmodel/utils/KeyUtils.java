@@ -120,20 +120,26 @@ public class KeyUtils {
 	 */
 	public String getSpectrumKey(PSM psm, boolean distinguishModifiedSequences, boolean chargeSensible) {
 
+		return getSpectrumKey(psm.getScanNumber(), psm.getFullSequence(), psm.getSequence(), psm.getChargeState(),
+				distinguishModifiedSequences, chargeSensible);
+	}
+
+	public String getSpectrumKey(String scanNumber, String fullSequence, String sequence, Integer chargeState,
+			boolean distinguishModifiedSequences, boolean chargeSensible) {
 		final StringBuilder sb = new StringBuilder();
-		if (psm.getScanNumber() != null) {
-			sb.append(psm.getScanNumber());
+		if (scanNumber != null) {
+			sb.append(scanNumber);
 		}
 		if (!"".equals(sb.toString())) {
 			sb.append("-");
 		}
 		if (distinguishModifiedSequences) {
-			if (psm.getFullSequence() != null) {
-				sb.append(psm.getFullSequence());
+			if (fullSequence != null) {
+				sb.append(fullSequence);
 			}
 		} else {
-			if (psm.getSequence() != null) {
-				sb.append(psm.getSequence());
+			if (sequence != null) {
+				sb.append(sequence);
 			}
 		}
 
@@ -141,7 +147,7 @@ public class KeyUtils {
 			if (!"".equals(sb.toString())) {
 				sb.append("-");
 			}
-			sb.append(psm.getChargeState());
+			sb.append(chargeState);
 		}
 		return sb.toString();
 	}
