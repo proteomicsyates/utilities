@@ -701,19 +701,23 @@ public abstract class IdentificationsParser implements Parser {
 		}
 	}
 
-	public boolean containsPSMByPSMID(String psmID) {
+	protected boolean containsPSMByPSMID(String psmID) {
+
 		return psmTableByPSMID.containsKey(psmID);
 	}
 
-	public PSM getPSMByPSMID(String psmID) {
+	protected PSM getPSMByPSMID(String psmID) {
+
 		return psmTableByPSMID.get(psmID);
 	}
 
-	public boolean containsProteinByAccession(String accession) {
+	protected boolean containsProteinByAccession(String accession) {
+
 		return proteinsByAccession.containsKey(accession);
 	}
 
-	public Protein getProteinByAccession(String accession) {
+	protected Protein getProteinByAccession(String accession) {
+
 		return proteinsByAccession.get(accession);
 	}
 
@@ -721,7 +725,7 @@ public abstract class IdentificationsParser implements Parser {
 		proteinGroups.add(proteinGroup);
 	}
 
-	public int getProteinGroupsNumber() {
+	protected int getProteinGroupsNumber() {
 		return proteinGroups.size();
 	}
 }
