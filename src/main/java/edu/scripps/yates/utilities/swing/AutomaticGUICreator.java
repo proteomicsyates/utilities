@@ -37,6 +37,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.log4j.Logger;
 
+import edu.scripps.yates.utilities.dates.DatesUtil;
 import gnu.trove.map.TMap;
 import gnu.trove.map.hash.THashMap;
 
@@ -102,6 +103,7 @@ public class AutomaticGUICreator extends JFrame {
 
 			@Override
 			public void setText(String text) {
+				log.info(text);
 				super.setText(text);
 				final String text2 = getText();
 				if (text2 != null && !"".equals(text2)) {
@@ -111,6 +113,7 @@ public class AutomaticGUICreator extends JFrame {
 
 			@Override
 			public void append(String text) {
+				log.info(text);
 				super.append(text);
 				final String text2 = getText();
 				if (text2 != null && !"".equals(text2)) {
@@ -123,6 +126,8 @@ public class AutomaticGUICreator extends JFrame {
 		status.setFont(new Font("Tahoma", Font.PLAIN, 11));
 		// set System.out to the textarea
 		System.setOut(new PrintStream(new TextAreaOutputStream(status)));
+		System.setErr(new PrintStream(new TextAreaOutputStream(status)));
+
 		//
 		final JScrollPane scroll = new JScrollPane(status);
 		final JPanel panelStatus = new JPanel(new BorderLayout());
@@ -173,6 +178,7 @@ public class AutomaticGUICreator extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 
 				try {
+					final long t1 = System.currentTimeMillis();
 					// save defaults
 					saveDefaults();
 					clearStatus();
@@ -198,6 +204,9 @@ public class AutomaticGUICreator extends JFrame {
 								showError(e.getMessage());
 							} finally {
 								keeper.setToPreviousState(AutomaticGUICreator.this);
+								final long t2 = System.currentTimeMillis();
+								final long time = t2 - t1;
+								status.append("Process took " + DatesUtil.getDescriptiveTimeFromMillisecs(time));
 							}
 						}
 					};
