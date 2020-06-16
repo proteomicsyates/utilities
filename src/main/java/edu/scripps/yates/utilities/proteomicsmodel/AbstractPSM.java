@@ -387,6 +387,8 @@ public abstract class AbstractPSM implements PSM {
 		sequence = FastaParser.cleanSequence(fullSequence);
 		afterSeq = FastaParser.getAfterSeq(fullSequence);
 		beforeSeq = FastaParser.getBeforeSeq(fullSequence);
+		this.ptms = null;
+		this.ptmsInPeptide = null;
 		final TIntDoubleHashMap ptMsFromSequence = FastaParser.getPTMsFromSequence(fullSequence, true);
 		if (!ptMsFromSequence.isEmpty()) {
 			for (final int position : ptMsFromSequence.keys()) {
@@ -532,8 +534,15 @@ public abstract class AbstractPSM implements PSM {
 				} catch (final NumberFormatException e) {
 
 				}
-				final PTMInPeptide ptmInPeptide = new PTMInPeptide(stringPosition.position,
-						getSequence().charAt(stringPosition.position - 1), getSequence(), deltaMass);
+				char aa;
+				if (stringPosition.position < 1 || stringPosition.position > getSequence().length()) {
+					// it is a N-term or C-term
+					aa = ' ';
+				} else {
+					aa = getSequence().charAt(stringPosition.position - 1);
+				}
+				final PTMInPeptide ptmInPeptide = new PTMInPeptide(stringPosition.position, aa, getSequence(),
+						deltaMass);
 				ptmsInPeptide.add(ptmInPeptide);
 			}
 		}
