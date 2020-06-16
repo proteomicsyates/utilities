@@ -272,6 +272,8 @@ public abstract class AbstractPeptide implements Peptide {
 		sequence = FastaParser.cleanSequence(fullSequence);
 		afterSeq = FastaParser.getAfterSeq(fullSequence);
 		beforeSeq = FastaParser.getBeforeSeq(fullSequence);
+		this.ptms = null;
+		this.ptmsInPeptide = null;
 		final TIntDoubleHashMap ptMsFromSequence = FastaParser.getPTMsFromSequence(fullSequence, true);
 		if (!ptMsFromSequence.isEmpty()) {
 			for (final int position : ptMsFromSequence.keys()) {
