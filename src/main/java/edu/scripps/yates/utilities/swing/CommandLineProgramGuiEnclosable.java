@@ -28,7 +28,7 @@ public abstract class CommandLineProgramGuiEnclosable {
 
 	public abstract String getTitleForFrame();
 
-	protected abstract void setCommandLine(CommandLine cmd);
+	protected abstract void setCommandLine(CommandLine cmd) throws DoNotInvokeRunMethod;
 
 	/**
 	 * This method should print the usage of the command line such as:<br>
@@ -57,6 +57,6 @@ public abstract class CommandLineProgramGuiEnclosable {
 			formatter.printHelp(printCommandLineSintax(), "\n\n************\n" + header + "\n************\n\n", options,
 					printFooter());
 		}
-		System.exit(-1);
+		throw new IllegalArgumentException();
 	}
 }

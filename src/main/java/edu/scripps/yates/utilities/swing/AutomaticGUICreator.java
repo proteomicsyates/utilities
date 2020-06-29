@@ -10,8 +10,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.PrintStream;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -24,6 +26,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
@@ -63,16 +66,15 @@ public class AutomaticGUICreator extends JFrame {
 				| IllegalAccessException e) {
 			e.printStackTrace();
 		}
-		setLayout(new BorderLayout(10, 10));
+		getContentPane().setLayout(new BorderLayout(10, 10));
 		final JPanel headerPanel = new JPanel();
 		headerPanel.add(new Label("Graphical Interface for " + program.getTitleForFrame()));
-		add(headerPanel, BorderLayout.NORTH);
+		getContentPane().add(headerPanel, BorderLayout.NORTH);
 
 		final GridBagLayout layout = new GridBagLayout();
 		layout.columnWeights = new double[] { 50.0, 250.0, 250.0 };
 		final JPanel componentsPanel = new JPanel(layout);
 		componentsPanel.setBorder(BorderFactory.createTitledBorder("Parameters:"));
-		add(componentsPanel, BorderLayout.CENTER);
 
 		final Options options = program.getCommandLineOptions();
 		final Collection<Option> optionList = options.getOptions();
@@ -133,8 +135,10 @@ public class AutomaticGUICreator extends JFrame {
 		final JPanel panelStatus = new JPanel(new BorderLayout());
 		panelStatus.setBorder(BorderFactory.createTitledBorder("Status:"));
 		panelStatus.add(scroll);
-		add(panelStatus, BorderLayout.SOUTH);
 
+		// split
+		final JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, componentsPanel, panelStatus);
+		getContentPane().add(splitPane, BorderLayout.CENTER);
 		// what happens when pressing run
 		button.addActionListener(getRunButtonAction(componentsByOption, program, status));
 
@@ -267,6 +271,7 @@ public class AutomaticGUICreator extends JFrame {
 	}
 
 	protected CommandLine getCommandLineFromGui() throws ParseException {
+		final List<String> args = new ArrayList<String>();
 		final StringBuilder sb = new StringBuilder();
 		for (final String optionName : this.componentsByOption.keySet()) {
 			if (!"".equals(sb.toString())) {
@@ -276,18 +281,18 @@ public class AutomaticGUICreator extends JFrame {
 			if (jComponent instanceof JCheckBox) {
 				final boolean checked = ((JCheckBox) jComponent).isSelected();
 				if (checked) {
-					sb.append("-" + optionName);
+					args.add("-" + optionName);
 				}
 			} else if (jComponent instanceof JTextField) {
 				final String value = ((JTextField) jComponent).getText();
 				if (!"".equals(value)) {
-					sb.append("-" + optionName + " \"" + value + "\"");
+					args.add("-" + optionName);
+					args.add(value);
 				}
 			}
 		}
-		final String[] args = sb.toString().split(" ");
 		final CommandLineParser parser = new DefaultParser();
-		final CommandLine cmd = parser.parse(program.getCommandLineOptions(), args);
+		final CommandLine cmd = parser.parse(program.getCommandLineOptions(), args.toArray(new String[0]));
 		return cmd;
 	}
 
@@ -327,7 +332,7 @@ public class AutomaticGUICreator extends JFrame {
 
 	private static JLabel getLabelForOptionDescription(Option option) {
 		final String text = option.getDescription();
-		final JLabel label = new JLabel(text);
+		final JLabel label = new JLabel("<html>" + text + "</html>");
 		final Font font = label.getFont();
 		label.setFont(new Font(font.getName(), Font.BOLD, font.getSize()));
 		label.setToolTipText(option.getDescription());
