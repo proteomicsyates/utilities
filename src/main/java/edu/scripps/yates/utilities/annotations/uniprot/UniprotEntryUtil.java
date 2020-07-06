@@ -9,6 +9,7 @@ import edu.scripps.yates.utilities.annotations.uniprot.xml.CommentType;
 import edu.scripps.yates.utilities.annotations.uniprot.xml.DbReferenceType;
 import edu.scripps.yates.utilities.annotations.uniprot.xml.Entry;
 import edu.scripps.yates.utilities.annotations.uniprot.xml.EvidencedStringType;
+import edu.scripps.yates.utilities.annotations.uniprot.xml.FeatureType;
 import edu.scripps.yates.utilities.annotations.uniprot.xml.GeneNameType;
 import edu.scripps.yates.utilities.annotations.uniprot.xml.GeneType;
 import edu.scripps.yates.utilities.annotations.uniprot.xml.IsoformType;
@@ -321,6 +322,121 @@ public class UniprotEntryUtil {
 	}
 
 	/**
+	 * Gets a list of {@link CommentType} of comments that have a certain
+	 * commentType. commentType can be one of:<br>
+	 * Function<br>
+	 * Catalytic activity<br>
+	 * Cofactor<br>
+	 * Activity regulation<br>
+	 * Biophysicochemical properties<br>
+	 * Subunit structure<br>
+	 * Pathway<br>
+	 * Subcellular location<br>
+	 * Tissue specificity<br>
+	 * Developmental stage<br>
+	 * Induction<br>
+	 * Domain<br>
+	 * Post-translational modification<br>
+	 * RNA editing<br>
+	 * Mass spectrometry<br>
+	 * Polymorphism<br>
+	 * Involvement in disease<br>
+	 * Disruption phenotype<br>
+	 * Allergenic properties<br>
+	 * Toxic dose<br>
+	 * Biotechnological use<br>
+	 * Pharmaceutical use<br>
+	 * Miscellaneous<br>
+	 * Sequence similarities<br>
+	 * Caution<br>
+	 * Sequence caution<br>
+	 * 
+	 * @param entry
+	 * @param commentType
+	 * @return
+	 */
+	public static List<CommentType> getCommentsByType(Entry entry, String commentType) {
+		final List<CommentType> ret = new ArrayList<CommentType>();
+		if (entry != null) {
+			if (entry.getComment() != null) {
+				for (final CommentType comment : entry.getComment()) {
+					if (comment.getType() != null && comment.getType().equalsIgnoreCase(commentType)) {
+						ret.add(comment);
+					}
+				}
+			}
+		}
+		return ret;
+	}
+
+	/**
+	 * Gets a list of {@link FeatureType} of a type provided. featureType can
+	 * be:<br>
+	 * Initiator methionine<br>
+	 * Signal<br>
+	 * Transit peptide<br>
+	 * Propeptide<br>
+	 * Chain<br>
+	 * Peptide<br>
+	 * <br>
+	 * Topological domain<br>
+	 * Transmembrane<br>
+	 * Intramembrane<br>
+	 * Domain<br>
+	 * Repeat<br>
+	 * Calcium binding<br>
+	 * Zinc finger<br>
+	 * DNA binding<br>
+	 * Nucleotide binding<br>
+	 * Region<br>
+	 * Coiled coil<br>
+	 * Motif<br>
+	 * Compositional bias<br>
+	 * <br>
+	 * Active site<br>
+	 * Metal binding<br>
+	 * Binding site<br>
+	 * Site<br>
+	 * <br>
+	 * Non-standard residue<br>
+	 * Modified residue<br>
+	 * Lipidation<br>
+	 * Glycosylation<br>
+	 * Disulfide bond<br>
+	 * Cross-link<br>
+	 * <br>
+	 * Alternative sequence<br>
+	 * Natural variant<br>
+	 * <br>
+	 * Mutagenesis<br>
+	 * Sequence uncertainty<br>
+	 * Sequence conflict<br>
+	 * Non-adjacent residues<br>
+	 * Non-terminal residue<br>
+	 * <br>
+	 * Helix<br>
+	 * Turn<br>
+	 * Beta strand<br>
+	 * 
+	 * @param entry
+	 * @param featureType
+	 * @return
+	 */
+	public static List<FeatureType> getFeaturesByType(Entry entry, String featureType) {
+		final List<FeatureType> ret = new ArrayList<FeatureType>();
+		if (entry != null) {
+			if (entry.getFeature() != null) {
+				for (final FeatureType feature : entry.getFeature()) {
+					if (feature.getType() != null && feature.getType().equals(featureType)) {
+						ret.add(feature);
+					}
+				}
+			}
+		}
+		return ret;
+	}
+
+	/**
 	 * Get the available isoforms accessions from an {@link Entry}
 	 * 
 	 * @param entry
@@ -472,6 +588,63 @@ public class UniprotEntryUtil {
 
 					ret.add(dbReference.getId());
 
+				}
+			}
+		}
+		return ret;
+	}
+
+	public static List<String> getGeneOntologyMolecularFunction(Entry entry) {
+		final List<String> ret = new ArrayList<String>();
+		if (entry.getDbReference() != null) {
+			for (final DbReferenceType dbReference : entry.getDbReference()) {
+				if (dbReference.getType().equals("GO") && dbReference.getProperty() != null) {
+					final List<PropertyType> properties = dbReference.getProperty();
+					for (final PropertyType property : properties) {
+						if ("term".equals(property.getType())) {
+							if (property.getValue().startsWith("F:")) {
+								ret.add(dbReference.getId() + "=" + property.getValue());
+							}
+						}
+					}
+				}
+			}
+		}
+		return ret;
+	}
+
+	public static List<String> getGeneOntologyCelularComponent(Entry entry) {
+		final List<String> ret = new ArrayList<String>();
+		if (entry.getDbReference() != null) {
+			for (final DbReferenceType dbReference : entry.getDbReference()) {
+				if (dbReference.getType().equals("GO") && dbReference.getProperty() != null) {
+					final List<PropertyType> properties = dbReference.getProperty();
+					for (final PropertyType property : properties) {
+						if ("term".equals(property.getType())) {
+							if (property.getValue().startsWith("C:")) {
+								ret.add(dbReference.getId() + "=" + property.getValue());
+							}
+						}
+					}
+				}
+			}
+		}
+		return ret;
+	}
+
+	public static List<String> getGeneOntologyBiologicalProcess(Entry entry) {
+		final List<String> ret = new ArrayList<String>();
+		if (entry.getDbReference() != null) {
+			for (final DbReferenceType dbReference : entry.getDbReference()) {
+				if (dbReference.getType().equals("GO") && dbReference.getProperty() != null) {
+					final List<PropertyType> properties = dbReference.getProperty();
+					for (final PropertyType property : properties) {
+						if ("term".equals(property.getType())) {
+							if (property.getValue().startsWith("P:")) {
+								ret.add(dbReference.getId() + "=" + property.getValue());
+							}
+						}
+					}
 				}
 			}
 		}
