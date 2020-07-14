@@ -8,7 +8,6 @@ import java.awt.Insets;
 import java.awt.Label;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.PrintStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -127,8 +126,8 @@ public class AutomaticGUICreator extends JFrame {
 		status.setWrapStyleWord(true);
 		status.setFont(new Font("Tahoma", Font.PLAIN, 11));
 		// set System.out to the textarea
-		System.setOut(new PrintStream(new TextAreaOutputStream(status)));
-		System.setErr(new PrintStream(new TextAreaOutputStream(status)));
+		System.setOut(new MyPrintStream(new TextAreaOutputStream(status)));
+		System.setErr(new MyPrintStream(new TextAreaOutputStream(status)));
 
 		//
 		final JScrollPane scroll = new JScrollPane(status);
@@ -210,7 +209,7 @@ public class AutomaticGUICreator extends JFrame {
 								keeper.setToPreviousState(AutomaticGUICreator.this);
 								final long t2 = System.currentTimeMillis();
 								final long time = t2 - t1;
-								status.append("Process took " + DatesUtil.getDescriptiveTimeFromMillisecs(time));
+								showMessage("Process took " + DatesUtil.getDescriptiveTimeFromMillisecs(time));
 							}
 						}
 					};
