@@ -161,6 +161,16 @@ public class Maths {
 	/**
 	 * Returns the average value in the array a[], NaN if no such value.
 	 */
+	public static float mean(float[] a) {
+		if (a.length == 0)
+			return Float.NaN;
+		final float sum = sum(a);
+		return sum / a.length;
+	}
+
+	/**
+	 * Returns the average value in the array a[], NaN if no such value.
+	 */
 	public static double mean(Double[] a) {
 		if (a.length == 0)
 			return Double.NaN;
@@ -249,6 +259,20 @@ public class Maths {
 	}
 
 	/**
+	 * Returns the sample variance in the array a[], NaN if no such value.
+	 */
+	public static float var(float[] a) {
+		if (a.length == 0)
+			return Float.NaN;
+		final float avg = mean(a);
+		float sum = 0.0f;
+		for (int i = 0; i < a.length; i++) {
+			sum += (a[i] - avg) * (a[i] - avg);
+		}
+		return sum / (a.length - 1);
+	}
+
+	/**
 	 * Returns the sample variance in the subarray a[lo..hi], NaN if no such value.
 	 */
 	public static double var(double[] a, int lo, int hi) {
@@ -321,7 +345,21 @@ public class Maths {
 	/**
 	 * Returns the sample standard deviation in the array a[], NaN if no such value.
 	 */
+	public static double stddev(float[] a) {
+		return Math.sqrt(var(a));
+	}
+
+	/**
+	 * Returns the sample standard deviation in the array a[], NaN if no such value.
+	 */
 	public static double stddev(TDoubleList a) {
+		return stddev(a.toArray());
+	}
+
+	/**
+	 * Returns the sample standard deviation in the array a[], NaN if no such value.
+	 */
+	public static double stddev(TFloatList a) {
 		return stddev(a.toArray());
 	}
 
@@ -367,7 +405,14 @@ public class Maths {
 	 * Returns the sum of all values in the {@link TDoubleList}
 	 */
 	public static double sum(TDoubleList a) {
-		return sum(a.toArray());
+		return a.sum();
+	}
+
+	/**
+	 * Returns the sum of all values in the {@link TFloatList}
+	 */
+	public static double sum(TFloatList a) {
+		return a.sum();
 	}
 
 	/**
@@ -375,6 +420,17 @@ public class Maths {
 	 */
 	public static double sum(double[] a) {
 		double sum = 0.0;
+		for (int i = 0; i < a.length; i++) {
+			sum += a[i];
+		}
+		return sum;
+	}
+
+	/**
+	 * Returns the sum of all values in the array a[].
+	 */
+	public static float sum(float[] a) {
+		float sum = 0.0f;
 		for (int i = 0; i < a.length; i++) {
 			sum += a[i];
 		}
