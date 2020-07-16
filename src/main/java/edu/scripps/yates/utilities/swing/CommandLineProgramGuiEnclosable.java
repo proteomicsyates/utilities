@@ -127,6 +127,14 @@ public abstract class CommandLineProgramGuiEnclosable {
 
 	/**
 	 * Init the tool with the options set in the command line.<br>
+	 * Use this method to further check the validity of the argument captured from
+	 * the GUI (such as checking whether a file exists or not), and it is not valid,
+	 * call to
+	 * 
+	 * <pre>
+	 * {@code errorInParameters(error_message);}
+	 * </pre>
+	 * 
 	 * For example:
 	 * 
 	 * <pre>
