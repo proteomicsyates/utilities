@@ -79,6 +79,10 @@ public class AutomaticGUICreator extends JFrame {
 		final Collection<Option> optionList = options.getOptions();
 		int y = 0;
 		for (final Option option : optionList) {
+			if (option.getOpt().equals(CommandLineProgramGuiEnclosable.GUI)) {
+				// ignore it
+				continue;
+			}
 			final JLabel label = getLabelForOptionName(option);
 			componentsPanel.add(label, getGridBagConstraints(0, y, GridBagConstraints.EAST));
 			final JComponent component = getComponentForOption(option, componentsByOption);
@@ -187,7 +191,7 @@ public class AutomaticGUICreator extends JFrame {
 					clearStatus();
 					final CommandLine commandLine = AutomaticGUICreator.this.getCommandLineFromGui();
 					showMessage(getParametersString(commandLine));
-					program.setCommandLine(commandLine);
+					program.initToolFromCommandLineOptions(commandLine);
 					showMessage("Parameters are correct. Starting program...");
 					final ScheduledExecutorService service = new ScheduledThreadPoolExecutor(1);
 					final Runnable command = new Runnable() {
@@ -214,6 +218,8 @@ public class AutomaticGUICreator extends JFrame {
 						}
 					};
 					service.schedule(command, 10, TimeUnit.MILLISECONDS);
+				} catch (final SomeErrorInParametersOcurred e2) {
+					showError(e2.getMessage());
 				} catch (final Exception e1) {
 					e1.printStackTrace();
 					showError(e1.getMessage());
@@ -271,11 +277,8 @@ public class AutomaticGUICreator extends JFrame {
 
 	protected CommandLine getCommandLineFromGui() throws ParseException {
 		final List<String> args = new ArrayList<String>();
-		final StringBuilder sb = new StringBuilder();
 		for (final String optionName : this.componentsByOption.keySet()) {
-			if (!"".equals(sb.toString())) {
-				sb.append(" ");
-			}
+
 			final JComponent jComponent = this.componentsByOption.get(optionName);
 			if (jComponent instanceof JCheckBox) {
 				final boolean checked = ((JCheckBox) jComponent).isSelected();
@@ -283,7 +286,7 @@ public class AutomaticGUICreator extends JFrame {
 					args.add("-" + optionName);
 				}
 			} else if (jComponent instanceof JTextField) {
-				final String value = ((JTextField) jComponent).getText();
+				final String value = ((JTextField) jComponent).getText().trim();
 				if (!"".equals(value)) {
 					args.add("-" + optionName);
 					args.add(value);
