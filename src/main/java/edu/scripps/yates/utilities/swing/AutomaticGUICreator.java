@@ -75,7 +75,7 @@ public class AutomaticGUICreator extends JFrame {
 		getContentPane().add(headerPanel, BorderLayout.NORTH);
 
 		final GridBagLayout layout = new GridBagLayout();
-		layout.columnWeights = new double[] { 50.0, 250.0, 250.0 };
+		layout.columnWeights = new double[] { 50.0, 50.0, 250.0, 250.0 };
 		final JPanel componentsPanel = new JPanel(layout);
 		componentsPanel.setBorder(BorderFactory.createTitledBorder("Parameters:"));
 
@@ -87,12 +87,24 @@ public class AutomaticGUICreator extends JFrame {
 				// ignore it
 				continue;
 			}
+			final boolean required = option.isRequired();
 			final JLabel label = getLabelForOptionName(option);
 			componentsPanel.add(label, getGridBagConstraints(0, y, GridBagConstraints.EAST));
+
+			final JLabel labelRequired = new JLabel();
+			if (required) {
+				labelRequired.setText("[Required]");
+				labelRequired.setToolTipText("This parameter is required");
+			} else {
+				labelRequired.setText("[Optional]");
+				labelRequired.setToolTipText("This parameter is optional. The tool can run with this parameter empty");
+			}
+			componentsPanel.add(labelRequired, getGridBagConstraints(1, y, GridBagConstraints.WEST));
+
 			final JComponent component = getComponentForOption(option, componentsByOption);
-			componentsPanel.add(component, getGridBagConstraints(1, y, GridBagConstraints.WEST));
+			componentsPanel.add(component, getGridBagConstraints(2, y, GridBagConstraints.WEST));
 			final JLabel label2 = getLabelForOptionDescription(option);
-			componentsPanel.add(label2, getGridBagConstraints(2, y, GridBagConstraints.WEST));
+			componentsPanel.add(label2, getGridBagConstraints(3, y, GridBagConstraints.WEST));
 			y++;
 		}
 		// now the run button
