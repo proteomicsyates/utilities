@@ -111,7 +111,7 @@ public class LuciphorReader {
 					this.psms.put(psm.getKey(), psm);
 				}
 			}
-			System.out.println(numLineswithRepeatedPSMs + " lines with repeated PSMs on them");
+			System.out.println("Warning: " + numLineswithRepeatedPSMs + " lines with repeated scans on them");
 			loaded = true;
 			log.info(this.psms.size() + " PSMs read.");
 		} catch (final IOException e) {
