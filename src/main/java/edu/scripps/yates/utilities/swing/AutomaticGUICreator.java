@@ -38,8 +38,11 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.log4j.Logger;
+import org.springframework.core.io.ClassPathResource;
 
+import edu.scripps.yates.utilities.appversion.AppVersion;
 import edu.scripps.yates.utilities.dates.DatesUtil;
+import edu.scripps.yates.utilities.properties.PropertiesUtil;
 import gnu.trove.map.TMap;
 import gnu.trove.map.hash.THashMap;
 
@@ -50,12 +53,13 @@ public class AutomaticGUICreator extends JFrame {
 	 */
 	private static final long serialVersionUID = 4829866413822345381L;
 	private static Logger log = Logger.getLogger(AutomaticGUICreator.class);
+	private static AppVersion version;
 	private final CommandLineProgramGuiEnclosable program;
 	private final TMap<String, JComponent> componentsByOption = new THashMap<String, JComponent>();
 	private final JTextArea status;
 
 	public AutomaticGUICreator(CommandLineProgramGuiEnclosable program) {
-		super(program.getTitleForFrame());
+		super(program.getTitleForFrame() + " - v" + getVersion().toString());
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.program = program;
 
@@ -355,5 +359,24 @@ public class AutomaticGUICreator extends JFrame {
 		gridBagConstraints.fill = GridBagConstraints.HORIZONTAL;
 		gridBagConstraints.anchor = anchor;
 		return gridBagConstraints;
+	}
+
+	public static AppVersion getVersion() {
+		if (version == null) {
+			try {
+				final String tmp = PropertiesUtil
+						.getProperties(new ClassPathResource(AppVersion.APP_PROPERTIES).getInputStream())
+						.getProperty("assembly.dir");
+				if (tmp.contains("v")) {
+					version = new AppVersion(tmp.split("v")[1]);
+				} else {
+					version = new AppVersion(tmp);
+				}
+			} catch (final Exception e) {
+//				e.printStackTrace();
+			}
+		}
+		return version;
+
 	}
 }
