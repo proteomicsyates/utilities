@@ -145,12 +145,14 @@ public class AutomaticGUICreator extends JFrame {
 		status.setEditable(false);
 		status.setWrapStyleWord(true);
 		status.setFont(new Font("Tahoma", Font.PLAIN, 11));
+		status.setLineWrap(true);
 		// set System.out to the textarea
 		System.setOut(new MyPrintStream(new TextAreaOutputStream(status)));
 		System.setErr(new MyPrintStream(new TextAreaOutputStream(status)));
 
 		//
 		final JScrollPane scroll = new JScrollPane(status);
+		scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		final JPanel panelStatus = new JPanel(new BorderLayout());
 		panelStatus.setBorder(BorderFactory.createTitledBorder("Status:"));
 		panelStatus.add(scroll);

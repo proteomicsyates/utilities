@@ -42,7 +42,6 @@ public class TextAreaOutputStream extends OutputStream {
 
 		if (b == '\n') {
 			final String text = sb.toString() + "\n";
-
 			textArea.append(text);
 			sb.setLength(0);
 		} else {

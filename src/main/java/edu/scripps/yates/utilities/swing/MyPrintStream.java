@@ -13,6 +13,7 @@ public class MyPrintStream extends PrintStream {
 
 	@Override
 	public void println(String message) {
+
 		super.println(getFormattedTime() + ": " + message);
 	}
 
