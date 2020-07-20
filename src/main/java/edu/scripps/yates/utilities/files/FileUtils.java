@@ -12,7 +12,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
+import java.nio.charset.MalformedInputException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.text.DecimalFormat;
@@ -663,6 +666,42 @@ public class FileUtils {
 			}
 		}
 		fw.close();
+	}
+
+	/**
+	 * Read lines of file (Path) trying all the standard charsets. So this is a
+	 * error-less (related to charset) read lines utility method.
+	 * {@link StandardCharsets}
+	 * 
+	 * @param path
+	 * @return a list of string, each of them being a line from the file.
+	 * @throws IOException
+	 */
+	public static List<String> readAllLines(Path path) throws IOException {
+		final List<Charset> charsets = new ArrayList<Charset>();
+		charsets.add(StandardCharsets.ISO_8859_1);
+		charsets.add(StandardCharsets.US_ASCII);
+		charsets.add(StandardCharsets.UTF_16);
+		charsets.add(StandardCharsets.UTF_16BE);
+		charsets.add(StandardCharsets.UTF_16LE);
+		charsets.add(StandardCharsets.UTF_8);
+		int i = 0;
+		IOException exception = null;
+		while (i < charsets.size()) {
+			try {
+				final List<String> lines = Files.readAllLines(path, charsets.get(i));
+				return lines;
+			} catch (final MalformedInputException e) {
+				exception = e;
+			} catch (final IOException e) {
+				e.printStackTrace();
+				exception = e;
+
+			} finally {
+				i++;
+			}
+		}
+		throw exception;
 	}
 
 }
