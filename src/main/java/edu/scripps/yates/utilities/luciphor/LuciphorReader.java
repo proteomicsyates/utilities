@@ -34,7 +34,7 @@ public class LuciphorReader {
 	private static final String Global_FDRs = "Global_FDRs";
 	private static final String Local_FDRs = "Local_FDRs";
 	public static final String LOCAL_FDR = "Local FDR";
-	public static final String GLOBAL_SCORE = "Global FDR";
+	public static final String GLOBAL_FDR = "Global FDR";
 
 	public LuciphorReader(File luciphorFile) {
 		this.luciphorFile = luciphorFile;
@@ -100,7 +100,7 @@ public class LuciphorReader {
 
 					psm.addScore(new ScoreEx(String.valueOf(localFDR), LOCAL_FDR, "PTM Localization FDR",
 							"PTM Localization FDR calculated in Luciphor"));
-					psm.addScore(new ScoreEx(String.valueOf(globalFDR), GLOBAL_SCORE, "PTM Localization FDR",
+					psm.addScore(new ScoreEx(String.valueOf(globalFDR), GLOBAL_FDR, "PTM Localization FDR",
 							"PTM Localization FDR calculated in Luciphor"));
 
 					if (this.psms.containsKey(psm.getKey())) {
