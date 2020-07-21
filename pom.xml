@@ -82,6 +82,10 @@
             	<groupId>jfree</groupId>
             	<artifactId>jfreechart</artifactId>
             </exclusion>
+            <exclusion>
+            	<groupId>log4j</groupId>
+            	<artifactId>log4j</artifactId>
+            </exclusion>
          </exclusions>
       </dependency>
       <dependency>
@@ -123,6 +127,10 @@
             <exclusion>
                <artifactId>servlet-api</artifactId>
                <groupId>javax.servlet</groupId>
+            </exclusion>
+            <exclusion>
+            	<groupId>log4j</groupId>
+            	<artifactId>log4j</artifactId>
             </exclusion>
          </exclusions>
       </dependency>
