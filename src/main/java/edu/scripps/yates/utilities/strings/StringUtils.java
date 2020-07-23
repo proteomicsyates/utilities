@@ -182,6 +182,17 @@ public class StringUtils {
 		return sb.toString();
 	}
 
+	public static String getSeparatedValueStringFromChars(Object[] collection, String separator) {
+		final StringBuilder sb = new StringBuilder();
+		for (final Object c : collection) {
+			if (!"".equals(sb.toString())) {
+				sb.append(separator);
+			}
+			sb.append(c.toString());
+		}
+		return sb.toString();
+	}
+
 	public static String getSeparatedValueStringFromChars(char[] chars, String separator) {
 		final StringBuilder sb = new StringBuilder();
 		for (final char c : chars) {
