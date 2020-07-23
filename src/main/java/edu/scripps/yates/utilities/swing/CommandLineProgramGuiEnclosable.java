@@ -25,6 +25,7 @@ public abstract class CommandLineProgramGuiEnclosable {
 	protected static final String GUI_LONG = "graphical_interface";
 
 	private final Options options;
+	private boolean readyForRun;
 
 	/**
 	 * 
@@ -35,8 +36,7 @@ public abstract class CommandLineProgramGuiEnclosable {
 	 *                                      invoke {@code run()} method
 	 * @throws SomeErrorInParametersOcurred
 	 */
-	public CommandLineProgramGuiEnclosable(String[] mainArgs)
-			throws ParseException, DoNotInvokeRunMethod, SomeErrorInParametersOcurred {
+	public CommandLineProgramGuiEnclosable(String[] mainArgs) throws ParseException, SomeErrorInParametersOcurred {
 		boolean guiMode = false;
 		try {
 			final List<Option> optionList = defineCommandLineOptions();
@@ -61,8 +61,8 @@ public abstract class CommandLineProgramGuiEnclosable {
 				mainArgs = removeGUIOptionFromArguments(mainArgs);
 				cmd = parser.parse(guiOptions, mainArgs);
 				startGUI();
-				// throw this exception so that in the main, we dont run the run method
-				throw new DoNotInvokeRunMethod();
+				// set to false
+				readyForRun = false;
 			} else {
 
 				for (final Option option : optionList) {
@@ -112,11 +112,13 @@ public abstract class CommandLineProgramGuiEnclosable {
 	};
 
 	/**
-	 * Method invoked by the graphical interface when the user press the RUN button
+	 * Method invoked by the graphical interface when the user press the RUN button.
+	 * Do NOT invoke this method programmatically. Use <code>safeRun()</code>
+	 * instead.
 	 * 
 	 * @throws Exception
 	 */
-	public abstract void run() throws Exception;
+	public abstract void run();
 
 	/**
 	 * Title of the frame window
@@ -196,4 +198,20 @@ public abstract class CommandLineProgramGuiEnclosable {
 //		}
 		throw new SomeErrorInParametersOcurred(header);
 	}
+
+	/**
+	 * This method should be the one to invoke to start the process from an invoker
+	 * other than the GUI rather than run()
+	 * 
+	 * @throws Exception
+	 */
+	public void safeRun() throws DoNotInvokeRunMethod {
+		if (!readyForRun) {
+			throw new DoNotInvokeRunMethod();
+		} else {
+			run();
+		}
+
+	}
+
 }

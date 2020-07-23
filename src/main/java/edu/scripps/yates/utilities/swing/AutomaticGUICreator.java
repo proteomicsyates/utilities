@@ -1,6 +1,7 @@
 package edu.scripps.yates.utilities.swing;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -75,7 +76,7 @@ public class AutomaticGUICreator extends JFrame {
 		getContentPane().add(headerPanel, BorderLayout.NORTH);
 
 		final GridBagLayout layout = new GridBagLayout();
-		layout.columnWeights = new double[] { 50.0, 50.0, 250.0, 250.0 };
+		layout.columnWeights = new double[] { 30.0, 20.0, 200.0, 250.0 };
 		final JPanel componentsPanel = new JPanel(layout);
 		componentsPanel.setBorder(BorderFactory.createTitledBorder("Parameters:"));
 
@@ -156,9 +157,11 @@ public class AutomaticGUICreator extends JFrame {
 		final JPanel panelStatus = new JPanel(new BorderLayout());
 		panelStatus.setBorder(BorderFactory.createTitledBorder("Status:"));
 		panelStatus.add(scroll);
+		panelStatus.setPreferredSize(new Dimension(400, 250));
 
 		// split
 		final JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, componentsPanel, panelStatus);
+
 		getContentPane().add(splitPane, BorderLayout.CENTER);
 		// what happens when pressing run
 		button.addActionListener(getRunButtonAction(componentsByOption, program, status));
@@ -166,10 +169,9 @@ public class AutomaticGUICreator extends JFrame {
 		// loadDefaults from defaults.properties
 		loadDefaults(program.getCommandLineOptions());
 
-		pack();
-		final java.awt.Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
-		final java.awt.Dimension dialogSize = getSize();
-		setLocation((screenSize.width - dialogSize.width) / 2, (screenSize.height - dialogSize.height) / 2);
+		edu.scripps.yates.utilities.swing.SwingUtils.setComponentPreferredSizeRelativeToScreen(this, 0.9, 0.8);
+		SwingUtils.centerOnScreen(this);
+		splitPane.setDividerLocation(0.8);
 	}
 
 	private void loadDefaults(Options options) {
