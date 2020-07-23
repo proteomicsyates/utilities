@@ -579,15 +579,22 @@ public abstract class AbstractPSM implements PSM {
 					}
 				}
 				if (proteinSequence != null) {
+					final String sequence2 = getSequence();
 					final TIntArrayList positionsInProteinSequence = StringUtils.allPositionsOf(proteinSequence,
-							getSequence());
-					for (final int positionInProteinSequence : positionsInProteinSequence.toArray()) {
-						final int positionOfSiteInProtein = positionInProteinSequence + positionInPeptide - 1;
-						final PTMInProtein ptmInProtein = new PTMInProtein(positionOfSiteInProtein,
-								proteinSequence.charAt(positionOfSiteInProtein - 1), acc, ptmInPeptide.getDeltaMass());
-						if (!ptmsInProtein.contains(ptmInProtein)) {
-							ptmsInProtein.add(ptmInProtein);
+							sequence2);
+					if (!positionsInProteinSequence.isEmpty()) {
+						for (final int positionInProteinSequence : positionsInProteinSequence.toArray()) {
+							final int positionOfSiteInProtein = positionInProteinSequence + positionInPeptide - 1;
+							final PTMInProtein ptmInProtein = new PTMInProtein(positionOfSiteInProtein,
+									proteinSequence.charAt(positionOfSiteInProtein - 1), acc,
+									ptmInPeptide.getDeltaMass());
+							if (!ptmsInProtein.contains(ptmInProtein)) {
+								ptmsInProtein.add(ptmInProtein);
+							}
 						}
+					} else {
+						log.warn("Sequence not found\t" + this.getMSRun().getRunId() + "\tscan:\t"
+								+ this.getScanNumber() + "\t" + getFullSequence() + "\t" + getSequence() + "\t" + acc);
 					}
 				} else {
 					throw new IllegalArgumentException("Protein sequence from protein " + acc
