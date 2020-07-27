@@ -58,6 +58,7 @@ public class AutomaticGUICreator extends JFrame {
 	private final CommandLineProgramGuiEnclosable program;
 	private final TMap<String, JComponent> componentsByOption = new THashMap<String, JComponent>();
 	private final JTextArea status;
+	private final JSplitPane splitPane;
 
 	public AutomaticGUICreator(CommandLineProgramGuiEnclosable program) {
 		super(program.getTitleForFrame() + " - v" + getVersion().toString());
@@ -76,9 +77,12 @@ public class AutomaticGUICreator extends JFrame {
 		getContentPane().add(headerPanel, BorderLayout.NORTH);
 
 		final GridBagLayout layout = new GridBagLayout();
-		layout.columnWeights = new double[] { 30.0, 20.0, 200.0, 250.0 };
+		layout.columnWeights = new double[] { 30.0, 20.0, 100.0, 150.0 };
 		final JPanel componentsPanel = new JPanel(layout);
 		componentsPanel.setBorder(BorderFactory.createTitledBorder("Parameters:"));
+		final JScrollPane scroll2 = new JScrollPane(componentsPanel);
+		scroll2.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		scroll2.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 
 		final Options options = program.getCommandLineOptions();
 		final Collection<Option> optionList = options.getOptions();
@@ -104,7 +108,7 @@ public class AutomaticGUICreator extends JFrame {
 
 			final JComponent component = getComponentForOption(option, componentsByOption);
 			componentsPanel.add(component, getGridBagConstraints(2, y, GridBagConstraints.WEST));
-			final JLabel label2 = getLabelForOptionDescription(option);
+			final JTextArea label2 = getLabelForOptionDescription(option);
 			componentsPanel.add(label2, getGridBagConstraints(3, y, GridBagConstraints.WEST));
 			y++;
 		}
@@ -160,7 +164,7 @@ public class AutomaticGUICreator extends JFrame {
 		panelStatus.setPreferredSize(new Dimension(400, 250));
 
 		// split
-		final JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, componentsPanel, panelStatus);
+		this.splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, scroll2, panelStatus);
 
 		getContentPane().add(splitPane, BorderLayout.CENTER);
 		// what happens when pressing run
@@ -221,6 +225,7 @@ public class AutomaticGUICreator extends JFrame {
 							final ComponentEnableStateKeeper keeper = new ComponentEnableStateKeeper();
 							keeper.addInvariableComponent(status);
 							keeper.addInvariableComponent(status.getParent());
+							keeper.addInvariableComponent(AutomaticGUICreator.this.splitPane);
 							try {
 								keeper.keepEnableStates(AutomaticGUICreator.this);
 								keeper.disable(AutomaticGUICreator.this);
@@ -352,10 +357,20 @@ public class AutomaticGUICreator extends JFrame {
 		return label;
 	}
 
-	private static JLabel getLabelForOptionDescription(Option option) {
+	private static JTextArea getLabelForOptionDescription(Option option) {
 		final String text = option.getDescription();
-		final JLabel label = new JLabel("<html>" + text + "</html>");
-		final Font font = label.getFont();
+		final JTextArea label = new JTextArea(
+//				"<html>" +
+				text
+//				+ "</html>"
+		);
+		label.setOpaque(false);
+		label.setBorder(null);
+		label.setEditable(false);
+		label.setFocusable(false);
+		label.setWrapStyleWord(true);
+		label.setLineWrap(true);
+		final Font font = new JLabel().getFont();
 		label.setFont(new Font(font.getName(), Font.BOLD, font.getSize()));
 		label.setToolTipText(option.getDescription());
 		return label;

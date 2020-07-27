@@ -52,7 +52,9 @@ public abstract class CommandLineProgramGuiEnclosable {
 			if (guiMode) {
 				final Options guiOptions = new Options();
 				for (final Option option : optionList) {
-
+					if (!option.hasArg()) {
+						option.setRequired(false);
+					}
 					options.addOption(option);
 					final Option optionalOption = (Option) option.clone();
 					optionalOption.setRequired(false);
@@ -66,6 +68,9 @@ public abstract class CommandLineProgramGuiEnclosable {
 			} else {
 
 				for (final Option option : optionList) {
+					if (!option.hasArg()) {
+						option.setRequired(false);
+					}
 					options.addOption(option);
 				}
 				mainArgs = removeGUIOptionFromArguments(mainArgs);
