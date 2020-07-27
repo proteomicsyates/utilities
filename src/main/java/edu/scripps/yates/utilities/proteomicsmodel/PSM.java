@@ -108,10 +108,10 @@ public interface PSM extends HasScores, HasRatios, HasAmounts, HasConditions, Ha
 			UniprotProteinLocalRetrieverInterface uplr, Map<String, String> proteinSequences);
 
 	public Map<Character, List<PositionInProtein>> getPositionInProteinForSites(char[] quantifiedAAs,
-			UniprotProteinLocalRetrieverInterface uplr);
+			UniprotProteinLocalRetrieverInterface uplr, Map<String, String> proteinSequences);
 
 	public List<PositionInProtein> getStartingPositionsInProtein(String proteinACC,
-			UniprotProteinLocalRetrieverInterface uplr);
+			UniprotProteinLocalRetrieverInterface uplr, Map<String, String> proteinSequences);
 
 	public void setSequence(String seq);
 }

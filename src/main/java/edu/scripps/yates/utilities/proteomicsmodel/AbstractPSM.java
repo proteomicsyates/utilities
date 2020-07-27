@@ -737,7 +737,7 @@ public abstract class AbstractPSM implements PSM {
 
 	@Override
 	public Map<Character, List<PositionInProtein>> getPositionInProteinForSites(char[] quantifiedAAs,
-			UniprotProteinLocalRetrieverInterface uplr) {
+			UniprotProteinLocalRetrieverInterface uplr, Map<String, String> proteinSequences) {
 		if (positionsInProteinsByQuantifiedAA == null) {
 			positionsInProteinsByQuantifiedAA = new THashMap<Character, List<PositionInProtein>>();
 		}
@@ -750,15 +750,23 @@ public abstract class AbstractPSM implements PSM {
 				}
 				final List<PositionInProtein> list = new ArrayList<PositionInProtein>();
 				final String acc = quantifiedProtein.getAccession();
-				final Map<String, Entry> annotatedProtein = uplr.getAnnotatedProtein(null, acc);
-				final Entry entry = annotatedProtein.get(acc);
-				if (entry != null) {
-					final String proteinSequence = UniprotEntryUtil.getProteinSequence(entry);
-					if (proteinSequence != null) {
-						list.addAll(ProteinSequenceUtils.getPositionsInProteinForSites(quantifiedAAs, getSequence(),
-								proteinSequence, acc));
-						positionsInProteinsByQuantifiedAA.put(quantifiedAA, list);
+
+				String proteinSequence = null;
+				if (proteinSequences != null && proteinSequences.containsKey(acc)) {
+					proteinSequence = proteinSequences.get(acc);
+				}
+				if (proteinSequence == null && uplr != null) {
+					final Map<String, Entry> annotatedProtein = uplr.getAnnotatedProtein(null, acc);
+					final Entry entry = annotatedProtein.get(acc);
+					if (entry != null) {
+						proteinSequence = UniprotEntryUtil.getProteinSequence(entry);
 					}
+				}
+
+				if (proteinSequence != null) {
+					list.addAll(ProteinSequenceUtils.getPositionsInProteinForSites(quantifiedAAs, getSequence(),
+							proteinSequence, acc));
+					positionsInProteinsByQuantifiedAA.put(quantifiedAA, list);
 				}
 			}
 		}
@@ -768,17 +776,24 @@ public abstract class AbstractPSM implements PSM {
 
 	@Override
 	public List<PositionInProtein> getStartingPositionsInProtein(String proteinACC,
-			UniprotProteinLocalRetrieverInterface uplr) {
+			UniprotProteinLocalRetrieverInterface uplr, Map<String, String> proteinSequences) {
 		final List<PositionInProtein> ret = new ArrayList<PositionInProtein>();
 
-		final Map<String, Entry> annotatedProtein = uplr.getAnnotatedProtein(null, proteinACC);
-		final Entry entry = annotatedProtein.get(proteinACC);
-		if (entry != null) {
-			final String proteinSequence = UniprotEntryUtil.getProteinSequence(entry);
-			if (proteinSequence != null) {
-				ret.addAll(ProteinSequenceUtils.getPositionsOfPeptideSequenceInProteinSequence(getSequence(),
-						proteinSequence, proteinACC));
+		String proteinSequence = null;
+		if (proteinSequences != null && proteinSequences.containsKey(proteinACC)) {
+			proteinSequence = proteinSequences.get(proteinACC);
+		}
+		if (proteinSequence == null && uplr != null) {
+			final Map<String, Entry> annotatedProtein = uplr.getAnnotatedProtein(null, proteinACC);
+			final Entry entry = annotatedProtein.get(proteinACC);
+			if (entry != null) {
+				proteinSequence = UniprotEntryUtil.getProteinSequence(entry);
 			}
+		}
+
+		if (proteinSequence != null) {
+			ret.addAll(ProteinSequenceUtils.getPositionsOfPeptideSequenceInProteinSequence(getSequence(),
+					proteinSequence, proteinACC));
 		}
 
 		return ret;
