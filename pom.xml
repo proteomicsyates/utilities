@@ -86,6 +86,10 @@
             	<groupId>log4j</groupId>
             	<artifactId>log4j</artifactId>
             </exclusion>
+            <exclusion>
+            	<groupId>org.apache.poi</groupId>
+            	<artifactId>poi</artifactId>
+            </exclusion>
          </exclusions>
       </dependency>
       <dependency>
@@ -169,10 +173,10 @@
 	</dependency>
 	<!-- to read excel files -->
    	<dependency>
-		<groupId>org.apache.poi</groupId>
-		<artifactId>poi-ooxml</artifactId>
-		<version>3.9</version>
-	</dependency>
+	    <groupId>org.apache.poi</groupId>
+	    <artifactId>poi-ooxml</artifactId>
+	    <version>4.1.2</version>
+   	</dependency>
 	<!-- From Statistical Machine Intelligence & Learning Engine -->
 		<!-- https://github.com/haifengl/smile  -->
 		<dependency>

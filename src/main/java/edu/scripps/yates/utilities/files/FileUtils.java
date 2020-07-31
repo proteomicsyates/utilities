@@ -39,12 +39,15 @@ import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.openxml4j.opc.PackageAccess;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.xmlbeans.ThreadLocalUtil;
 
 import edu.scripps.yates.utilities.dates.DatesUtil;
 
@@ -444,10 +447,11 @@ public class FileUtils {
 				for (int i = 0; i < str.length; i++) {
 					try {
 						// try as number first
-						final double d = Double.valueOf(str[i]);
-						currentRow.createCell(i).setCellValue(d);
+						final double d = Double.parseDouble(str[i]);
+						currentRow.createCell(i).setCellValueImpl(d);
 					} catch (final NumberFormatException e) {
-						currentRow.createCell(i).setCellValue(str[i]);
+						final XSSFCell newcell = currentRow.createCell(i);
+						newcell.setCellValue(str[i]);
 					}
 
 				}
@@ -455,10 +459,14 @@ public class FileUtils {
 
 			fileOutputStream = new FileOutputStream(outputXlsFilePath);
 			workBook.write(fileOutputStream);
+			workBook.close();
 			fileOutputStream.close();
+			ThreadLocalUtil.clearAllThreadLocals();
 			log.info("Excel file written successfully at: " + outputXlsFilePath);
 
-		} catch (final IOException ex) {
+		} catch (
+
+		final IOException ex) {
 			log.error(ex);
 			throw ex;
 		} finally {
@@ -576,27 +584,31 @@ public class FileUtils {
 					sb.append(cellSeparator);
 				}
 				try {
-					final Cell cell = row.getCell(i, Row.RETURN_NULL_AND_BLANK);
+					final Cell cell = row.getCell(i, Row.MissingCellPolicy.RETURN_NULL_AND_BLANK);
 					if (cell != null) {
-						switch (cell.getCellType()) {
-						case Cell.CELL_TYPE_STRING:
-						case Cell.CELL_TYPE_BLANK:
+						final CellType cellType = cell.getCellType();
+						switch (cellType) {
+
+						case STRING:
+						case BLANK:
 							sb.append(cell.getStringCellValue());
 							break;
-						case Cell.CELL_TYPE_NUMERIC:
+						case NUMERIC:
 							if (DateUtil.isCellDateFormatted(cell)) {
 								sb.append(cell.getDateCellValue().toString());
 							} else {
 								sb.append(String.valueOf(cell.getNumericCellValue()));
 							}
 							break;
-						case Cell.CELL_TYPE_FORMULA:
+						case FORMULA:
 							sb.append("" + cell.getNumericCellValue());
 							break;
-						case Cell.CELL_TYPE_BOOLEAN:
+						case BOOLEAN:
 							sb.append(String.valueOf(cell.getBooleanCellValue()));
 							break;
-						case Cell.CELL_TYPE_ERROR:
+						case ERROR:
+							sb.append("");
+						case _NONE:
 							sb.append("");
 						default:
 							sb.append("");
