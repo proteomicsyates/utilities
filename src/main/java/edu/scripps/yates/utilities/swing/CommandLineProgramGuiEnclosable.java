@@ -29,11 +29,9 @@ public abstract class CommandLineProgramGuiEnclosable {
 
 	/**
 	 * 
-	 * @param mainArgs the arguments passed to the {@code main(String[] args) }
-	 *                 method
+	 * @param mainArgs the arguments passed to the
+	 *                 {@code public static void main(String[] args) } method
 	 * @throws ParseException
-	 * @throws DoNotInvokeRunMethod         catch this exception so that you dont
-	 *                                      invoke {@code run()} method
 	 * @throws SomeErrorInParametersOcurred
 	 */
 	public CommandLineProgramGuiEnclosable(String[] mainArgs) throws ParseException, SomeErrorInParametersOcurred {
