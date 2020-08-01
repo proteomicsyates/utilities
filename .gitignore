@@ -3,4 +3,5 @@
 /logs/
 .project
 .classpath
+**/notshare
 
