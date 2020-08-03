@@ -24,7 +24,7 @@ public abstract class CommandLineProgramGuiEnclosable {
 	protected static final String GUI = "gui";
 	protected static final String GUI_LONG = "graphical_interface";
 
-	private final Options options;
+	private Options options;
 	private boolean readyForRun;
 
 	/**
@@ -77,7 +77,7 @@ public abstract class CommandLineProgramGuiEnclosable {
 			}
 		} catch (final MissingOptionException e) {
 			if (!guiMode) {
-				throw new SomeErrorInParametersOcurred(e.getMessage() + ".  ***You can also run this tool with '-" + GUI
+				errorInParameters(e.getMessage() + ".  ***You can also run this tool with '-" + GUI
 						+ "' option to launch the graphical interface.***");
 			} else {
 				throw e;
