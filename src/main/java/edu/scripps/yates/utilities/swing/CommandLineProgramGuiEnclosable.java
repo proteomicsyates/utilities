@@ -35,44 +35,38 @@ public abstract class CommandLineProgramGuiEnclosable {
 	 * @throws SomeErrorInParametersOcurred
 	 */
 	public CommandLineProgramGuiEnclosable(String[] mainArgs) throws ParseException, SomeErrorInParametersOcurred {
-		boolean guiMode = false;
+		final boolean guiMode = hasGUIOption(mainArgs);
 		try {
+			final CommandLineParser parser = new DefaultParser();
 			final List<Option> optionList = defineCommandLineOptions();
 			options = new Options();
 			// add new option gui
 			options.addOption(GUI, GUI_LONG, false,
 					"Launch this tool with a graphical interface. All other command line parameters will be ignored.");
-			final CommandLineParser parser = new DefaultParser();
-			CommandLine cmd = parser.parse(options, mainArgs);
-
-			guiMode = cmd.hasOption(GUI);
 
 			if (guiMode) {
-				final Options guiOptions = new Options();
+
 				for (final Option option : optionList) {
-					if (!option.hasArg()) {
-						option.setRequired(false);
-					}
-					options.addOption(option);
 					final Option optionalOption = (Option) option.clone();
 					optionalOption.setRequired(false);
-					guiOptions.addOption(optionalOption);
+					options.addOption(optionalOption);
 				}
 				mainArgs = removeGUIOptionFromArguments(mainArgs);
-				cmd = parser.parse(guiOptions, mainArgs);
+				parser.parse(options, mainArgs);
 				startGUI();
 				// set to false
 				readyForRun = false;
 			} else {
-
+				readyForRun = true;
 				for (final Option option : optionList) {
 					if (!option.hasArg()) {
 						option.setRequired(false);
 					}
 					options.addOption(option);
 				}
+
 				mainArgs = removeGUIOptionFromArguments(mainArgs);
-				cmd = parser.parse(options, mainArgs);
+				final CommandLine cmd = parser.parse(options, mainArgs);
 				initToolFromCommandLineOptions(cmd);
 			}
 		} catch (final MissingOptionException e) {
@@ -83,6 +77,22 @@ public abstract class CommandLineProgramGuiEnclosable {
 				throw e;
 			}
 		}
+	}
+
+	private boolean hasGUIOption(String[] mainArgs) {
+		for (final String arg : mainArgs) {
+			if (arg.startsWith("-")) {
+				if (arg.equals("-" + GUI)) {
+					return true;
+				}
+			} else if (arg.startsWith("--")) {
+				if (arg.equals("--" + GUI_LONG)) {
+					return true;
+				}
+			}
+		}
+		return false;
+
 	}
 
 	private String[] removeGUIOptionFromArguments(String[] mainArgs) {

@@ -59,6 +59,7 @@ public class AutomaticGUICreator extends JFrame {
 	private final TMap<String, JComponent> componentsByOption = new THashMap<String, JComponent>();
 	private final JTextArea status;
 	private final JSplitPane splitPane;
+	private final SimpleDateFormat format = new SimpleDateFormat("yyy-MM-dd HH:mm:ss:SSS");
 
 	public AutomaticGUICreator(CommandLineProgramGuiEnclosable program) {
 		super(program.getTitleForFrame() + " - v" + getVersion().toString());
@@ -112,10 +113,25 @@ public class AutomaticGUICreator extends JFrame {
 			componentsPanel.add(label2, getGridBagConstraints(3, y, GridBagConstraints.WEST));
 			y++;
 		}
+		// button to show the command
+		final JButton buttonShowCommandLine = new JButton("Show command line with current parameters");
+		buttonShowCommandLine.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				showCurrentCommandLine();
+
+			}
+		});
+		buttonShowCommandLine.setToolTipText("Show command line with current parameters");
+		final GridBagConstraints c2 = getGridBagConstraints(0, y++, GridBagConstraints.EAST);
+		c2.fill = GridBagConstraints.NONE;
+		componentsPanel.add(buttonShowCommandLine, c2);
+
 		// now the run button
 		final JButton button = new JButton("RUN");
 		button.setToolTipText("Click to start program");
-		final GridBagConstraints c = getGridBagConstraints(0, y, 1, 3, GridBagConstraints.CENTER);
+		final GridBagConstraints c = getGridBagConstraints(0, y, 1, 4, GridBagConstraints.CENTER);
 		c.fill = GridBagConstraints.NONE;
 		componentsPanel.add(button, c);
 
@@ -178,6 +194,42 @@ public class AutomaticGUICreator extends JFrame {
 		splitPane.setDividerLocation(0.8);
 	}
 
+	protected void showCurrentCommandLine() {
+		String commandLineString;
+		try {
+			commandLineString = getCommandLineString(getCommandLineFromGui());
+			showMessage("Command line from current options:");
+			showMessage(commandLineString);
+		} catch (final ParseException e) {
+			e.printStackTrace();
+			showError(e.getMessage());
+		}
+
+	}
+
+	private String getCommandLineString(CommandLine commandLineFromGui) {
+		final StringBuilder sb = new StringBuilder();
+		final Option[] options = commandLineFromGui.getOptions();
+		for (final Option option : options) {
+			if (!"".equals(sb.toString())) {
+				sb.append(" ");
+			}
+			sb.append("-" + option.getOpt());
+			if (option.hasArg()) {
+				sb.append(" ");
+				final String value = option.getValue();
+				if (value.contains(" ")) {
+					sb.append("'");
+				}
+				sb.append(value);
+				if (value.contains(" ")) {
+					sb.append("'");
+				}
+			}
+		}
+		return sb.toString();
+	}
+
 	private void loadDefaults(Options options) {
 		final AppDefaults defaults = new AppDefaults(componentsByOption.keySet());
 		for (final String optionName : componentsByOption.keySet()) {
@@ -203,7 +255,6 @@ public class AutomaticGUICreator extends JFrame {
 		}
 
 		return new ActionListener() {
-			private final SimpleDateFormat format = new SimpleDateFormat("yyy-MM-dd HH:mm:ss:SSS");
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -251,19 +302,20 @@ public class AutomaticGUICreator extends JFrame {
 				}
 			}
 
-			private void showError(String message) {
-				showMessage("Error: " + message);
-			}
-
-			private void showMessage(String message) {
-				status.append(getFormattedTime() + ": " + message + "\n");
-			}
-
-			private String getFormattedTime() {
-				return format.format(new Date());
-
-			}
 		};
+	}
+
+	private void showError(String message) {
+		showMessage("Error: " + message);
+	}
+
+	private void showMessage(String message) {
+		status.append(getFormattedTime() + ": " + message + "\n");
+	}
+
+	private String getFormattedTime() {
+		return format.format(new Date());
+
 	}
 
 	protected String getParametersString(CommandLine commandLine) {
