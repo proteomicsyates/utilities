@@ -53,6 +53,10 @@ public abstract class CommandLineProgramGuiEnclosable {
 				}
 				mainArgs = removeGUIOptionFromArguments(mainArgs);
 				parser.parse(options, mainArgs);
+				options = new Options();
+				for (final Option option : optionList) {
+					options.addOption(option);
+				}
 				startGUI();
 				// set to false
 				readyForRun = false;

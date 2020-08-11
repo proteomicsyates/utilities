@@ -84,13 +84,11 @@ public class AutomaticGUICreator extends JFrame {
 		getContentPane().add(headerPanel, BorderLayout.NORTH);
 
 		final GridBagLayout layout = new GridBagLayout();
-		layout.columnWeights = new double[] { 30.0, 20.0, 100.0, 150.0 };
+		layout.columnWeights = new double[] { 0.1, 0.1, 0.5, 0.3 };
+		layout.columnWidths = new int[] { 30, 20, 250, 100 };
 		final JPanel componentsPanel = new JPanel(layout);
 		componentsPanel.setBorder(BorderFactory.createTitledBorder("Parameters:"));
-		final JScrollPane scroll2 = new JScrollPane(componentsPanel);
-		scroll2.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		scroll2.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-
+		final JScrollPane scroll2 = new JScrollPane(new MyScrollablePanel(componentsPanel));
 		final Options options = program.getCommandLineOptions();
 		final Collection<Option> optionList = options.getOptions();
 		int y = 0;
@@ -130,14 +128,14 @@ public class AutomaticGUICreator extends JFrame {
 			}
 		});
 		buttonShowCommandLine.setToolTipText("Show command line with current parameters");
-		final GridBagConstraints c2 = getGridBagConstraints(0, y++, GridBagConstraints.EAST);
+		final GridBagConstraints c2 = getGridBagConstraints(1, y, 1, 3, GridBagConstraints.WEST);
 		c2.fill = GridBagConstraints.NONE;
 		componentsPanel.add(buttonShowCommandLine, c2);
 
 		// now the run button
 		final JButton button = new JButton("RUN");
 		button.setToolTipText("Click to start program");
-		final GridBagConstraints c = getGridBagConstraints(0, y, 1, 4, GridBagConstraints.CENTER);
+		final GridBagConstraints c = getGridBagConstraints(0, y, GridBagConstraints.CENTER);
 		c.fill = GridBagConstraints.NONE;
 		componentsPanel.add(button, c);
 
@@ -151,7 +149,6 @@ public class AutomaticGUICreator extends JFrame {
 
 			@Override
 			public void setText(String text) {
-				log.info(text);
 				super.setText(text);
 				final String text2 = getText();
 				if (text2 != null && !"".equals(text2)) {
@@ -161,7 +158,6 @@ public class AutomaticGUICreator extends JFrame {
 
 			@Override
 			public void append(String text) {
-				log.info(text);
 				super.append(text);
 				final String text2 = getText();
 				if (text2 != null && !"".equals(text2)) {
@@ -187,7 +183,8 @@ public class AutomaticGUICreator extends JFrame {
 
 		// split
 		this.splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, scroll2, panelStatus);
-
+		splitPane.setResizeWeight(1);
+		splitPane.setOneTouchExpandable(true);
 		getContentPane().add(splitPane, BorderLayout.CENTER);
 		// what happens when pressing run
 		button.addActionListener(getRunButtonAction(componentsByOption, program, status));
@@ -253,12 +250,6 @@ public class AutomaticGUICreator extends JFrame {
 
 	private ActionListener getRunButtonAction(TMap<String, JComponent> componentsByOption,
 			CommandLineProgramGuiEnclosable program, JTextArea status) {
-		final Options options = program.getCommandLineOptions();
-		// log the options
-		for (final String optionOpt : componentsByOption.keySet()) {
-			final Option option = options.getOption(optionOpt);
-			log.info(option.getOpt() + "=" + option.getValue());
-		}
 
 		return new ActionListener() {
 
@@ -267,6 +258,12 @@ public class AutomaticGUICreator extends JFrame {
 
 				try {
 					final long t1 = System.currentTimeMillis();
+					final Options options = program.getCommandLineOptions();
+					// log the options
+					for (final String optionOpt : componentsByOption.keySet()) {
+						final Option option = options.getOption(optionOpt);
+						log.info(option.getOpt() + "=" + option.getValue());
+					}
 					// save defaults
 					saveDefaults();
 					clearStatus();
