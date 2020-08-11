@@ -62,7 +62,13 @@ public class AutomaticGUICreator extends JFrame {
 	private final SimpleDateFormat format = new SimpleDateFormat("yyy-MM-dd HH:mm:ss:SSS");
 
 	public AutomaticGUICreator(CommandLineProgramGuiEnclosable program) {
-		super(program.getTitleForFrame() + " - v" + getVersion().toString());
+		super();
+		final AppVersion version2 = getVersion();
+		String title = program.getTitleForFrame();
+		if (version2 != null) {
+			title += " - v" + version2;
+		}
+		super.setTitle(title);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.program = program;
 
@@ -445,6 +451,10 @@ public class AutomaticGUICreator extends JFrame {
 	}
 
 	public static AppVersion getVersion() {
+		return getVersion(AppVersion.APP_PROPERTIES);
+	}
+
+	public static AppVersion getVersion(String propertiesFileName) {
 		if (version == null) {
 			try {
 				final String tmp = PropertiesUtil
