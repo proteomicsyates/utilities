@@ -99,7 +99,7 @@ public class AutomaticGUICreator extends JFrame {
 			}
 			final boolean required = option.isRequired();
 			final JLabel label = getLabelForOptionName(option);
-			componentsPanel.add(label, getGridBagConstraints(0, y, GridBagConstraints.EAST));
+			componentsPanel.add(label, getGridBagConstraints(0, y, GridBagConstraints.NORTHEAST));
 
 			final JLabel labelRequired = new JLabel();
 			if (required) {
@@ -109,12 +109,12 @@ public class AutomaticGUICreator extends JFrame {
 				labelRequired.setText("[Optional]");
 				labelRequired.setToolTipText("This parameter is optional. The tool can run with this parameter empty");
 			}
-			componentsPanel.add(labelRequired, getGridBagConstraints(1, y, GridBagConstraints.WEST));
+			componentsPanel.add(labelRequired, getGridBagConstraints(1, y, GridBagConstraints.NORTHWEST));
 
 			final JComponent component = getComponentForOption(option, componentsByOption);
-			componentsPanel.add(component, getGridBagConstraints(2, y, GridBagConstraints.WEST));
+			componentsPanel.add(component, getGridBagConstraints(2, y, GridBagConstraints.NORTHWEST));
 			final JTextArea label2 = getLabelForOptionDescription(option);
-			componentsPanel.add(label2, getGridBagConstraints(3, y, GridBagConstraints.WEST));
+			componentsPanel.add(label2, getGridBagConstraints(3, y, GridBagConstraints.NORTHWEST));
 			y++;
 		}
 		// button to show the command
@@ -128,7 +128,7 @@ public class AutomaticGUICreator extends JFrame {
 			}
 		});
 		buttonShowCommandLine.setToolTipText("Show command line with current parameters");
-		final GridBagConstraints c2 = getGridBagConstraints(1, y, 1, 3, GridBagConstraints.WEST);
+		final GridBagConstraints c2 = getGridBagConstraints(1, y, 1, 3, GridBagConstraints.WEST, 1.0);
 		c2.fill = GridBagConstraints.NONE;
 		componentsPanel.add(buttonShowCommandLine, c2);
 
@@ -192,7 +192,9 @@ public class AutomaticGUICreator extends JFrame {
 		// loadDefaults from defaults.properties
 		loadDefaults(program.getCommandLineOptions());
 
-		edu.scripps.yates.utilities.swing.SwingUtils.setComponentPreferredSizeRelativeToScreen(this, 0.9, 0.8);
+		final Dimension preferredSize = new Dimension(SwingUtils.getFractionOfScreenWidthSize(0.8),
+				Math.min(500, SwingUtils.getFractionOfScreenHeightSize(0.8)));
+		this.setPreferredSize(preferredSize);
 		SwingUtils.centerOnScreen(this);
 		splitPane.setDividerLocation(0.8);
 	}
@@ -432,16 +434,22 @@ public class AutomaticGUICreator extends JFrame {
 	}
 
 	private static GridBagConstraints getGridBagConstraints(int x, int y, int anchor) {
-		return getGridBagConstraints(x, y, 1, 1, anchor);
+		return getGridBagConstraints(x, y, 1, 1, anchor, 0.0);
 	}
 
-	private static GridBagConstraints getGridBagConstraints(int x, int y, int gridheight, int gridwidth, int anchor) {
+	private static GridBagConstraints getGridBagConstraints(int x, int y, int anchor, double weighty) {
+		return getGridBagConstraints(x, y, 1, 1, anchor, weighty);
+	}
+
+	private static GridBagConstraints getGridBagConstraints(int x, int y, int gridheight, int gridwidth, int anchor,
+			double weighty) {
 		final GridBagConstraints gridBagConstraints = new GridBagConstraints();
 		gridBagConstraints.gridx = x;
 		gridBagConstraints.gridy = y;
 		gridBagConstraints.insets = new Insets(5, 5, 5, 5);
 		gridBagConstraints.gridheight = gridheight;
 		gridBagConstraints.gridwidth = gridwidth;
+		gridBagConstraints.weighty = weighty;
 		gridBagConstraints.fill = GridBagConstraints.HORIZONTAL;
 		gridBagConstraints.anchor = anchor;
 		return gridBagConstraints;
