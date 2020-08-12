@@ -5,7 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class MyPrintStream extends PrintStream {
-	private final SimpleDateFormat format = new SimpleDateFormat("yyy-MM-dd HH:mm:ss:SSS");
+	private final SimpleDateFormat format = new SimpleDateFormat("yyy-MM-dd HH:mm:ss,SSS");
 
 	public MyPrintStream(TextAreaOutputStream textAreaOutputStream) {
 		super(textAreaOutputStream);

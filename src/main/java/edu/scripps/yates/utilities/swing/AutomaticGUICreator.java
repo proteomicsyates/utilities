@@ -197,6 +197,8 @@ public class AutomaticGUICreator extends JFrame {
 		this.setPreferredSize(preferredSize);
 		SwingUtils.centerOnScreen(this);
 		splitPane.setDividerLocation(0.8);
+		//
+		pack();
 	}
 
 	protected void showCurrentCommandLine() {
