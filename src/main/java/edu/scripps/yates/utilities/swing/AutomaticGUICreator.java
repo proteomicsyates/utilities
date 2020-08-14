@@ -59,7 +59,7 @@ public class AutomaticGUICreator extends JFrame {
 	private final TMap<String, JComponent> componentsByOption = new THashMap<String, JComponent>();
 	private final JTextArea status;
 	private final JSplitPane splitPane;
-	private final SimpleDateFormat format = new SimpleDateFormat("yyy-MM-dd HH:mm:ss:SSS");
+	private final SimpleDateFormat format = new SimpleDateFormat("yyy-MM-dd HH:mm:ss,SSS");
 
 	public AutomaticGUICreator(CommandLineProgramGuiEnclosable program) {
 		super();
@@ -183,7 +183,7 @@ public class AutomaticGUICreator extends JFrame {
 
 		// split
 		this.splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, scroll2, panelStatus);
-		splitPane.setResizeWeight(1);
+		splitPane.setResizeWeight(0.5);
 		splitPane.setOneTouchExpandable(true);
 		getContentPane().add(splitPane, BorderLayout.CENTER);
 		// what happens when pressing run
