@@ -8,6 +8,8 @@ import org.apache.http.HttpHost;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.conn.routing.HttpRoute;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -38,10 +40,18 @@ public class ThreadSafeHttpClient {
 
 	}
 
-	public static String getStringResponse(CloseableHttpClient httpClient, HttpGet httpGet)
+	/**
+	 * 
+	 * @param httpClient     can be created with <code>createNewHttpClient()</code>
+	 * @param httpUriRequest it can be a {@link HttpGet} or {@link HttpPost}
+	 * @return
+	 * @throws ClientProtocolException
+	 * @throws IOException
+	 */
+	public static String getStringResponse(CloseableHttpClient httpClient, HttpRequestBase httpUriRequest)
 			throws ClientProtocolException, IOException {
 		try {
-			final CloseableHttpResponse response = httpClient.execute(httpGet, HttpClientContext.create());
+			final CloseableHttpResponse response = httpClient.execute(httpUriRequest, HttpClientContext.create());
 			if (response.getStatusLine().getStatusCode() == 200) {
 				final HttpEntity entity = response.getEntity();
 				final String ret = IOUtils.toString(entity.getContent());
@@ -51,7 +61,7 @@ public class ThreadSafeHttpClient {
 					+ response.getStatusLine().getReasonPhrase());
 			return null;
 		} finally {
-			httpGet.releaseConnection();
+			httpUriRequest.releaseConnection();
 		}
 
 	}
