@@ -214,7 +214,7 @@ public class AutomaticGUICreator extends JFrame {
 
 	}
 
-	private String getCommandLineString(CommandLine commandLineFromGui) {
+	protected String getCommandLineString(CommandLine commandLineFromGui) {
 		final StringBuilder sb = new StringBuilder();
 		final Option[] options = commandLineFromGui.getOptions();
 		for (final Option option : options) {
@@ -312,20 +312,20 @@ public class AutomaticGUICreator extends JFrame {
 		};
 	}
 
-	private void showError(String message) {
+	public void showError(String message) {
 		showMessage("Error: " + message);
 	}
 
-	private void showMessage(String message) {
+	public void showMessage(String message) {
 		status.append(getFormattedTime() + ": " + message + "\n");
 	}
 
-	private String getFormattedTime() {
+	public String getFormattedTime() {
 		return format.format(new Date());
 
 	}
 
-	protected String getParametersString(CommandLine commandLine) {
+	public String getParametersString(CommandLine commandLine) {
 		final StringBuilder sb = new StringBuilder("Program arguments:\n");
 		final Option[] options = commandLine.getOptions();
 		for (final Option option : options) {
@@ -359,7 +359,7 @@ public class AutomaticGUICreator extends JFrame {
 
 	}
 
-	protected CommandLine getCommandLineFromGui() throws ParseException {
+	public CommandLine getCommandLineFromGui() throws ParseException {
 		final List<String> args = new ArrayList<String>();
 		for (final String optionName : this.componentsByOption.keySet()) {
 

@@ -26,6 +26,7 @@ public abstract class CommandLineProgramGuiEnclosable {
 
 	private Options options;
 	private boolean readyForRun;
+	protected AutomaticGUICreator gui;
 
 	/**
 	 * 
@@ -118,7 +119,7 @@ public abstract class CommandLineProgramGuiEnclosable {
 	}
 
 	private void startGUI() {
-		final AutomaticGUICreator gui = new AutomaticGUICreator(this);
+		gui = new AutomaticGUICreator(this);
 		gui.setVisible(true);
 	}
 
