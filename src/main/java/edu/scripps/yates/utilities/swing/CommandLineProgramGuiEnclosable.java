@@ -27,6 +27,8 @@ public abstract class CommandLineProgramGuiEnclosable {
 	private Options options;
 	private boolean readyForRun;
 	protected AutomaticGUICreator gui;
+	private CommandLine commandLine;
+	private final boolean usingGUI;
 
 	/**
 	 * 
@@ -36,7 +38,7 @@ public abstract class CommandLineProgramGuiEnclosable {
 	 * @throws SomeErrorInParametersOcurred
 	 */
 	public CommandLineProgramGuiEnclosable(String[] mainArgs) throws ParseException, SomeErrorInParametersOcurred {
-		final boolean guiMode = hasGUIOption(mainArgs);
+		usingGUI = hasGUIOption(mainArgs);
 		try {
 			final CommandLineParser parser = new DefaultParser();
 			final List<Option> optionList = defineCommandLineOptions();
@@ -45,7 +47,7 @@ public abstract class CommandLineProgramGuiEnclosable {
 			options.addOption(GUI, GUI_LONG, false,
 					"Launch this tool with a graphical interface. All other command line parameters will be ignored.");
 
-			if (guiMode) {
+			if (usingGUI) {
 
 				for (final Option option : optionList) {
 					final Option optionalOption = (Option) option.clone();
@@ -71,17 +73,21 @@ public abstract class CommandLineProgramGuiEnclosable {
 				}
 
 				mainArgs = removeGUIOptionFromArguments(mainArgs);
-				final CommandLine cmd = parser.parse(options, mainArgs);
-				initToolFromCommandLineOptions(cmd);
+				commandLine = parser.parse(options, mainArgs);
+				initTool(commandLine);
 			}
 		} catch (final MissingOptionException e) {
-			if (!guiMode) {
+			if (!usingGUI) {
 				errorInParameters(e.getMessage() + ".  ***You can also run this tool with '-" + GUI
 						+ "' option to launch the graphical interface.***");
 			} else {
 				throw e;
 			}
 		}
+	}
+
+	public CommandLine getCommandLine() {
+		return commandLine;
 	}
 
 	private boolean hasGUIOption(String[] mainArgs) {
@@ -164,14 +170,20 @@ public abstract class CommandLineProgramGuiEnclosable {
 	* } else { 
 	* 	 super.errorInParameters("Input file path is is missing"); 
 	* }
-	 * 
 	 * </pre>
 	 * 
-	 * @param cmd command line object
+	 * Do not use any final variable in this method since this will be executed
+	 * before the initialization of the class (it is called in the super
+	 * constructor). @param cmd command line object
 	 * 
 	 * @throws SomeErrorInParametersOcurred
 	 */
 	protected abstract void initToolFromCommandLineOptions(CommandLine cmd) throws SomeErrorInParametersOcurred;
+
+	void initTool(CommandLine cmd) throws SomeErrorInParametersOcurred {
+		this.commandLine = cmd;
+		initToolFromCommandLineOptions(cmd);
+	}
 
 	/**
 	 * This method should print the usage of the command line such as:<br>
@@ -228,8 +240,12 @@ public abstract class CommandLineProgramGuiEnclosable {
 			throw new DoNotInvokeRunMethod();
 		} else {
 			run();
+			System.exit(0);
 		}
 
 	}
 
+	public boolean isUsingGUI() {
+		return usingGUI;
+	}
 }

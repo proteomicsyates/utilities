@@ -59,7 +59,7 @@ public class AutomaticGUICreator extends JFrame {
 	private final TMap<String, JComponent> componentsByOption = new THashMap<String, JComponent>();
 	private final JTextArea status;
 	private final JSplitPane splitPane;
-	private final SimpleDateFormat format = new SimpleDateFormat("yyy-MM-dd HH:mm:ss,SSS");
+	private static final SimpleDateFormat format = new SimpleDateFormat("yyy-MM-dd HH:mm:ss,SSS");
 
 	public AutomaticGUICreator(CommandLineProgramGuiEnclosable program) {
 		super();
@@ -273,7 +273,8 @@ public class AutomaticGUICreator extends JFrame {
 					clearStatus();
 					final CommandLine commandLine = AutomaticGUICreator.this.getCommandLineFromGui();
 					showMessage(getParametersString(commandLine));
-					program.initToolFromCommandLineOptions(commandLine);
+					program.initTool(commandLine);
+
 					showMessage("Parameters are correct. Starting program...");
 					final ScheduledExecutorService service = new ScheduledThreadPoolExecutor(1);
 					final Runnable command = new Runnable() {
@@ -320,12 +321,12 @@ public class AutomaticGUICreator extends JFrame {
 		status.append(getFormattedTime() + ": " + message + "\n");
 	}
 
-	public String getFormattedTime() {
+	public static String getFormattedTime() {
 		return format.format(new Date());
 
 	}
 
-	public String getParametersString(CommandLine commandLine) {
+	public static String getParametersString(CommandLine commandLine) {
 		final StringBuilder sb = new StringBuilder("Program arguments:\n");
 		final Option[] options = commandLine.getOptions();
 		for (final Option option : options) {
