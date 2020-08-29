@@ -712,6 +712,18 @@ public class FastaParser {
 		return description.trim();
 	}
 
+	private static boolean tolerantToFakePeptides = false;
+
+	/**
+	 * Sets the value of this static variable that if it is true, not exceptions
+	 * will be thrown by this class regarding finding weird strings as peptides.
+	 * 
+	 * @param b
+	 */
+	public static void setTolerantToFakePeptides(boolean b) {
+		tolerantToFakePeptides = b;
+	}
+
 	/**
 	 * This function allow to get the peptide sequence as <br>
 	 * <ul>
@@ -749,7 +761,7 @@ public class FastaParser {
 		AssignMass.getInstance(true);
 		for (int index = 0; index < seq.length(); index++) {
 			final char aa = seq.charAt(index);
-			if (!AssignMass.containsMass(aa)) {
+			if (!tolerantToFakePeptides && !AssignMass.containsMass(aa)) {
 				throw new IllegalArgumentException("'" + aa + "' not recognized. " + errorMessage);
 			}
 		}
@@ -795,7 +807,7 @@ public class FastaParser {
 		AssignMass.getInstance(true);
 		for (int index = 0; index < seq.length(); index++) {
 			final char aa = seq.charAt(index);
-			if (!AssignMass.containsMass(aa)) {
+			if (!tolerantToFakePeptides && !AssignMass.containsMass(aa)) {
 				throw new IllegalArgumentException("'" + aa + "' not recognized. " + errorMessage);
 			}
 		}
@@ -841,7 +853,7 @@ public class FastaParser {
 		AssignMass.getInstance(true);
 		for (int index = 0; index < seq.length(); index++) {
 			final char aa = seq.charAt(index);
-			if (!AssignMass.containsMass(aa)) {
+			if (!tolerantToFakePeptides && !AssignMass.containsMass(aa)) {
 				throw new IllegalArgumentException("'" + aa + "' not recognized. " + errorMessage);
 			}
 		}
