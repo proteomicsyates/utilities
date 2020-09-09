@@ -510,7 +510,6 @@ public class FileUtils {
 			pkg.revert();
 			return true;
 		} catch (final Exception e) {
-			e.printStackTrace();
 			return false;
 		}
 	}
