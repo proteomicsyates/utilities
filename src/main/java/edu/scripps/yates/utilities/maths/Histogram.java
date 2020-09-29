@@ -3,23 +3,25 @@ package edu.scripps.yates.utilities.maths;
 import gnu.trove.list.TDoubleList;
 
 public class Histogram {
-	public static int[] calcHistogram(TDoubleList data, int numBins) {
-		return calcHistogram(data.toArray(), data.min(), data.max(), numBins);
+
+	public static double[][] calcHistogram(double[] data, double min, double max, int numBins) {
+		final double[] breaks = smile.math.Histogram.breaks(min, max, numBins);
+		return smile.math.Histogram.histogram(data, breaks);
 	}
 
-	public static int[] calcHistogram(double[] data, double min, double max, int numBins) {
-		final int[] result = new int[numBins];
-		final double binSize = getBinSize(min, max, numBins);
-
-		for (final double d : data) {
-			final int bin = (int) ((d - min) / binSize);
-			if (bin < 0) {
-				/* this data is smaller than min */ } else if (bin >= numBins) {
-				/* this data point is bigger than max */ } else {
-				result[bin] += 1;
-			}
+	public static double[][] calcHistogram(float[] data, float min, float max, int numBins) {
+		final double[] breaks = smile.math.Histogram.breaks(min, max, numBins);
+		final float[] breaksFloat = new float[breaks.length];
+		for (int i = 0; i < breaks.length; i++) {
+			breaksFloat[i] = Double.valueOf(breaks[i]).floatValue();
 		}
-		return result;
+		final double[][] histogram = smile.math.Histogram.histogram(data, breaksFloat);
+		return histogram;
+
+	}
+
+	public static float getBinSize(float min, float max, int numBins) {
+		return (max - min) / numBins;
 	}
 
 	public static double getBinSize(double min, double max, int numBins) {
