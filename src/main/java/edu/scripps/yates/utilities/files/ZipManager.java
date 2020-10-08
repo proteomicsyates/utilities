@@ -8,14 +8,18 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
+import org.apache.commons.compress.utils.IOUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
 
@@ -62,6 +66,52 @@ public class ZipManager {
 
 		return outputFile;
 
+	}
+
+	public static File addFileToZipFile(File inputFile, File zipFile, boolean forceCreateNewFile) throws IOException {
+		final List<File> list = new ArrayList<File>();
+		list.add(inputFile);
+		return addFilesToZipFile(list, zipFile, forceCreateNewFile);
+	}
+
+	public static File addFilesToZipFile(Collection<File> inputFiles, File zipFile, boolean forceCreateNewFile)
+			throws IOException {
+
+		FileOutputStream fos = null;
+		ZipOutputStream zos = null;
+
+		if (!forceCreateNewFile) {
+			if (zipFile.length() > 0l) {
+				final File tmpZip = File.createTempFile(zipFile.getName(), null);
+				tmpZip.delete();
+				zipFile.renameTo(tmpZip);
+				fos = new FileOutputStream(zipFile);
+				zos = new ZipOutputStream(fos);
+				final ZipInputStream zin = new ZipInputStream(new FileInputStream(tmpZip));
+				for (ZipEntry ze = zin.getNextEntry(); ze != null; ze = zin.getNextEntry()) {
+					zos.putNextEntry(ze);
+					IOUtils.copy(zin, zos);
+					zos.closeEntry();
+				}
+				zin.close();
+				tmpZip.delete();
+			}
+		}
+		if (zos == null) {
+			fos = new FileOutputStream(zipFile);
+			zos = new ZipOutputStream(fos);
+		}
+		for (final File inputFile : inputFiles) {
+
+			final FileInputStream fis = new FileInputStream(inputFile);
+			final ZipEntry zipEntry = new ZipEntry(FilenameUtils.getName(inputFile.getAbsolutePath()));
+			zos.putNextEntry(zipEntry);
+			IOUtils.copy(fis, zos);
+			zos.closeEntry();
+			fis.close();
+		}
+		zos.close();
+		return zipFile;
 	}
 
 	public static File compressZipFile(Collection<File> inputFiles, File outputZipFile) throws IOException {
