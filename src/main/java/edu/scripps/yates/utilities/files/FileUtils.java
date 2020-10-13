@@ -459,8 +459,9 @@ public class FileUtils {
 
 			fileOutputStream = new FileOutputStream(outputXlsFilePath);
 			workBook.write(fileOutputStream);
-			workBook.close();
 			fileOutputStream.close();
+			workBook.close();
+
 			ThreadLocalUtil.clearAllThreadLocals();
 			log.info("Excel file written successfully at: " + outputXlsFilePath);
 
