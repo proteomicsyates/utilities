@@ -1501,4 +1501,11 @@ public class FastaParser {
 		}
 		return false;
 	}
+
+	public static boolean isFragment(String fullHeaderWithAddenda) {
+		if (fullHeaderWithAddenda.toLowerCase().contains("(fragment)")) {
+			return true;
+		}
+		return false;
+	}
 }
