@@ -28,6 +28,7 @@ import edu.scripps.yates.utilities.progresscounter.ProgressCounter;
 import edu.scripps.yates.utilities.progresscounter.ProgressPrintingType;
 import edu.scripps.yates.utilities.proteomicsmodel.Accession;
 import edu.scripps.yates.utilities.proteomicsmodel.PSM;
+import edu.scripps.yates.utilities.proteomicsmodel.Peptide;
 import edu.scripps.yates.utilities.proteomicsmodel.Protein;
 import edu.scripps.yates.utilities.proteomicsmodel.enums.AccessionType;
 import edu.scripps.yates.utilities.proteomicsmodel.factories.AccessionEx;
@@ -55,6 +56,7 @@ public abstract class IdentificationsParser implements Parser {
 	private final Map<String, Set<PSM>> psmTableByFullSequence = new THashMap<String, Set<PSM>>();
 	private final List<ProteinGroup> proteinGroups = new ArrayList<ProteinGroup>();
 	private final List<Protein> proteinList = new ArrayList<Protein>();
+	private final Set<Peptide> peptides = new THashSet<Peptide>();
 
 	protected String runPath;
 	protected DBIndexInterface dbIndex;
@@ -727,5 +729,17 @@ public abstract class IdentificationsParser implements Parser {
 
 	protected int getProteinGroupsNumber() {
 		return proteinGroups.size();
+	}
+
+	public Set<Peptide> getPeptides() throws IOException {
+		if (!processed) {
+			startProcess();
+		}
+		return peptides;
+	}
+
+	public void addPeptide(Peptide peptide) {
+		this.peptides.add(peptide);
+
 	}
 }
