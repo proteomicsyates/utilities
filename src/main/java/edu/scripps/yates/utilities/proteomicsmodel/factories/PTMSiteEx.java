@@ -38,8 +38,7 @@ public class PTMSiteEx implements PTMSite, Serializable {
 	}
 
 	/**
-	 * @param score
-	 *            the score to set
+	 * @param score the score to set
 	 */
 	public void setScore(Score score) {
 		this.score = score;
