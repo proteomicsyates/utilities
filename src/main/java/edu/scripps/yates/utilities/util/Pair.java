@@ -1,8 +1,12 @@
 package edu.scripps.yates.utilities.util;
 
 public class Pair<T, V> {
-	private final T firstElement;
-	private final V secondElement;
+	private T firstElement;
+	private V secondElement;
+
+	public Pair() {
+
+	}
 
 	public Pair(T firstElement, V secondElement) {
 		this.firstElement = firstElement;
