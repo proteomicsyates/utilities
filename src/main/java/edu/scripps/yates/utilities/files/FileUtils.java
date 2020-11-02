@@ -373,9 +373,17 @@ public class FileUtils {
 	 * @throws FileNotFoundException
 	 */
 	public static InputStream getInputStream(File file) throws FileNotFoundException {
+
+		InputStream in = null;
 		try {
-			return new GZIPInputStream(new FileInputStream(file));
+			in = new FileInputStream(file);
+			final GZIPInputStream gzip = new GZIPInputStream(in);
+			return gzip;
 		} catch (final IOException e) {
+			try {
+				in.close();
+			} catch (final IOException ee) {
+			}
 			ZipFile zip = null;
 			try {
 				zip = new ZipFile(file);
@@ -383,15 +391,24 @@ public class FileUtils {
 				while (entries.hasMoreElements()) {
 					final ZipEntry zipEntry = entries.nextElement();
 					if (!zipEntry.isDirectory()) {
-						return zip.getInputStream(zipEntry);
+						in = zip.getInputStream(zipEntry);
+						return in;
 					}
 				}
 			} catch (final IOException e2) {
+
+				if (zip != null) {
+					try {
+						zip.close();
+					} catch (final IOException e1) {
+					}
+				}
+
 			} finally {
 				// do not close zip, because that would close the stream
 			}
-			return new FileInputStream(file);
-
+			in = new FileInputStream(file);
+			return in;
 		}
 	}
 
