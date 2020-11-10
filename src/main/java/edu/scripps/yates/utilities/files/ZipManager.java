@@ -70,8 +70,27 @@ public class ZipManager {
 
 	public static File addFileToZipFile(File inputFile, File zipFile, boolean forceCreateNewFile) throws IOException {
 		final List<File> list = new ArrayList<File>();
-		list.add(inputFile);
+		if (inputFile.isFile()) {
+			list.add(inputFile);
+		} else {
+			list.addAll(getAllFilesRecursively(inputFile));
+		}
 		return addFilesToZipFile(list, zipFile, forceCreateNewFile);
+	}
+
+	private static List<File> getAllFilesRecursively(File folder) {
+		final List<File> ret = new ArrayList<File>();
+		if (folder.isDirectory()) {
+			final File[] listFiles = folder.listFiles();
+			for (final File file : listFiles) {
+				if (file.isFile()) {
+					ret.add(file);
+				} else {
+					ret.addAll(getAllFilesRecursively(file));
+				}
+			}
+		}
+		return ret;
 	}
 
 	public static File addFilesToZipFile(Collection<File> inputFiles, File zipFile, boolean forceCreateNewFile)
@@ -102,9 +121,11 @@ public class ZipManager {
 			zos = new ZipOutputStream(fos);
 		}
 		for (final File inputFile : inputFiles) {
-
+			log.info("Adding '" + inputFile.getAbsolutePath() + "' to zip file '" + zipFile.getAbsolutePath() + "'");
 			final FileInputStream fis = new FileInputStream(inputFile);
-			final ZipEntry zipEntry = new ZipEntry(FilenameUtils.getName(inputFile.getAbsolutePath()));
+			final String relativizedPath = zipFile.getParentFile().toPath().relativize(inputFile.toPath()).toString();
+
+			final ZipEntry zipEntry = new ZipEntry(relativizedPath);// FilenameUtils.getName(inputFile.getAbsolutePath()));
 			zos.putNextEntry(zipEntry);
 			IOUtils.copy(fis, zos);
 			zos.closeEntry();
