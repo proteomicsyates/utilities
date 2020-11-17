@@ -8,6 +8,8 @@ import edu.scripps.yates.utilities.proteomicsmodel.PTM;
 import edu.scripps.yates.utilities.proteomicsmodel.PTMPosition;
 import edu.scripps.yates.utilities.proteomicsmodel.Score;
 import edu.scripps.yates.utilities.proteomicsmodel.factories.PTMEx;
+import gnu.trove.map.TDoubleObjectMap;
+import gnu.trove.map.hash.TDoubleObjectHashMap;
 import uk.ac.ebi.pride.utilities.pridemod.ModReader;
 
 public class PTMAdapter implements edu.scripps.yates.utilities.pattern.Adapter<PTM> {
@@ -19,6 +21,7 @@ public class PTMAdapter implements edu.scripps.yates.utilities.pattern.Adapter<P
 	private final uk.ac.ebi.pride.utilities.pridemod.model.PTM prideModPTM;
 	private static final String MOD0 = "MOD:00000";
 	private final PTMPosition ptmPosition;
+	private static TDoubleObjectMap<uk.ac.ebi.pride.utilities.pridemod.model.PTM> staticPtmsByMonoDelta = new TDoubleObjectHashMap<uk.ac.ebi.pride.utilities.pridemod.model.PTM>();
 
 	public PTMAdapter(double massShift, String aa, int position, PTMPosition ptmPosition) {
 		this(massShift, aa, position, ptmPosition, null);
@@ -69,12 +72,19 @@ public class PTMAdapter implements edu.scripps.yates.utilities.pattern.Adapter<P
 		this.aa = aa;
 		this.score = score;
 		final ModReader modReader = ModReader.getInstance();
-		final List<uk.ac.ebi.pride.utilities.pridemod.model.PTM> ptmListByMonoDeltaMass = modReader
-				.getPTMListByMonoDeltaMass(massShift, PTMEx.PRECISION);
-		if (ptmListByMonoDeltaMass != null && !ptmListByMonoDeltaMass.isEmpty()) {
-			prideModPTM = ptmListByMonoDeltaMass.get(0);
+
+		if (staticPtmsByMonoDelta.containsKey(massShift)) {
+			prideModPTM = staticPtmsByMonoDelta.get(massShift);
 		} else {
-			prideModPTM = null;
+			final List<uk.ac.ebi.pride.utilities.pridemod.model.PTM> ptmListByMonoDeltaMass = modReader
+					.getPTMListByMonoDeltaMass(massShift, PTMEx.PRECISION);
+			if (ptmListByMonoDeltaMass != null && !ptmListByMonoDeltaMass.isEmpty()) {
+
+				prideModPTM = ptmListByMonoDeltaMass.get(0);
+			} else {
+				prideModPTM = null;
+			}
+			staticPtmsByMonoDelta.put(massShift, prideModPTM);
 		}
 	}
 
