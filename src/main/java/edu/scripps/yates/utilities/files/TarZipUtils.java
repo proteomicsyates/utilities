@@ -2,6 +2,7 @@ package edu.scripps.yates.utilities.files;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -78,59 +79,76 @@ public class TarZipUtils {
 		} else {
 			tarOut = new TarArchiveOutputStream(buffOut);
 		}
-		final Path source = folderToCompress.toPath();
-		Files.walkFileTree(source, new FileVisitor<Path>() {
+		if (folderToCompress.isFile()) {
+			final Path targetFile = folderToCompress.getParentFile().toPath().relativize(folderToCompress.toPath());
+			try {
+				final TarArchiveEntry tarEntry = new TarArchiveEntry(folderToCompress, targetFile.toString());
 
-			@Override
-			public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-				Objects.requireNonNull(dir);
-				Objects.requireNonNull(attrs);
-				return FileVisitResult.CONTINUE;
+				tarOut.putArchiveEntry(tarEntry);
+				copy(folderToCompress.toPath(), tarOut);
+
+				tarOut.closeArchiveEntry();
+
+				System.out.printf("file : %s%n", targetFile);
+
+			} catch (final IOException e) {
+				System.err.printf("Unable to tar.gz : %s%n%s%n", targetFile, e);
 			}
+		} else {
 
-			@Override
-			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-				Objects.requireNonNull(file);
-				Objects.requireNonNull(attrs);
-				if (attrs.isSymbolicLink()) {
+			final Path source = folderToCompress.toPath();
+			Files.walkFileTree(source, new FileVisitor<Path>() {
+
+				@Override
+				public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+					Objects.requireNonNull(dir);
+					Objects.requireNonNull(attrs);
 					return FileVisitResult.CONTINUE;
 				}
+
+				@Override
+				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+					Objects.requireNonNull(file);
+					Objects.requireNonNull(attrs);
+					if (attrs.isSymbolicLink()) {
+						return FileVisitResult.CONTINUE;
+					}
 //				if (file.getFileName().toString().contains("analy")) {
 //					return FileVisitResult.CONTINUE;
 //				}
-				final Path targetFile = source.relativize(file);
-				try {
-					final TarArchiveEntry tarEntry = new TarArchiveEntry(file.toFile(), targetFile.toString());
+					final Path targetFile = source.relativize(file);
+					try {
+						final TarArchiveEntry tarEntry = new TarArchiveEntry(file.toFile(), targetFile.toString());
 
-					tarOut.putArchiveEntry(tarEntry);
-					copy(file, tarOut);
+						tarOut.putArchiveEntry(tarEntry);
+						copy(file, tarOut);
 
-					tarOut.closeArchiveEntry();
+						tarOut.closeArchiveEntry();
 
-					System.out.printf("file : %s%n", file);
+						System.out.printf("file : %s%n", file);
 
-				} catch (final IOException e) {
-					System.err.printf("Unable to tar.gz : %s%n%s%n", file, e);
+					} catch (final IOException e) {
+						System.err.printf("Unable to tar.gz : %s%n%s%n", file, e);
+					}
+
+					return FileVisitResult.CONTINUE;
 				}
 
-				return FileVisitResult.CONTINUE;
-			}
+				@Override
+				public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
+					System.err.printf("Unable to tar.gz : %s%n%s%n", file, exc);
+					return FileVisitResult.CONTINUE;
+				}
 
-			@Override
-			public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
-				System.err.printf("Unable to tar.gz : %s%n%s%n", file, exc);
-				return FileVisitResult.CONTINUE;
-			}
-
-			@Override
-			public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-				Objects.requireNonNull(dir);
-				if (exc != null)
-					throw exc;
-				return FileVisitResult.CONTINUE;
-			}
-		});
-
+				@Override
+				public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+					Objects.requireNonNull(dir);
+					if (exc != null)
+						throw exc;
+					return FileVisitResult.CONTINUE;
+				}
+			});
+		}
 		tarOut.finish();
 		tarOut.close();
 		System.out.println("Folder successfully processed");
@@ -144,7 +162,7 @@ public class TarZipUtils {
 		counter.setSuffix(file.toString());
 //		Files.copy(file, tarOut);
 
-		final InputStream in = file.getFileSystem().provider().newInputStream(file);
+		final InputStream in = new FileInputStream(file.toFile());
 		final byte[] buffer = new byte[4 * 1024];
 		int read = 0;
 		long totalRead = 0l;
