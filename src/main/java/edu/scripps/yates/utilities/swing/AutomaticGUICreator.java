@@ -29,8 +29,10 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.WindowConstants;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -69,7 +71,7 @@ public class AutomaticGUICreator extends JFrame {
 			title += " - v" + version2;
 		}
 		super.setTitle(title);
-		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		this.program = program;
 
 		try {
@@ -175,14 +177,14 @@ public class AutomaticGUICreator extends JFrame {
 
 		//
 		final JScrollPane scroll = new JScrollPane(status);
-		scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		scroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 		final JPanel panelStatus = new JPanel(new BorderLayout());
 		panelStatus.setBorder(BorderFactory.createTitledBorder("Status:"));
 		panelStatus.add(scroll);
 		panelStatus.setPreferredSize(new Dimension(400, 250));
 
 		// split
-		this.splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, scroll2, panelStatus);
+		splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, scroll2, panelStatus);
 		splitPane.setResizeWeight(0.5);
 		splitPane.setOneTouchExpandable(true);
 		getContentPane().add(splitPane, BorderLayout.CENTER);
@@ -194,7 +196,7 @@ public class AutomaticGUICreator extends JFrame {
 
 		final Dimension preferredSize = new Dimension(SwingUtils.getFractionOfScreenWidthSize(0.8),
 				Math.min(500, SwingUtils.getFractionOfScreenHeightSize(0.8)));
-		this.setPreferredSize(preferredSize);
+		setPreferredSize(preferredSize);
 		SwingUtils.centerOnScreen(this);
 		splitPane.setDividerLocation(0.8);
 		//
@@ -284,7 +286,7 @@ public class AutomaticGUICreator extends JFrame {
 							final ComponentEnableStateKeeper keeper = new ComponentEnableStateKeeper();
 							keeper.addInvariableComponent(status);
 							keeper.addInvariableComponent(status.getParent());
-							keeper.addInvariableComponent(AutomaticGUICreator.this.splitPane);
+							keeper.addInvariableComponent(splitPane);
 							try {
 								keeper.keepEnableStates(AutomaticGUICreator.this);
 								keeper.disable(AutomaticGUICreator.this);
@@ -315,10 +317,12 @@ public class AutomaticGUICreator extends JFrame {
 
 	public void showError(String message) {
 		showMessage("Error: " + message);
+		log.error(message);
 	}
 
 	public void showMessage(String message) {
 		status.append(getFormattedTime() + ": " + message + "\n");
+		log.info(message);
 	}
 
 	public static String getFormattedTime() {
@@ -362,9 +366,9 @@ public class AutomaticGUICreator extends JFrame {
 
 	public CommandLine getCommandLineFromGui() throws ParseException {
 		final List<String> args = new ArrayList<String>();
-		for (final String optionName : this.componentsByOption.keySet()) {
+		for (final String optionName : componentsByOption.keySet()) {
 
-			final JComponent jComponent = this.componentsByOption.get(optionName);
+			final JComponent jComponent = componentsByOption.get(optionName);
 			if (jComponent instanceof JCheckBox) {
 				final boolean checked = ((JCheckBox) jComponent).isSelected();
 				if (checked) {
