@@ -41,19 +41,16 @@ public class TextFileIndexMultiThreadSafeIO {
 	private final File fileToIndex;
 
 	/**
-	 * Constructor of the indexer of text files. It takes, the path to the file,
-	 * and two strings specifying the start and end string tokens from which the
-	 * entries in the index are going to be taken.
+	 * Constructor of the indexer of text files. It takes, the path to the file, and
+	 * two strings specifying the start and end string tokens from which the entries
+	 * in the index are going to be taken.
 	 * 
-	 * @param path
-	 *            path to the file to index
+	 * @param path       path to the file to index
 	 * @param beginToken
-	 * @param endToken
-	 *            the string from which an indexed entry of the text file is
-	 *            starting
-	 * @throws IOException
-	 *             the string from which an indexed entry of the text file is
-	 *             ending
+	 * @param endToken   the string from which an indexed entry of the text file is
+	 *                   starting
+	 * @throws IOException the string from which an indexed entry of the text file
+	 *                     is ending
 	 */
 	public TextFileIndexMultiThreadSafeIO(String path, String beginToken, String endToken) throws IOException {
 		this(new File(path), beginToken, endToken);
@@ -61,19 +58,16 @@ public class TextFileIndexMultiThreadSafeIO {
 	}
 
 	/**
-	 * Constructor of the indexer of text files. It takes, the path to the file,
-	 * and two strings specifying the start and end string tokens from which the
-	 * entries in the index are going to be taken.
+	 * Constructor of the indexer of text files. It takes, the path to the file, and
+	 * two strings specifying the start and end string tokens from which the entries
+	 * in the index are going to be taken.
 	 * 
-	 * @param path
-	 *            path to the file to index
+	 * @param path       path to the file to index
 	 * @param beginToken
-	 * @param endToken
-	 *            the string from which an indexed entry of the text file is
-	 *            starting
-	 * @throws IOException
-	 *             the string from which an indexed entry of the text file is
-	 *             ending
+	 * @param endToken   the string from which an indexed entry of the text file is
+	 *                   starting
+	 * @throws IOException the string from which an indexed entry of the text file
+	 *                     is ending
 	 */
 	public TextFileIndexMultiThreadSafeIO(File file, String beginToken, String endToken) throws IOException {
 		this.beginToken = beginToken;
@@ -84,10 +78,9 @@ public class TextFileIndexMultiThreadSafeIO {
 
 	/**
 	 * Gets the keys to use in the index for each entry.<br>
-	 * In this case, the index will not have nothing to do with the entry
-	 * string, and it will be the number of entry, counted from 1.<br>
-	 * Override this function in order to index the entry by another custom
-	 * keys.
+	 * In this case, the index will not have nothing to do with the entry string,
+	 * and it will be the number of entry, counted from 1.<br>
+	 * Override this function in order to index the entry by another custom keys.
 	 * 
 	 * @param string
 	 * @return
@@ -108,8 +101,11 @@ public class TextFileIndexMultiThreadSafeIO {
 			return ret;
 		final long totalLength = fileToIndex.length();
 		log.info("Reading file of " + FileUtils.getDescriptiveSizeFromBytes(totalLength));
-		final RandomAccessFile raf = new RandomAccessFile(fileToIndex, "rw");
-		final FileLock lock = raf.getChannel().lock();
+		final RandomAccessFile raf = new RandomAccessFile(fileToIndex, "r");
+		FileLock lock = null;
+		while (lock == null) {
+			lock = raf.getChannel().tryLock();
+		}
 		String line;
 		try {
 			final ProgressCounter counter = new ProgressCounter(totalLength, ProgressPrintingType.PERCENTAGE_STEPS, 0);
@@ -162,12 +158,11 @@ public class TextFileIndexMultiThreadSafeIO {
 	}
 
 	/**
-	 * Adds a new item in the file to index and return the keys and the position
-	 * in which the item has been written
+	 * Adds a new item in the file to index and return the keys and the position in
+	 * which the item has been written
 	 * 
 	 * @param item
-	 * @return a map containing the keys and position in where the item was
-	 *         stored
+	 * @return a map containing the keys and position in where the item was stored
 	 * @throws IOException
 	 */
 	public synchronized Map<String, Pair<Long, Long>> addNewItem(String item, Set<String> keys) throws IOException {
@@ -188,9 +183,13 @@ public class TextFileIndexMultiThreadSafeIO {
 		final byte[] bytes = item.getBytes();
 
 		MappedByteBuffer buffer = null;
-		RandomAccessFile raf = null;
+		final RandomAccessFile raf = new RandomAccessFile(fileToIndex, "rws");
+		FileLock lock = null;
+		while (lock == null) {
+			lock = raf.getChannel().tryLock();
+		}
+
 		try {
-			raf = new RandomAccessFile(fileToIndex, "rws");
 			// request the record reservation system
 			final FileRecordReservation fileRecordReservation = getFileRecordReservation(fileToIndex);
 			// book the position in the file (thread safe)
@@ -209,6 +208,9 @@ public class TextFileIndexMultiThreadSafeIO {
 			e.printStackTrace();
 			log.error("Error from thread " + Thread.currentThread().getId() + ": " + e.getMessage());
 		} finally {
+			if (lock != null) {
+				lock.release();
+			}
 			raf.close();
 			log.debug("Closing file access from thread " + Thread.currentThread().getId());
 		}
@@ -231,12 +233,11 @@ public class TextFileIndexMultiThreadSafeIO {
 	}
 
 	/**
-	 * Adds a new item in the file to index and return the keys and the position
-	 * in which the item has been written
+	 * Adds a new item in the file to index and return the keys and the position in
+	 * which the item has been written
 	 * 
 	 * @param item
-	 * @return a map containing the keys and position in where the item was
-	 *         stored
+	 * @return a map containing the keys and position in where the item was stored
 	 * @throws IOException
 	 */
 	public synchronized Map<String, Pair<Long, Long>> addNewItems(Map<String, Set<String>> keysByItems)
@@ -292,15 +293,22 @@ public class TextFileIndexMultiThreadSafeIO {
 			}
 		}
 		MappedByteBuffer buffer = null;
-		RandomAccessFile raf = null;
+		final RandomAccessFile raf = new RandomAccessFile(fileToIndex, "rws");
+		FileLock lock = null;
+		while (lock == null) {
+			lock = raf.getChannel().tryLock();
+		}
 		try {
-			raf = new RandomAccessFile(fileToIndex, "rws");
+
 			buffer = raf.getChannel().map(MapMode.READ_WRITE, firstInit, byteBuffer.getSize());
 			buffer.put(byteBuffer.getData());
 		} catch (final IOException e) {
 			e.printStackTrace();
 			log.warn("Error from thread " + Thread.currentThread().getId());
 		} finally {
+			if (lock != null) {
+				lock.release();
+			}
 			raf.close();
 			log.debug("Closing file access from thread " + Thread.currentThread().getId());
 		}
