@@ -190,7 +190,7 @@ public class TextFileIndexMultiThreadSafeIO {
 
 		MappedByteBuffer buffer = null;
 		final RandomAccessFile raf = new RandomAccessFile(fileToIndex, "rws");
-		FileLock lock = null;
+		FileLock lock = raf.getChannel().tryLock();
 		while (lock == null) {
 			lock = raf.getChannel().tryLock();
 			try {
@@ -306,7 +306,7 @@ public class TextFileIndexMultiThreadSafeIO {
 		}
 		MappedByteBuffer buffer = null;
 		final RandomAccessFile raf = new RandomAccessFile(fileToIndex, "rws");
-		FileLock lock = null;
+		FileLock lock = raf.getChannel().tryLock();
 		while (lock == null) {
 			lock = raf.getChannel().tryLock();
 			try {
@@ -360,6 +360,15 @@ public class TextFileIndexMultiThreadSafeIO {
 	public String getItem(Long start, Long end) throws IOException {
 
 		final RandomAccessFile raf = new RandomAccessFile(fileToIndex, "r");
+		FileLock lock = raf.getChannel().tryLock(start, end - start, true);
+		while (lock == null) {
+			lock = raf.getChannel().tryLock(start, end - start, true);
+			try {
+				Thread.sleep(1000);
+			} catch (final InterruptedException e) {
+			}
+			log.info("Waiting for reading access to file " + fileToIndex.getAbsolutePath());
+		}
 		try {
 			// go to the start
 			raf.seek(start);
@@ -370,7 +379,11 @@ public class TextFileIndexMultiThreadSafeIO {
 			final String readed = new String(bytesToRead);
 			return readed;
 		} finally {
+			if (lock != null) {
+				lock.release();
+			}
 			raf.close();
+
 		}
 	}
 }

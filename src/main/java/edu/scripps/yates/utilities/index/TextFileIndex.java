@@ -132,7 +132,7 @@ public class TextFileIndex implements FileIndex<String> {
 		// if index Map is empty, read the index file
 		if (indexMap.isEmpty()) {
 			final FileInputStream fis = new FileInputStream(indexFile);
-			FileLock lock = null;
+			FileLock lock = fis.getChannel().tryLock();
 			while (lock == null) {
 				lock = fis.getChannel().tryLock();
 				try {
