@@ -105,6 +105,11 @@ public class TextFileIndexMultiThreadSafeIO {
 		FileLock lock = null;
 		while (lock == null) {
 			lock = raf.getChannel().tryLock();
+			try {
+				Thread.sleep(1000);
+			} catch (final InterruptedException e) {
+			}
+			log.info("Waiting for reading access to file " + fileToIndex.getAbsolutePath());
 		}
 		String line;
 		try {
@@ -149,10 +154,11 @@ public class TextFileIndexMultiThreadSafeIO {
 			}
 
 		} finally {
+			raf.close();
 			if (lock != null) {
 				lock.release();
 			}
-			raf.close();
+
 		}
 		return ret;
 	}
@@ -187,6 +193,11 @@ public class TextFileIndexMultiThreadSafeIO {
 		FileLock lock = null;
 		while (lock == null) {
 			lock = raf.getChannel().tryLock();
+			try {
+				Thread.sleep(1000);
+			} catch (final InterruptedException e) {
+			}
+			log.info("Waiting for writting access to file " + fileToIndex.getAbsolutePath());
 		}
 
 		try {
@@ -208,11 +219,12 @@ public class TextFileIndexMultiThreadSafeIO {
 			e.printStackTrace();
 			log.error("Error from thread " + Thread.currentThread().getId() + ": " + e.getMessage());
 		} finally {
+			raf.close();
+			log.debug("Closing file access from thread " + Thread.currentThread().getId());
 			if (lock != null) {
 				lock.release();
 			}
-			raf.close();
-			log.debug("Closing file access from thread " + Thread.currentThread().getId());
+
 		}
 		final Map<String, Pair<Long, Long>> ret = new THashMap<String, Pair<Long, Long>>();
 
@@ -297,6 +309,11 @@ public class TextFileIndexMultiThreadSafeIO {
 		FileLock lock = null;
 		while (lock == null) {
 			lock = raf.getChannel().tryLock();
+			try {
+				Thread.sleep(1000);
+			} catch (final InterruptedException e) {
+			}
+			log.info("Waiting for writting access to file " + fileToIndex.getAbsolutePath());
 		}
 		try {
 
@@ -306,11 +323,13 @@ public class TextFileIndexMultiThreadSafeIO {
 			e.printStackTrace();
 			log.warn("Error from thread " + Thread.currentThread().getId());
 		} finally {
+			raf.close();
+			log.debug("Closing file access from thread " + Thread.currentThread().getId());
+
 			if (lock != null) {
 				lock.release();
 			}
-			raf.close();
-			log.debug("Closing file access from thread " + Thread.currentThread().getId());
+
 		}
 
 		return ret;
