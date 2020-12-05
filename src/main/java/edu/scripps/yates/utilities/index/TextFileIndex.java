@@ -1,11 +1,14 @@
 package edu.scripps.yates.utilities.index;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.nio.channels.FileLock;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -72,17 +75,29 @@ public class TextFileIndex implements FileIndex<String> {
 
 	private void writePositionsInIndex(Map<String, Pair<Long, Long>> itemPositions, boolean appendOnIndexFile)
 			throws IOException {
-		// write the positions in the index
-		final FileWriter fw = new FileWriter(indexFile, appendOnIndexFile);
+		final FileOutputStream fos = new FileOutputStream(indexFile, appendOnIndexFile);
+		FileLock lock = null;
+		while (lock == null) {
+			lock = fos.getChannel().tryLock();
+			try {
+				Thread.sleep(1000);
+			} catch (final InterruptedException e) {
+			}
+			log.info("Waiting for writting access to file " + indexFile.getAbsolutePath());
+		}
+		final BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
 		try {
 			for (final String key : itemPositions.keySet()) {
 				final Pair<Long, Long> pair = itemPositions.get(key);
-				fw.write(key + TAB + pair.getFirstelement() + TAB + pair.getSecondElement() + NEWLINE);
+				bw.write(key + TAB + pair.getFirstelement() + TAB + pair.getSecondElement() + NEWLINE);
 			}
 		} finally {
-			fw.close();
+			bw.close();
 			status = Status.READY;
 			log.info("Indexing done. File of index: " + FileUtils.getDescriptiveSizeFromBytes(indexFile.length()));
+			if (lock != null) {
+				lock.release();
+			}
 		}
 
 	}
@@ -116,7 +131,17 @@ public class TextFileIndex implements FileIndex<String> {
 		}
 		// if index Map is empty, read the index file
 		if (indexMap.isEmpty()) {
-			final BufferedReader fr = new BufferedReader(new InputStreamReader(new FileInputStream(indexFile)));
+			final FileInputStream fis = new FileInputStream(indexFile);
+			FileLock lock = null;
+			while (lock == null) {
+				lock = fis.getChannel().tryLock();
+				try {
+					Thread.sleep(1000);
+				} catch (final InterruptedException e) {
+				}
+				log.info("Waiting for reading access to file " + indexFile.getAbsolutePath());
+			}
+			final BufferedReader fr = new BufferedReader(new InputStreamReader(fis));
 			try {
 				String line;
 				while ((line = fr.readLine()) != null) {
@@ -129,6 +154,9 @@ public class TextFileIndex implements FileIndex<String> {
 				}
 			} finally {
 				fr.close();
+				if (lock != null) {
+					lock.release();
+				}
 			}
 		}
 		return indexMap;
@@ -189,7 +217,7 @@ public class TextFileIndex implements FileIndex<String> {
 
 	public List<String> getAllItemKeys() throws IOException {
 
-		List<String> ret = new ArrayList<String>();
+		final List<String> ret = new ArrayList<String>();
 		ret.addAll(loadIndexFile().keySet());
 		return ret;
 	}
