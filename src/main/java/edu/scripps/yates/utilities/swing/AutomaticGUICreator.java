@@ -291,8 +291,13 @@ public class AutomaticGUICreator extends JFrame {
 								program.run();
 								showMessage("Everything finished OK!!");
 							} catch (final Exception e) {
-								e.printStackTrace();
-								showError(e.getMessage());
+								if (e.getCause() != null) {
+									e.getCause().printStackTrace();
+									showError(e.getCause().getMessage());
+								} else {
+									e.printStackTrace();
+									showError(e.getMessage());
+								}
 							} finally {
 								keeper.setToPreviousState(AutomaticGUICreator.this);
 								final long t2 = System.currentTimeMillis();
