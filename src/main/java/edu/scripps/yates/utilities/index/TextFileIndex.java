@@ -76,7 +76,7 @@ public class TextFileIndex implements FileIndex<String> {
 	private void writePositionsInIndex(Map<String, Pair<Long, Long>> itemPositions, boolean appendOnIndexFile)
 			throws IOException {
 		final FileOutputStream fos = new FileOutputStream(indexFile, appendOnIndexFile);
-		FileLock lock = null;
+		FileLock lock = fos.getChannel().tryLock();
 		while (lock == null) {
 			lock = fos.getChannel().tryLock();
 			try {
@@ -92,12 +92,13 @@ public class TextFileIndex implements FileIndex<String> {
 				bw.write(key + TAB + pair.getFirstelement() + TAB + pair.getSecondElement() + NEWLINE);
 			}
 		} finally {
-			bw.close();
-			status = Status.READY;
-			log.info("Indexing done. File of index: " + FileUtils.getDescriptiveSizeFromBytes(indexFile.length()));
 			if (lock != null) {
 				lock.release();
 			}
+			bw.close();
+			status = Status.READY;
+			log.info("Indexing done. File of index: " + FileUtils.getDescriptiveSizeFromBytes(indexFile.length()));
+
 		}
 
 	}
@@ -132,9 +133,9 @@ public class TextFileIndex implements FileIndex<String> {
 		// if index Map is empty, read the index file
 		if (indexMap.isEmpty()) {
 			final FileInputStream fis = new FileInputStream(indexFile);
-			FileLock lock = fis.getChannel().tryLock();
+			FileLock lock = fis.getChannel().tryLock(0, Long.MAX_VALUE, true);
 			while (lock == null) {
-				lock = fis.getChannel().tryLock();
+				lock = fis.getChannel().tryLock(0, Long.MAX_VALUE, true);
 				try {
 					Thread.sleep(1000);
 				} catch (final InterruptedException e) {
@@ -153,10 +154,11 @@ public class TextFileIndex implements FileIndex<String> {
 					indexMap.put(key, pair);
 				}
 			} finally {
-				fr.close();
 				if (lock != null) {
 					lock.release();
 				}
+				fr.close();
+
 			}
 		}
 		return indexMap;

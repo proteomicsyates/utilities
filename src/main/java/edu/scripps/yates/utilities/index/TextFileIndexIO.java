@@ -97,8 +97,16 @@ public class TextFileIndexIO {
 		if (!fileToIndex.exists())
 			return ret;
 		final long totalLength = fileToIndex.length();
-		final RandomAccessFile raf = new RandomAccessFile(fileToIndex, "rw");
-		final FileLock lock = raf.getChannel().lock();
+		final RandomAccessFile raf = new RandomAccessFile(fileToIndex, "r");
+		FileLock lock = raf.getChannel().tryLock(0, Long.MAX_VALUE, true);
+		while (lock == null) {
+			lock = raf.getChannel().tryLock(0, Long.MAX_VALUE, true);
+			try {
+				Thread.sleep(1000);
+			} catch (final InterruptedException e) {
+			}
+			log.info("Waiting for writting access to file " + fileToIndex.getAbsolutePath());
+		}
 		String line;
 		try {
 			long offset = 0;
@@ -170,9 +178,18 @@ public class TextFileIndexIO {
 		final byte[] bytes = item.getBytes();
 
 		MappedByteBuffer buffer = null;
-		RandomAccessFile raf = null;
+		final RandomAccessFile raf = new RandomAccessFile(fileToIndex, "rws");
+		FileLock lock = raf.getChannel().tryLock();
+		while (lock == null) {
+			lock = raf.getChannel().tryLock();
+			try {
+				Thread.sleep(1000);
+			} catch (final InterruptedException e) {
+			}
+			log.info("Waiting for writting access to file " + fileToIndex.getAbsolutePath());
+		}
 		try {
-			raf = new RandomAccessFile(fileToIndex, "rws");
+
 			buffer = raf.getChannel().map(MapMode.READ_WRITE, raf.length(), bytes.length);
 
 			final Map<String, Pair<Long, Long>> ret = new THashMap<String, Pair<Long, Long>>();
@@ -203,7 +220,9 @@ public class TextFileIndexIO {
 			}
 			return ret;
 		} finally {
-
+			if (lock != null) {
+				lock.release();
+			}
 			raf.close();
 
 		}
