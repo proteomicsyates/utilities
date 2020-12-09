@@ -6,6 +6,7 @@ import java.io.RandomAccessFile;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel.MapMode;
 import java.nio.channels.FileLock;
+import java.nio.channels.OverlappingFileLockException;
 import java.util.Map;
 import java.util.Set;
 
@@ -359,9 +360,18 @@ public class TextFileIndexMultiThreadSafeIO {
 	public String getItem(Long start, Long end) throws IOException {
 
 		final RandomAccessFile raf = new RandomAccessFile(fileToIndex, "r");
-		FileLock lock = raf.getChannel().tryLock(start, end - start, true);
-		while (lock == null) {
+		FileLock lock = null;
+		try {
 			lock = raf.getChannel().tryLock(start, end - start, true);
+		} catch (final OverlappingFileLockException e) {
+			log.info(e);
+		}
+		while (lock == null) {
+			try {
+				lock = raf.getChannel().tryLock(start, end - start, true);
+			} catch (final OverlappingFileLockException e) {
+				log.info(e);
+			}
 			try {
 				Thread.sleep(1000);
 			} catch (final InterruptedException e) {
