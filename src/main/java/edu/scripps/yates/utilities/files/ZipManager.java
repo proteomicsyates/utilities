@@ -23,6 +23,8 @@ import org.apache.commons.compress.utils.IOUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
 
+import edu.scripps.yates.utilities.pi.ConcurrentUtil;
+
 public class ZipManager {
 	private static Logger log = Logger.getLogger("log4j.logger.org.proteored");
 	private static final int BUFFER_SIZE = 8192;
@@ -83,6 +85,7 @@ public class ZipManager {
 		if (folder.isDirectory()) {
 			final File[] listFiles = folder.listFiles();
 			for (final File file : listFiles) {
+				ConcurrentUtil.sleep(1L);
 				if (file.isFile()) {
 					ret.add(file);
 				} else {
@@ -121,6 +124,7 @@ public class ZipManager {
 			zos = new ZipOutputStream(fos);
 		}
 		for (final File inputFile : inputFiles) {
+			ConcurrentUtil.sleep(1L);
 			log.info("Adding '" + inputFile.getAbsolutePath() + "' to zip file '" + zipFile.getAbsolutePath() + "'");
 			final FileInputStream fis = new FileInputStream(inputFile);
 			final String relativizedPath = zipFile.getParentFile().toPath().relativize(inputFile.toPath()).toString();
