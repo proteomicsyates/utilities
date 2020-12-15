@@ -20,7 +20,7 @@ import org.apache.commons.cli.ParseException;
  * @author salvador
  *
  */
-public abstract class CommandLineProgramGuiEnclosable {
+public abstract class CommandLineProgramGuiEnclosable implements StatusListener {
 	protected static final String GUI = "gui";
 	protected static final String GUI_LONG = "graphical_interface";
 
@@ -127,6 +127,15 @@ public abstract class CommandLineProgramGuiEnclosable {
 	private void startGUI() {
 		gui = new AutomaticGUICreator(this);
 		gui.setVisible(true);
+
+	}
+
+	@Override
+	public void onStatusUpdate(String statusMessage) {
+		if (gui != null) {
+			gui.getStatusPrintStream().println(statusMessage);
+		}
+
 	}
 
 	protected abstract List<Option> defineCommandLineOptions();

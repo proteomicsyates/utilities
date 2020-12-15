@@ -61,6 +61,7 @@ public class AutomaticGUICreator extends JFrame {
 	private final TMap<String, JComponent> componentsByOption = new THashMap<String, JComponent>();
 	private final JTextArea status;
 	private final JSplitPane splitPane;
+	private final MyPrintStream statusPrintStream;
 	private static final SimpleDateFormat format = new SimpleDateFormat("yyy-MM-dd HH:mm:ss,SSS");
 
 	public AutomaticGUICreator(CommandLineProgramGuiEnclosable program) {
@@ -172,8 +173,7 @@ public class AutomaticGUICreator extends JFrame {
 		status.setFont(new Font("Tahoma", Font.PLAIN, 11));
 		status.setLineWrap(true);
 		// set System.out to the textarea
-		System.setOut(new MyPrintStream(new TextAreaOutputStream(status)));
-		System.setErr(new MyPrintStream(new TextAreaOutputStream(status)));
+		this.statusPrintStream = new MyPrintStream(new TextAreaOutputStream(status));
 
 		//
 		final JScrollPane scroll = new JScrollPane(status);
@@ -214,6 +214,10 @@ public class AutomaticGUICreator extends JFrame {
 			showError(e.getMessage());
 		}
 
+	}
+
+	public MyPrintStream getStatusPrintStream() {
+		return statusPrintStream;
 	}
 
 	protected String getCommandLineString(CommandLine commandLineFromGui) {

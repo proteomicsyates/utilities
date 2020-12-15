@@ -43,7 +43,7 @@ public class ConcurrentUtil {
 	 */
 	public static void sleep(long miliseconds) {
 		try {
-			TimeUnit.MILLISECONDS.sleep(miliseconds);
+			Thread.sleep(miliseconds);
 		} catch (final InterruptedException e) {
 			throw new RuntimeException(e);
 		}
