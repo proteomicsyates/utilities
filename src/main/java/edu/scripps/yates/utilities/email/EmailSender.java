@@ -24,40 +24,43 @@ public class EmailSender {
 	 * @param fromEmailAddress
 	 * @return
 	 */
-	public static String sendEmail(String subject, String body,
-			String toemailAddress, String fromEmailAddress) {
+	public static String sendEmail(String subject, String body, String toemailAddress, String ccEmailAddress,
+			String fromEmailAddress) {
 		String errorMessage = null;
 		// Recipient's email ID needs to be mentioned.
-		String to = toemailAddress;
+		final String to = toemailAddress;
 
 		// Sender's email ID needs to be mentioned
-		String from = fromEmailAddress;
+		final String from = fromEmailAddress;
 
 		// Assuming you are sending email from localhost
-		String host = "localhost";
+		final String host = "localhost";
 
 		// Get system properties
-		Properties properties = System.getProperties();
+		final Properties properties = System.getProperties();
 
 		// Setup mail server
 		properties.setProperty("mail.smtp.host", host);
 
-		log.info("Trying to send an email from " + fromEmailAddress + " to "
-				+ toemailAddress + " with subject: " + subject + " and body: "
-				+ body);
+		log.info("Trying to send an email from " + fromEmailAddress + " to " + toemailAddress + " with subject: "
+				+ subject + " and body: " + body);
 		// Get the default Session object.
-		Session session = Session.getDefaultInstance(properties);
-
+		final Session session = Session.getDefaultInstance(properties);
+		log.info("Email session created");
 		try {
 			// Create a default MimeMessage object.
-			MimeMessage message = new MimeMessage(session);
+			final MimeMessage message = new MimeMessage(session);
 
 			// Set From: header field of the header.
 			message.setFrom(new InternetAddress(from));
 
+			// Set CC:
+			if (ccEmailAddress != null) {
+				message.setRecipient(Message.RecipientType.CC, new InternetAddress(ccEmailAddress));
+			}
+
 			// Set To: header field of the header.
-			message.addRecipient(Message.RecipientType.TO, new InternetAddress(
-					to));
+			message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
 
 			// Set Subject: header field
 			message.setSubject(subject);
@@ -68,9 +71,9 @@ public class EmailSender {
 			// Send message
 			Transport.send(message);
 			log.info("Email sent message successfully");
-		} catch (AddressException e) {
+		} catch (final AddressException e) {
 			errorMessage = "AddressException: " + e.getMessage();
-		} catch (javax.mail.MessagingException e) {
+		} catch (final javax.mail.MessagingException e) {
 			errorMessage = "MessagingException: " + e.getMessage();
 		}
 		if (errorMessage != null)
