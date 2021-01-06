@@ -3,12 +3,12 @@ package edu.scripps.yates.utilities.proteomicsmodel.enums;
 public enum AmountType {
 
 	INTENSITY, NORMALIZED_INTENSITY, AREA, XIC, SPC, NSAF, dNSAF, NSAF_NORM, EMPAI, EMPAI_COV, OTHER, REGRESSION_FACTOR,
-	CORRIONINJECTION_INTENSITY;
+	CORRIONINJECTION_INTENSITY, CCS;
 
 	public static AmountType translateStringToAmountType(String amountTypeString) {
 
 		final AmountType[] values = AmountType.values();
-		for (AmountType amountType : values) {
+		for (final AmountType amountType : values) {
 			if (amountType.name().equalsIgnoreCase(amountTypeString))
 				return amountType;
 		}
@@ -17,9 +17,9 @@ public enum AmountType {
 	}
 
 	public static String getValuesString() {
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 		final AmountType[] values = AmountType.values();
-		for (AmountType amountType : values) {
+		for (final AmountType amountType : values) {
 			if (!"".equals(sb.toString())) {
 				sb.append(",");
 			}
