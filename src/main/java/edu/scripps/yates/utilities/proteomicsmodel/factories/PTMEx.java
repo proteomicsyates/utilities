@@ -4,11 +4,13 @@ import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import edu.scripps.yates.utilities.proteomicsmodel.PTM;
 import edu.scripps.yates.utilities.proteomicsmodel.PTMPosition;
 import edu.scripps.yates.utilities.proteomicsmodel.PTMSite;
+import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
 import uk.ac.ebi.pride.utilities.pridemod.ModReader;
 import uk.ac.ebi.pride.utilities.pridemod.model.Specificity;
@@ -28,6 +30,7 @@ public class PTMEx implements PTM, Serializable {
 	public static final Double PRECISION = 0.001;
 	public static final String UNKNOWN = "Unknown";
 	public static final DecimalFormat formatter = new DecimalFormat("#.###");
+	public static Map<String, List<uk.ac.ebi.pride.utilities.pridemod.model.PTM>> ptmsByMonoDeltaMass = new THashMap<String, List<uk.ac.ebi.pride.utilities.pridemod.model.PTM>>();
 
 	public PTMEx(String name, double massShift) {
 		this.name = name;
@@ -39,14 +42,18 @@ public class PTMEx implements PTM, Serializable {
 	}
 
 	public PTMEx(double massShift, String aa, int position, PTMPosition ptmPosition) {
-
-		List<uk.ac.ebi.pride.utilities.pridemod.model.PTM> ptms = modReader.getPTMListByMonoDeltaMass(massShift,
-				PRECISION / 10.0);
-		if (ptms == null || ptms.isEmpty()) {
-			ptms = modReader.getPTMListByMonoDeltaMass(massShift, PRECISION);
+		List<uk.ac.ebi.pride.utilities.pridemod.model.PTM> ptms = null;
+		final String deltaMassString = formatter.format(massShift);
+		if (ptmsByMonoDeltaMass.containsKey(deltaMassString)) {
+			ptms = ptmsByMonoDeltaMass.get(deltaMassString);
+		} else {
+			ptms = modReader.getPTMListByMonoDeltaMass(massShift, PRECISION / 10.0);
+			if (ptms == null || ptms.isEmpty()) {
+				ptms = modReader.getPTMListByMonoDeltaMass(massShift, PRECISION);
+			}
 		}
-
 		if (ptms != null && !ptms.isEmpty()) {
+			ptmsByMonoDeltaMass.put(deltaMassString, ptms);
 			for (final uk.ac.ebi.pride.utilities.pridemod.model.PTM ptm : ptms) {
 
 				if (ptm.getSpecificityCollection() != null && !ptm.getSpecificityCollection().isEmpty()) {
@@ -66,7 +73,7 @@ public class PTMEx implements PTM, Serializable {
 			}
 		} else {
 			if (Double.compare(0.0, massShift) != 0) {
-				name = formatter.format(massShift);
+				name = deltaMassString;
 			}
 		}
 		if (name == null) {
