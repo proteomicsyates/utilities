@@ -26,11 +26,32 @@ public class PAnalyzer {
 	private PanalyzerStats mStats;
 	private final boolean separateNonConclusiveProteins;
 
+	private final boolean ignoreProteinIDs;
+
+	/**
+	 * Constructor ignoring protein ids (allowing proteins with the same uniqueID
+	 * that could be its key, its accession) to be processed.
+	 * 
+	 * @param separateNonConclusiveProteins
+	 */
 	public PAnalyzer(boolean separateNonConclusiveProteins) {
+		this(separateNonConclusiveProteins, true);
+	}
+
+	/**
+	 * 
+	 * @param separateNonConclusiveProteins
+	 * @param ignoreProteinIDs              this should be true if we have proteins
+	 *                                      which unique ID is its key, which is its
+	 *                                      accession, and so we dont want to ignore
+	 *                                      their peptides.
+	 */
+	public PAnalyzer(boolean separateNonConclusiveProteins, boolean ignoreProteinIDs) {
 		mProts = new THashMap<String, InferenceProtein>();
 		mPepts = new THashMap<String, InferencePeptide>();
 		mGroups = new ArrayList<ProteinGroupInference>();
 		this.separateNonConclusiveProteins = separateNonConclusiveProteins;
+		this.ignoreProteinIDs = ignoreProteinIDs;
 	}
 
 	public List<ProteinGroup> run(Collection<GroupableProtein> proteins) {
@@ -129,7 +150,7 @@ public class PAnalyzer {
 		boolean someProteinwithoutPeptides = false;
 		final THashMap<String, String> accs = new THashMap<String, String>();
 		for (final GroupableProtein prot : proteins) {
-			if (!proteinIds.contains(prot.getUniqueID())) {
+			if (ignoreProteinIDs || !proteinIds.contains(prot.getUniqueID())) {
 				accs.put(prot.getUniqueID(), prot.getAccession());
 				proteinIds.add(prot.getUniqueID());
 				iProt = mProts.get(prot.getAccession());
@@ -188,8 +209,8 @@ public class PAnalyzer {
 			if (prot.getEvidence() == ProteinEvidence.CONCLUSIVE)
 				// if conclusive is because they have a unique peptide
 				for (final InferencePeptide pept : prot.getInferencePeptides())
-				if (pept.getRelation() != PeptideRelation.UNIQUE)
-				pept.setRelation(PeptideRelation.NONDISCRIMINATING);
+					if (pept.getRelation() != PeptideRelation.UNIQUE)
+						pept.setRelation(PeptideRelation.NONDISCRIMINATING);
 
 		// Locate non-meaningful peptides (second round)
 		boolean shared;
