@@ -151,6 +151,23 @@ public class StringUtils {
 		return sb.toString();
 	}
 
+	public static String getSortedSeparatedValueStringFromChars(String[] collection, String separator) {
+		final StringBuilder sb = new StringBuilder();
+		final List<String> list = new ArrayList<String>();
+		for (final String string : collection) {
+			list.add(string);
+		}
+
+		Collections.sort(list);
+		for (final String c : list) {
+			if (!"".equals(sb.toString())) {
+				sb.append(separator);
+			}
+			sb.append(c);
+		}
+		return sb.toString();
+	}
+
 	public static String getSortedSeparatedValueString(TIntCollection collection, String separator) {
 		final StringBuilder sb = new StringBuilder();
 		TIntList list = null;
