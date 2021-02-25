@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +21,7 @@ import org.apache.log4j.Logger;
 import edu.scripps.yates.utilities.files.FileUtils;
 import edu.scripps.yates.utilities.files.ZipManager;
 import edu.scripps.yates.utilities.ftp.FTPUtils;
+import edu.scripps.yates.utilities.strings.StringUtils;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
 
@@ -34,7 +36,7 @@ public class UniprotGeneMapping {
 	private final Map<String, Set<Gene>> accessionToGenes = new THashMap<String, Set<Gene>>();
 	private boolean loaded = false;
 	private final File uniprotPath;
-	private final String taxonomy;
+	private final List<String> taxonomies = new ArrayList<String>();
 	private static final String uniprotHostName = "ftp.uniprot.org";
 	private static Map<String, UniprotGeneMapping> instances = new THashMap<String, UniprotGeneMapping>();
 	private static String uniprotFTPRemoteFolder = "/pub/databases/uniprot/current_release/knowledgebase/idmapping/by_organism/";
@@ -47,10 +49,30 @@ public class UniprotGeneMapping {
 	private final boolean mapToGENESYNONIM;
 	private final static Set<String> notFoundTaxonomies = new THashSet<String>();
 
+	public UniprotGeneMapping(File uniprotPath, String[] taxonomies, boolean mapToENSEMBL, boolean mapToGENENAME,
+			boolean mapToGENESYNONIM) {
+		this.uniprotPath = uniprotPath;
+		for (final String taxonomy : taxonomies) {
+			this.taxonomies.add(taxonomy);
+		}
+		this.mapToENSEMBL = mapToENSEMBL;
+		this.mapToGENENAME = mapToGENENAME;
+		this.mapToGENESYNONIM = mapToGENESYNONIM;
+	}
+
+	public UniprotGeneMapping(File uniprotPath, List<String> taxonomies, boolean mapToENSEMBL, boolean mapToGENENAME,
+			boolean mapToGENESYNONIM) {
+		this.uniprotPath = uniprotPath;
+		this.taxonomies.addAll(taxonomies);
+		this.mapToENSEMBL = mapToENSEMBL;
+		this.mapToGENENAME = mapToGENENAME;
+		this.mapToGENESYNONIM = mapToGENESYNONIM;
+	}
+
 	public UniprotGeneMapping(File uniprotPath, String taxonomy, boolean mapToENSEMBL, boolean mapToGENENAME,
 			boolean mapToGENESYNONIM) {
 		this.uniprotPath = uniprotPath;
-		this.taxonomy = taxonomy;
+		taxonomies.add(taxonomy);
 		this.mapToENSEMBL = mapToENSEMBL;
 		this.mapToGENENAME = mapToGENENAME;
 		this.mapToGENESYNONIM = mapToGENESYNONIM;
@@ -58,6 +80,32 @@ public class UniprotGeneMapping {
 
 	public static UniprotGeneMapping getInstance(File uniprotPath, String taxonomy) {
 		return getInstance(uniprotPath, taxonomy, true, true, true);
+	}
+
+	public static UniprotGeneMapping getInstance(File uniprotPath, String[] taxonomies) {
+		return getInstance(uniprotPath, taxonomies, true, true, true);
+	}
+
+	public static UniprotGeneMapping getInstance(File uniprotPath, String[] taxonomies, boolean mapToENSEMBL,
+			boolean mapToGENENAME, boolean mapToGENESYNONIM) {
+		final String key = StringUtils.getSortedSeparatedValueStringFromChars(taxonomies, "-") + "ENSEMBL="
+				+ mapToENSEMBL + " GENENAME=" + mapToGENENAME + " GENESYNONIM=" + mapToGENESYNONIM;
+		if (!instances.containsKey(key)) {
+			instances.put(key,
+					new UniprotGeneMapping(uniprotPath, taxonomies, mapToENSEMBL, mapToGENENAME, mapToGENESYNONIM));
+		}
+		return instances.get(key);
+	}
+
+	public static UniprotGeneMapping getInstance(File uniprotPath, List<String> taxonomies, boolean mapToENSEMBL,
+			boolean mapToGENENAME, boolean mapToGENESYNONIM) {
+		final String key = StringUtils.getSortedSeparatedValueStringFromChars(taxonomies, "-") + "ENSEMBL="
+				+ mapToENSEMBL + " GENENAME=" + mapToGENENAME + " GENESYNONIM=" + mapToGENESYNONIM;
+		if (!instances.containsKey(key)) {
+			instances.put(key,
+					new UniprotGeneMapping(uniprotPath, taxonomies, mapToENSEMBL, mapToGENENAME, mapToGENESYNONIM));
+		}
+		return instances.get(key);
 	}
 
 	public static UniprotGeneMapping getInstance(File uniprotPath, String taxonomy, boolean mapToENSEMBL,
@@ -76,8 +124,11 @@ public class UniprotGeneMapping {
 			return Collections.emptySet();
 		}
 		if (!loaded) {
-			if (taxonomy != null) {
-				importFromFile(getMappingFile());
+			if (!taxonomies.isEmpty()) {
+				for (final String taxonomy : taxonomies) {
+					importFromFile(taxonomy, getMappingFile(taxonomy));
+				}
+
 			}
 		}
 
@@ -92,8 +143,10 @@ public class UniprotGeneMapping {
 			return Collections.emptySet();
 		}
 		if (!loaded) {
-			if (taxonomy != null) {
-				importFromFile(getMappingFile());
+			if (!taxonomies.isEmpty()) {
+				for (final String taxonomy : taxonomies) {
+					importFromFile(taxonomy, getMappingFile(taxonomy));
+				}
 			}
 		}
 
@@ -115,8 +168,10 @@ public class UniprotGeneMapping {
 			return Collections.emptySet();
 		}
 		if (!loaded) {
-			if (taxonomy != null) {
-				importFromFile(getMappingFile());
+			if (!taxonomies.isEmpty()) {
+				for (final String taxonomy : taxonomies) {
+					importFromFile(taxonomy, getMappingFile(taxonomy));
+				}
 			}
 		}
 		if (accessionToGenes.containsKey(uniprotACC)) {
@@ -140,8 +195,10 @@ public class UniprotGeneMapping {
 			return Collections.emptyMap();
 		}
 		if (!loaded) {
-			if (taxonomy != null) {
-				importFromFile(getMappingFile());
+			if (!taxonomies.isEmpty()) {
+				for (final String taxonomy : taxonomies) {
+					importFromFile(taxonomy, getMappingFile(taxonomy));
+				}
 			}
 		}
 		if (accessionToGenes.containsKey(uniprotACC)) {
@@ -161,7 +218,7 @@ public class UniprotGeneMapping {
 		return Collections.emptyMap();
 	}
 
-	private File getMappingFile() throws IOException {
+	private File getMappingFile(String taxonomy) throws IOException {
 		// if taxonomy is null, this means that we cannot map genes
 		if (taxonomy == null || notFoundTaxonomies.contains(taxonomy)) {
 			return null;
@@ -222,7 +279,7 @@ public class UniprotGeneMapping {
 		return null;
 	}
 
-	private void importFromFile(File file) throws IOException {
+	private void importFromFile(String taxonomy, File file) throws IOException {
 		if (file == null) {
 			throw new IllegalArgumentException("Mapping file for taxonomy " + taxonomy + " not available");
 		}
