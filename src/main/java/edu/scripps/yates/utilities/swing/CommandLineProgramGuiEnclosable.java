@@ -138,6 +138,14 @@ public abstract class CommandLineProgramGuiEnclosable implements StatusListener 
 
 	}
 
+	@Override
+	public void onStatusUpdate(String statusMessage, Object param) {
+		if (gui != null) {
+			gui.getStatusPrintStream().println(statusMessage);
+		}
+
+	}
+
 	protected abstract List<Option> defineCommandLineOptions();
 
 	protected Options getCommandLineOptions() {
@@ -190,7 +198,7 @@ public abstract class CommandLineProgramGuiEnclosable implements StatusListener 
 	protected abstract void initToolFromCommandLineOptions(CommandLine cmd) throws SomeErrorInParametersOcurred;
 
 	void initTool(CommandLine cmd) throws SomeErrorInParametersOcurred {
-		this.commandLine = cmd;
+		commandLine = cmd;
 		initToolFromCommandLineOptions(cmd);
 	}
 
