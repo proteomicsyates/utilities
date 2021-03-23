@@ -9,6 +9,7 @@ import gnu.trove.list.TDoubleList;
 import gnu.trove.list.TFloatList;
 import gnu.trove.list.TIntList;
 import gnu.trove.list.TLongList;
+import gnu.trove.list.array.TDoubleArrayList;
 
 public class Maths {
 	private Maths() {
@@ -636,6 +637,15 @@ public class Maths {
 		final double mean = mean(values);
 		final double cv = 100.0 * stddev / mean;
 		return cv;
+	}
+
+	public static double median(TDoubleList values) {
+		final TDoubleList sortedList = new TDoubleArrayList();
+		sortedList.addAll(values);
+		sortedList.sort();
+		final int middle = sortedList.size() / 2;
+		final double median = sortedList.get(middle);
+		return median;
 	}
 
 }
