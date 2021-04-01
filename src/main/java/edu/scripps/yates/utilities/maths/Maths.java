@@ -648,4 +648,62 @@ public class Maths {
 		return median;
 	}
 
+	public static double dotProduct(TDoubleList values1, TDoubleList values2) {
+		return dotProduct(values1.toArray(), values2.toArray());
+	}
+
+	public static double dotProduct(double[] values1, double[] values2) {
+		if (values1.length != values2.length) {
+			throw new IllegalArgumentException("Both arrays have to have the same size");
+		}
+		double product = 0;
+
+		// Loop for calculate cot product
+		for (int i = 0; i < values1.length; i++)
+			product = product + values1[i] * values2[i];
+		return product;
+	}
+
+	/**
+	 * It normalizes the vector of numbers by dividing all of them by the maximum
+	 * 
+	 * @param numbers
+	 * @return
+	 */
+	public static TDoubleList normalize(TDoubleList numbers) {
+		final double max = numbers.max();
+		final TDoubleList ret = new TDoubleArrayList();
+		for (final double number : numbers.toArray()) {
+			ret.add(number / max);
+		}
+		return ret;
+	}
+
+	/**
+	 * Calculates the cosine similarity between two vectors of the same size
+	 * 
+	 * @param vectorA
+	 * @param vectorB
+	 * @return
+	 */
+	public static double cosineSimilarity(double[] vectorA, double[] vectorB) {
+		if (vectorA.length != vectorB.length) {
+			throw new IllegalArgumentException("Vectors must have same length");
+		}
+		if (vectorA.length == 0) {
+			throw new IllegalArgumentException("vector A is empty");
+		}
+		if (vectorB.length == 0) {
+			throw new IllegalArgumentException("vector B is empty");
+		}
+		double dotProduct = 0.0;
+		double normA = 0.0;
+		double normB = 0.0;
+		for (int i = 0; i < vectorA.length; i++) {
+			dotProduct += vectorA[i] * vectorB[i];
+			normA += Math.pow(vectorA[i], 2);
+			normB += Math.pow(vectorB[i], 2);
+		}
+		return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
+	}
 }
