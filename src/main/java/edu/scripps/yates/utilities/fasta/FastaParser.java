@@ -103,8 +103,8 @@ public class FastaParser {
 	 * @return
 	 */
 	public static String getUniProtProteinName(String fastaHeader) {
-		final TIntArrayList allPositionsOfPipe = StringUtils.allPositionsOf(fastaHeader, "|");
-		final TIntArrayList allPositionsOfSpace = StringUtils.allPositionsOf(fastaHeader, " ");
+		final TIntArrayList allPositionsOfPipe = StringUtils.allPositionsOf(fastaHeader, '|');
+		final TIntArrayList allPositionsOfSpace = StringUtils.allPositionsOf(fastaHeader, ' ');
 
 		if (!allPositionsOfPipe.isEmpty()) {
 			if (!allPositionsOfSpace.isEmpty()) {
@@ -1269,7 +1269,7 @@ public class FastaParser {
 	 * @return
 	 */
 	private static Integer getBeforeSeqPointIndex(String sequence) {
-		final TIntArrayList allPositionsOf = StringUtils.allPositionsOf(sequence, ".");
+		final TIntArrayList allPositionsOf = StringUtils.allPositionsOf(sequence, '.');
 		for (int i = 0; i < allPositionsOf.size(); i++) {
 			final Integer index = allPositionsOf.get(i) - 1;
 			if (index < sequence.length() - 1) {
@@ -1292,7 +1292,7 @@ public class FastaParser {
 	 * @return
 	 */
 	private static Integer getAfterSeqPointIndex(String sequence) {
-		final TIntArrayList allPositionsOf = StringUtils.allPositionsOf(sequence, ".");
+		final TIntArrayList allPositionsOf = StringUtils.allPositionsOf(sequence, '.');
 		for (int i = allPositionsOf.size() - 1; i >= 0; i--) {
 			final Integer index = allPositionsOf.get(i) - 1;
 			if (index < sequence.length() - 1) {
