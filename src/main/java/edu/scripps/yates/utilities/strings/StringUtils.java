@@ -72,6 +72,9 @@ public class StringUtils {
 	 * @return the list of positions or an empty list if not found
 	 */
 	public static TIntArrayList allPositionsOf(String sourceString, String targetString) {
+		if (targetString.length() == 1) {
+			return allPositionsOf(sourceString, targetString.charAt(0));
+		}
 		final TIntArrayList ret = new TIntArrayList();
 		if (sourceString != null && targetString != null && !"".equals(sourceString) && !"".equals(targetString)) {
 			final Pattern p = Pattern.compile(targetString, Pattern.LITERAL);
@@ -95,7 +98,14 @@ public class StringUtils {
 	 * @return
 	 */
 	public static TIntArrayList allPositionsOf(String sourceString, char targetCharacter) {
-		return allPositionsOf(sourceString, String.valueOf(targetCharacter));
+		final TIntArrayList ret = new TIntArrayList();
+		for (int i = 0; i < sourceString.length(); i++) {
+			final char c = sourceString.charAt(i);
+			if (c == targetCharacter) {
+				ret.add(i + 1);
+			}
+		}
+		return ret;
 	}
 
 	/**
