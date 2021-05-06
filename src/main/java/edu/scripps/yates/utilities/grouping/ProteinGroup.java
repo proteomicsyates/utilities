@@ -179,12 +179,14 @@ public class ProteinGroup extends ArrayList<GroupableProtein> {
 
 	public List<String> getAccessions() {
 
-		if (accessions != null)
+		if (accessions != null) {
 			return accessions;
+		}
 		accessions = new ArrayList<String>();
 		for (final GroupableProtein protein : this) {
-			if (!accessions.contains(protein.getAccession()))
+			if (!accessions.contains(protein.getAccession())) {
 				accessions.add(protein.getAccession());
+			}
 		}
 		Collections.sort(accessions);
 		return accessions;
