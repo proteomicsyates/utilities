@@ -173,10 +173,12 @@ public class PAnalyzer {
 							// merge in a common inference peptide
 							iPept.addPeptide(pept);
 						}
-						if (!iPept.getInferenceProteins().contains(iProt))
+						if (!iPept.getInferenceProteins().contains(iProt)) {
 							iPept.getInferenceProteins().add(iProt);
-						if (!iProt.getInferencePeptides().contains(iPept))
+						}
+						if (!iProt.getInferencePeptides().contains(iPept)) {
 							iProt.getInferencePeptides().add(iPept);
+						}
 					}
 				} else {
 					// log.warn(prot.getDBId() + " no tiene peptidos!");
@@ -201,35 +203,45 @@ public class PAnalyzer {
 			if (pept.getInferenceProteins().size() == 1) {
 				pept.setRelation(PeptideRelation.UNIQUE);
 				pept.getInferenceProteins().get(0).setEvidence(ProteinEvidence.CONCLUSIVE);
-			} else
+			} else {
 				pept.setRelation(PeptideRelation.DISCRIMINATING);
+			}
 		}
 		// Locate non-meaningful peptides (first round)
-		for (final InferenceProtein prot : mProts.values())
-			if (prot.getEvidence() == ProteinEvidence.CONCLUSIVE)
+		for (final InferenceProtein prot : mProts.values()) {
+			if (prot.getEvidence() == ProteinEvidence.CONCLUSIVE) {
 				// if conclusive is because they have a unique peptide
-				for (final InferencePeptide pept : prot.getInferencePeptides())
-					if (pept.getRelation() != PeptideRelation.UNIQUE)
+				for (final InferencePeptide pept : prot.getInferencePeptides()) {
+					if (pept.getRelation() != PeptideRelation.UNIQUE) {
 						pept.setRelation(PeptideRelation.NONDISCRIMINATING);
+					}
+				}
+			}
+		}
 
 		// Locate non-meaningful peptides (second round)
 		boolean shared;
 		for (final InferencePeptide pept : mPepts.values()) {
-			if (pept.getRelation() != PeptideRelation.DISCRIMINATING)
+			if (pept.getRelation() != PeptideRelation.DISCRIMINATING) {
 				continue;
+			}
 			for (final InferencePeptide pept2 : pept.getInferenceProteins().get(0).getInferencePeptides()) {
-				if (pept2.getRelation() == PeptideRelation.NONDISCRIMINATING)
+				if (pept2.getRelation() == PeptideRelation.NONDISCRIMINATING) {
 					continue;
-				if (pept2.getInferenceProteins().size() <= pept.getInferenceProteins().size())
+				}
+				if (pept2.getInferenceProteins().size() <= pept.getInferenceProteins().size()) {
 					continue;
+				}
 				shared = true;
-				for (final InferenceProtein p : pept.getInferenceProteins())
+				for (final InferenceProtein p : pept.getInferenceProteins()) {
 					if (!p.getInferencePeptides().contains(pept2)) {
 						shared = false;
 						break;
 					}
-				if (shared)
+				}
+				if (shared) {
 					pept2.setRelation(PeptideRelation.NONDISCRIMINATING);
+				}
 			}
 		}
 	}
@@ -238,8 +250,9 @@ public class PAnalyzer {
 		boolean group;
 
 		for (final InferenceProtein prot : mProts.values()) {
-			if (prot.getEvidence() == ProteinEvidence.CONCLUSIVE)
+			if (prot.getEvidence() == ProteinEvidence.CONCLUSIVE) {
 				continue;
+			}
 			final List<InferencePeptide> peptides = prot.getInferencePeptides();
 			if (peptides == null || peptides.isEmpty()) {
 				prot.setEvidence(ProteinEvidence.FILTERED);
@@ -247,11 +260,12 @@ public class PAnalyzer {
 			}
 
 			group = false;
-			for (final InferencePeptide pept : peptides)
+			for (final InferencePeptide pept : peptides) {
 				if (pept.getRelation() == PeptideRelation.DISCRIMINATING) {
 					group = true;
 					break;
 				}
+			}
 			prot.setEvidence(group ? ProteinEvidence.AMBIGUOUSGROUP : ProteinEvidence.NONCONCLUSIVE);
 		}
 
@@ -265,21 +279,26 @@ public class PAnalyzer {
 				prot.setGroup(group);
 				mGroups.add(group);
 			}
-			if (prot.getEvidence() != ProteinEvidence.AMBIGUOUSGROUP)
+			if (prot.getEvidence() != ProteinEvidence.AMBIGUOUSGROUP) {
 				continue;
+			}
 			for (final InferencePeptide pept : prot.getInferencePeptides()) {
-				if (pept.getRelation() != PeptideRelation.DISCRIMINATING)
+				if (pept.getRelation() != PeptideRelation.DISCRIMINATING) {
 					continue;
+				}
 				for (final InferenceProtein subp : pept.getInferenceProteins()) {
-					if (subp.getEvidence() != ProteinEvidence.AMBIGUOUSGROUP)
+					if (subp.getEvidence() != ProteinEvidence.AMBIGUOUSGROUP) {
 						continue;
+					}
 					if (subp.getGroup() != null) { // merge groups
-						if (subp.getGroup() == prot.getGroup())
+						if (subp.getGroup() == prot.getGroup()) {
 							continue;
+						}
 						mGroups.remove(prot.getGroup());
 						subp.getGroup().addAll(prot.getGroup());
-						for (final InferenceProtein pg : prot.getGroup())
+						for (final InferenceProtein pg : prot.getGroup()) {
 							pg.setGroup(subp.getGroup());
+						}
 						continue;
 					}
 					prot.getGroup().add(subp);
@@ -316,23 +335,29 @@ public class PAnalyzer {
 		final Set<InferencePeptide> discriminating = new THashSet<InferencePeptide>();
 		boolean indistinguishable;
 		for (final ProteinGroupInference group : mGroups) {
-			if (group.getEvidence() != ProteinEvidence.AMBIGUOUSGROUP || group.size() < 2)
+			if (group.getEvidence() != ProteinEvidence.AMBIGUOUSGROUP || group.size() < 2) {
 				continue;
+			}
 			indistinguishable = true;
-			for (final InferenceProtein prot : group)
-				for (final InferencePeptide pept : prot.getInferencePeptides())
-					if (pept.getRelation() == PeptideRelation.DISCRIMINATING)
+			for (final InferenceProtein prot : group) {
+				for (final InferencePeptide pept : prot.getInferencePeptides()) {
+					if (pept.getRelation() == PeptideRelation.DISCRIMINATING) {
 						discriminating.add(pept);
-			for (final InferenceProtein prot : group)
+					}
+				}
+			}
+			for (final InferenceProtein prot : group) {
 				if (!prot.getInferencePeptides().containsAll(discriminating)) {
 					indistinguishable = false;
 					break;
 				}
+			}
 			discriminating.clear();
 			if (indistinguishable) {
 				group.setEvidence(ProteinEvidence.INDISTINGUISHABLE);
-				for (final InferenceProtein prot : group)
+				for (final InferenceProtein prot : group) {
 					prot.setEvidence(ProteinEvidence.INDISTINGUISHABLE);
+				}
 			}
 		}
 	}
@@ -342,8 +367,9 @@ public class PAnalyzer {
 	}
 
 	public PanalyzerStats getStats() {
-		if (mStats == null)
+		if (mStats == null) {
 			mStats = getStats(mGroups);
+		}
 		return mStats;
 	}
 
