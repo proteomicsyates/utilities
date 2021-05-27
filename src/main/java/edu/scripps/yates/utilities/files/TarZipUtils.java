@@ -11,11 +11,13 @@ import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.List;
 import java.util.Objects;
 
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
 
 import edu.scripps.yates.utilities.progresscounter.ProgressCounter;
@@ -38,6 +40,23 @@ public class TarZipUtils {
 	private final boolean compress;
 	private final File folderToCompress;
 	private boolean logFileCopyProgress = false;
+	private final List<String> filesToSkip;
+
+	/**
+	 * 
+	 * @param folderToCompress
+	 * @param outputFile
+	 * @param compress         if true, zip compression will be applied and a tar.gz
+	 *                         file will be created. If false, a .tar file will be
+	 *                         created with no compression.
+	 * @param filestoSkip      files that we don't want to compress or add to the
+	 *                         tar
+	 * @throws IOException
+	 */
+	public TarZipUtils(File folderToCompress, File outputFile, boolean compress, List<String> filesToSkip)
+			throws IOException {
+		this(folderToCompress, Files.newOutputStream(outputFile.toPath()), compress, filesToSkip);
+	}
 
 	/**
 	 * 
@@ -49,9 +68,7 @@ public class TarZipUtils {
 	 * @throws IOException
 	 */
 	public TarZipUtils(File folderToCompress, File outputFile, boolean compress) throws IOException {
-		outputStream = Files.newOutputStream(outputFile.toPath());
-		this.compress = compress;
-		this.folderToCompress = folderToCompress;
+		this(folderToCompress, outputFile, compress, null);
 	}
 
 	/**
@@ -63,9 +80,24 @@ public class TarZipUtils {
 	 *                         created with no compression.
 	 */
 	public TarZipUtils(File folderToCompress, OutputStream outputStream, boolean compress) {
+		this(folderToCompress, outputStream, compress, null);
+	}
+
+	/**
+	 * 
+	 * @param folderToCompress
+	 * @param outputStream
+	 * @param compress         if true, zip compression will be applied and a tar.gz
+	 *                         file will be created. If false, a .tar file will be
+	 *                         created with no compression.
+	 * @param filestoSkip      files that we don't want to compress or add to the
+	 *                         tar
+	 */
+	public TarZipUtils(File folderToCompress, OutputStream outputStream, boolean compress, List<String> filesToSkip) {
 		this.folderToCompress = folderToCompress;
 		this.outputStream = outputStream;
 		this.compress = compress;
+		this.filesToSkip = filesToSkip;
 	}
 
 	public long transfer() throws IOException {
@@ -80,6 +112,7 @@ public class TarZipUtils {
 			tarOut = new TarArchiveOutputStream(buffOut);
 		}
 		if (folderToCompress.isFile()) {
+
 			final Path targetFile = folderToCompress.getParentFile().toPath().relativize(folderToCompress.toPath());
 			try {
 				final TarArchiveEntry tarEntry = new TarArchiveEntry(folderToCompress, targetFile.toString());
@@ -117,6 +150,11 @@ public class TarZipUtils {
 //					return FileVisitResult.CONTINUE;
 //				}
 					final Path targetFile = source.relativize(file);
+					if (filesToSkip != null && (filesToSkip.contains(FilenameUtils.getBaseName(targetFile.toString()))
+							|| filesToSkip.contains(FilenameUtils.getName(targetFile.toString())))) {
+						System.out.printf("Skipping file : %s%n", file);
+						return FileVisitResult.CONTINUE;
+					}
 					try {
 						final TarArchiveEntry tarEntry = new TarArchiveEntry(file.toFile(), targetFile.toString());
 
