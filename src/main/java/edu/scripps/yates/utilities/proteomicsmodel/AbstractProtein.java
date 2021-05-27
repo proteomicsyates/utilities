@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.log4j.Logger;
 
 import edu.scripps.yates.utilities.fasta.FastaParser;
 import edu.scripps.yates.utilities.grouping.GroupablePeptide;
@@ -19,6 +20,7 @@ import edu.scripps.yates.utilities.proteomicsmodel.utils.PSMsOfAProtein;
 import gnu.trove.set.hash.THashSet;
 
 public abstract class AbstractProtein implements Protein {
+	private static final Logger log = Logger.getLogger(AbstractProtein.class);
 
 	private Set<Score> scores;
 	private Set<Ratio> ratios;
