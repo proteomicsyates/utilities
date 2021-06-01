@@ -14,18 +14,24 @@ import org.apache.log4j.Logger;
 public class EmailSender {
 	private static final Logger log = Logger.getLogger(EmailSender.class);
 
+	public static String sendEmail(String subject, String body, String toemailAddress, String ccEmailAddress,
+			String fromEmailAddress) {
+		return sendEmail(subject, body, toemailAddress, ccEmailAddress, fromEmailAddress, false);
+	}
+
 	/**
 	 * Send an email specifying the to and the from of the sender and receiver
-	 * respectivelly, by using the localhost and mail.smtp.host as host
+	 * respectively, by using the localhost and mail.smtp.host as host
 	 * 
 	 * @param subject
 	 * @param body
 	 * @param toemailAddress
 	 * @param fromEmailAddress
+	 * @param formatAsHtml
 	 * @return
 	 */
 	public static String sendEmail(String subject, String body, String toemailAddress, String ccEmailAddress,
-			String fromEmailAddress) {
+			String fromEmailAddress, boolean formatAsHtml) {
 		String errorMessage = null;
 		// Recipient's email ID needs to be mentioned.
 		final String to = toemailAddress;
@@ -49,7 +55,7 @@ public class EmailSender {
 		log.info("Email session created");
 		try {
 			// Create a default MimeMessage object.
-			final MimeMessage message = new MimeMessage(session);
+			final Message message = new MimeMessage(session);
 
 			// Set From: header field of the header.
 			message.setFrom(new InternetAddress(from));
@@ -66,8 +72,11 @@ public class EmailSender {
 			message.setSubject(subject);
 
 			// Now set the actual message
-			message.setText(body);
-
+			if (formatAsHtml) {
+				message.setContent(body, "text/html");
+			} else {
+				message.setText(body);
+			}
 			// Send message
 			Transport.send(message);
 			log.info("Email sent message successfully");
