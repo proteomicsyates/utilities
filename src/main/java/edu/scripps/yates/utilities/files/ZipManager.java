@@ -125,7 +125,7 @@ public class ZipManager {
 		}
 		for (final File inputFile : inputFiles) {
 			ConcurrentUtil.sleep(1L);
-			log.info("Adding '" + inputFile.getAbsolutePath() + "' to zip file '" + zipFile.getAbsolutePath() + "'");
+			log.debug("Adding '" + inputFile.getAbsolutePath() + "' to zip file '" + zipFile.getAbsolutePath() + "'");
 			final FileInputStream fis = new FileInputStream(inputFile);
 			final String relativizedPath = zipFile.getParentFile().toPath().relativize(inputFile.toPath()).toString();
 
