@@ -20,7 +20,7 @@ import org.apache.commons.cli.ParseException;
  * @author salvador
  *
  */
-public abstract class CommandLineProgramGuiEnclosable implements StatusListener {
+public abstract class CommandLineProgramGuiEnclosable<T> implements StatusListener<T> {
 	protected static final String GUI = "gui";
 	protected static final String GUI_LONG = "graphical_interface";
 
