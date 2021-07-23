@@ -964,8 +964,8 @@ public class FastaParser {
 
 	/**
 	 * Gets a list of {@link StringPosition} objects with the information inside of
-	 * parenthesis or braquets. The information is the text and the position in the
-	 * text, not counting the text inside the parentheis or braquets by itself.<br>
+	 * parenthesis or brackets. The information is the text and the position in the
+	 * text, not counting the text inside the parenthesis or brackets by itself.<br>
 	 * The position is based on 1, that is, starting from 1 in the first character.
 	 *
 	 * @param seq
@@ -980,14 +980,23 @@ public class FastaParser {
 		for (int i = 0; i < seq.length(); i++) {
 			final char charAt = seq.charAt(i);
 			if (charAt == '[' || charAt == '(') {
-				lastNormal = i - 1 - lenthInsides;
-				inside = new StringBuffer();
+
+				if (numOpen > 0) {
+					inside.append(charAt);
+				} else {
+					lastNormal = i - 1 - lenthInsides;
+					inside = new StringBuffer();
+				}
 				numOpen++;
 				lenthInsides++;
 			} else if (charAt == ']' || charAt == ')') {
 				numOpen--;
-				if (!"".equals(inside.toString())) {
-					ret.add(new StringPosition(inside.toString(), lastNormal + 1));
+				if (numOpen > 0) {
+					inside.append(charAt);
+				} else {
+					if (!"".equals(inside.toString())) {
+						ret.add(new StringPosition(inside.toString(), lastNormal + 1));
+					}
 				}
 				lenthInsides++;
 			} else {
