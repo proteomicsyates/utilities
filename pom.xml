@@ -155,11 +155,19 @@
       <artifactId>commons-math3</artifactId>
       <version>3.5</version>
     </dependency>
-    <dependency>
-      <groupId>edu.scripps.yates</groupId>
-      <artifactId>flanagan</artifactId>
-      <version>1.0</version>
-    </dependency>
+    <!-- https://mvnrepository.com/artifact/commons-io/commons-io -->
+	<dependency>
+	    <groupId>commons-io</groupId>
+	    <artifactId>commons-io</artifactId>
+	    <version>2.13.0</version>
+	</dependency>
+
+    <!-- download flanagan.jar from https://www.ee.ucl.ac.uk/~mflanaga/java/index.html and add it as external library -->
+<!--    <dependency>-->
+<!--      <groupId>flanagan</groupId>-->
+<!--      <artifactId>flanagan</artifactId>-->
+<!--      <version>1.1</version>-->
+<!--    </dependency>-->
     <!-- HTTPS://MVNREPOSITORY.COM/ARTIFACT/COM.GITHUB.ARUNSOMAN.IPC/MAPPED-BUS-IPC -->
     <!-- MAPPEDBUS IS A JAVA BASED HIGH THROUGHPUT, LOW LATENCY MESSAGE BUS, 
 			USING EITHER A MEMORY MAPPED FILE OR SHARED MEMORY AS TRANSPORT -->
@@ -304,6 +312,26 @@
           </execution>
         </executions>
       </plugin>
+       <plugin>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-install-plugin</artifactId>
+      <version>3.0.0-M1</version>
+      <executions>
+        <execution>
+          <id>install-local-jar</id>
+          <goals>
+            <goal>install-file</goal>
+          </goals>
+          <configuration>
+            <file>flanagan.jar</file>
+            <groupId>flanagan</groupId>
+            <artifactId>flanagan</artifactId>
+            <version>1.0</version>
+            <packaging>jar</packaging>
+          </configuration>
+        </execution>
+      </executions>
+    </plugin>
     </plugins>
   </build>
   <repositories>
